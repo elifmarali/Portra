@@ -70,11 +70,7 @@ export async function POST(req: Request, res: Response) {
       JSON.stringify({ success: false, message: "Error [Auth/Register/POST]" }),
       {
         status: 400,
-      }    
+      }
     );
   }
 }
-
-
-
-                  
