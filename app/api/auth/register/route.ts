@@ -45,18 +45,16 @@ export async function POST(req: Request, res: Response) {
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime("60s")
+      .setExpirationTime("7200s")
       .sign(new TextEncoder().encode(secret));
 
     //token'ı cookies'e ekleyelim
     cookieStore.set("token", token, {
       path: "/",
-      maxAge: 60,
+      maxAge: 7200,
       secure: process.env.NODE_ENV === "production", // yalnızca production ortamında secure özelliği aktif olur
       sameSite: "strict", // Çerezin yalnızca aynı site içindeki isteklerde gönderilmesini sağlar
     });
-
-    console.log("token : ", token);
 
     return new Response(JSON.stringify({ success: true, data: newUser }), {
       status: 201,

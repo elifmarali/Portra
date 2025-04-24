@@ -37,7 +37,7 @@ export async function middleware(req) {
       searchParams.set("next", nextUrl.pathname);
 
       const response = NextResponse.redirect(
-         new URL(`/register?${searchParams}`, req.url)
+         new URL(`/login?${searchParams}`, req.url)
       );
       response.cookies.delete("token");
       return response;

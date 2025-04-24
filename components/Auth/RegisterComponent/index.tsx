@@ -53,6 +53,8 @@ const validationSchema = yup.object({
 function RegisterComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nextParams = searchParams.get("next");
+
   const [modal, setModal] = React.useState<{
     isOpen: boolean;
     message: string;
@@ -88,7 +90,7 @@ function RegisterComponent() {
 
         if (res.data.success) {
           resetForm();
-          router.push("/");
+          router.push(nextParams || "/");
         }
       } catch (err) {
         const error = err as AxiosError<{ message: string }>;
@@ -302,7 +304,7 @@ function RegisterComponent() {
             >
               Şifre
             </FormControl>
-            <TextField
+            <TextField            
               type="password"
               fullWidth
               size="small"
