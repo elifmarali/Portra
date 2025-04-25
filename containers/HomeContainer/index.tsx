@@ -10,6 +10,7 @@ import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 
 function HomeContainer() {
   const theme = useSelector(selectTheme);
+
   return (
     <motion.div
       className='flex justify-center'

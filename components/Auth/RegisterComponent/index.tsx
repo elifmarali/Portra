@@ -11,13 +11,14 @@ import {
   Modal,
   Box,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { colorOptions } from "@/lists/color";
 import axios, { AxiosError } from "axios";
 import { FaX } from "react-icons/fa6";
 import { useSearchParams, useRouter } from "next/navigation";
+import { loadTokenFromCookies } from "@/lib/redux/features/auth/loadTokenFromCookies";
 
 const validationSchema = yup.object({
   name: yup
@@ -54,6 +55,7 @@ function RegisterComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextParams = searchParams.get("next");
+  const dispatch = useDispatch();
 
   const [modal, setModal] = React.useState<{
     isOpen: boolean;
@@ -91,6 +93,7 @@ function RegisterComponent() {
         if (res.data.success) {
           resetForm();
           router.push(nextParams || "/");
+          loadTokenFromCookies(dispatch);
         }
       } catch (err) {
         const error = err as AxiosError<{ message: string }>;
@@ -304,7 +307,7 @@ function RegisterComponent() {
             >
               Şifre
             </FormControl>
-            <TextField            
+            <TextField
               type="password"
               fullWidth
               size="small"

@@ -1,4 +1,5 @@
 "use client";
+import { loadTokenFromCookies } from "@/lib/redux/features/auth/loadTokenFromCookies";
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { colorOptions } from '@/lists/color';
@@ -7,7 +8,7 @@ import axios, { AxiosError } from 'axios';
 import { useFormik } from 'formik';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as yup from "yup";
 
 const validationSchema = yup.object({
@@ -26,6 +27,7 @@ function LoginComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextParams = searchParams.get("next");
+  const dispatch = useDispatch();
   const color = useSelector(selectColor);
   const theme = useSelector(selectTheme);
   const formik = useFormik({
@@ -49,6 +51,7 @@ function LoginComponent() {
         if (response.status === 200) {
           resetForm();
           router.push(nextParams || "/");
+          loadTokenFromCookies(dispatch);          
         }
       } catch (err) {
         const error = err as AxiosError<{ message: string }>;
