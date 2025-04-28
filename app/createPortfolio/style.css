@@ -1,0 +1,28 @@
+.portfolioLabel {
+  font-weight: 600;
+  font-size: 1.3rem;
+  width: 35%;
+  color: var(--color);
+}
+
+.portfolioInput {
+    width: 90%;
+}
+
+.portfolioInput .MuiInputBase-root{
+    color: var(--label-color);
+    font-size: 1.1rem;
+}
+
+.portfolioInput .MuiOutlinedInput-root fieldset{
+    border-color: var(--border-color);
+}
+
+.portfolioInput .MuiOutlinedInput-root:hover fieldset{
+    border-color: var(--color-dark);
+    opacity: .7;
+}
+
+.portfolioInput .MuiOutlinedInput-root.Mui-focused fieldset {
+    border-color: var(--color-dark);
+}

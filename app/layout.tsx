@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import ReduxProvider from "./ReduxProvider";
 import { ITheme } from "@/lib/redux/interfaces/ITheme";
 import { useSelector } from "react-redux";
+import ClientWrapper from "./ClientWrapper";
 
 export const metadata: Metadata = {
   title: "Portra - Kendi Portfolyonu Oluştur ve Paylaş",
@@ -21,11 +22,13 @@ export default function RootLayout({
     <html lang="en">
       <body className="vsc-initialized" >
         <ReduxProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="mainContainer">{children}</main>
-            <Footer />
-          </div>
+          <ClientWrapper>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="mainContainer">{children}</main>
+              <Footer />
+            </div>
+          </ClientWrapper>
         </ReduxProvider>
       </body>
     </html>

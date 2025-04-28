@@ -3,11 +3,12 @@ import { loadTokenFromCookies } from "@/lib/redux/features/auth/loadTokenFromCoo
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { colorOptions } from '@/lists/color';
-import { Button, FormControl, Grid, TextField } from '@mui/material'
+import { Button, FormControl, Grid, IconButton, InputAdornment, TextField } from '@mui/material'
 import axios, { AxiosError } from 'axios';
 import { useFormik } from 'formik';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React from 'react'
+import React, { useState } from 'react'
+import { BiSolidHide, BiSolidShow } from "react-icons/bi";
 import { useDispatch, useSelector } from 'react-redux';
 import * as yup from "yup";
 
@@ -24,6 +25,7 @@ const validationSchema = yup.object({
 })
 
 function LoginComponent() {
+  const [showPass, setShowPass] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextParams = searchParams.get("next");
@@ -51,7 +53,7 @@ function LoginComponent() {
         if (response.status === 200) {
           resetForm();
           router.push(nextParams || "/");
-          loadTokenFromCookies(dispatch);          
+          loadTokenFromCookies(dispatch);
         }
       } catch (err) {
         const error = err as AxiosError<{ message: string }>;
@@ -95,7 +97,7 @@ function LoginComponent() {
       <Grid size={12} className="flex flex-col gap-1">
         <FormControl >Şifre</FormControl>
         <TextField
-          type='password'
+          type={showPass ? "text" : "password"}
           size="small" fullWidth name='password' id='password'
           value={formik.values.password}
           onChange={formik.handleChange}
@@ -119,6 +121,23 @@ function LoginComponent() {
                 borderColor: colorOptions[color].dark, // odaklanıldığında
               },
             },
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPass(!showPass)}
+                  edge="end"
+                  size="small"
+                >
+                  {showPass ? (
+                    <BiSolidHide color={theme === "dark" ? "#fff" : "#000"} />
+                  ) : (
+                    <BiSolidShow color={theme === "dark" ? "#fff" : "#000"} />
+                  )}
+                </IconButton>
+              </InputAdornment>
+            ),
           }} />
       </Grid>
       <Grid size={12}>

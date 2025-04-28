@@ -10,6 +10,8 @@ import {
   Typography,
   Modal,
   Box,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
@@ -19,6 +21,8 @@ import axios, { AxiosError } from "axios";
 import { FaX } from "react-icons/fa6";
 import { useSearchParams, useRouter } from "next/navigation";
 import { loadTokenFromCookies } from "@/lib/redux/features/auth/loadTokenFromCookies";
+import { BiSolidHide, BiSolidShow } from "react-icons/bi";
+
 
 const validationSchema = yup.object({
   name: yup
@@ -56,6 +60,8 @@ function RegisterComponent() {
   const searchParams = useSearchParams();
   const nextParams = searchParams.get("next");
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
   const [modal, setModal] = React.useState<{
     isOpen: boolean;
@@ -308,7 +314,7 @@ function RegisterComponent() {
               Şifre
             </FormControl>
             <TextField
-              type="password"
+              type={showPassword ? "text" : "password"}
               fullWidth
               size="small"
               name="password"
@@ -337,6 +343,23 @@ function RegisterComponent() {
                   },
                 },
               }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showPassword ? (
+                        <BiSolidHide color={theme === "dark" ? "#fff" : "#000"} />
+                      ) : (
+                        <BiSolidShow color={theme === "dark" ? "#fff" : "#000"} />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
           <Grid size={6}>
@@ -351,7 +374,7 @@ function RegisterComponent() {
               Şifre Tekrarı
             </FormControl>
             <TextField
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               fullWidth
               size="small"
               autoComplete="new-password"
@@ -384,6 +407,23 @@ function RegisterComponent() {
                     borderColor: colorOptions[color].dark, // odaklanıldığında
                   },
                 },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showConfirmPassword ? (
+                        <BiSolidHide color={theme === "dark" ? "#fff" : "#000"} />
+                      ) : (
+                        <BiSolidShow color={theme === "dark" ? "#fff" : "#000"} />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
             />
           </Grid>

@@ -1,0 +1,15 @@
+.navbarItem{
+    font-size: 1.1rem;
+}
+
+@media (max-width: 640px){
+    .navbarItem{
+        font-size: .9rem;
+    }
+}
+
+@media (min-width: 1024px) and (max-width:1336px) {
+    .navbarItem{
+        font-size:.9rem !important;
+    }
+}

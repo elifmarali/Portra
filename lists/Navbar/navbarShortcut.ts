@@ -1,10 +1,27 @@
 export const navbarShortcut = [
   {
+    name: "Portfolyo Oluştur",
+    path: "/createPortfolio",
+  },
+  {
     name: "Portfolyolar",
     path: "/portolios",
   },
   {
-    name: "",
+    name: "Favoriler",
+    path: "/favorites",
+  },
+  {
+    name: "Hakkımızda",
+    path: "/about",
+  },
+  {
+    name: "Keşfet",
+    path: "/explore",
+  },
+  {
+    name: "İletişim",
+    path: "/contact",
   },
 ];
 

@@ -34,6 +34,14 @@ export const authSlice = createSlice({
        state.role=jwtDecode.role;
       }
     },
+    authRemove : (state) => {
+      state.email=null;
+      state.name=null;
+      state.password=null;
+      state.role=null;
+      state.username=null;
+      state.surname=null;
+    }
   },
 });
 
@@ -56,6 +64,6 @@ function parseJwt(token: string) {
 }
 
 
-export const { changeToken } = authSlice.actions;
+export const { changeToken, authRemove } = authSlice.actions;
 export const authReducer = authSlice.reducer;
-export const auth = (state: { auth: IAuth }) => state.auth;
+export const currentAuth = (state: { auth: IAuth }) => state.auth;

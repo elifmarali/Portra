@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+:root {
+  --color:#d6e4ff;
+  --color-dark: #1e88e5;
+  --color-light: #d6e4ff;
+  --label-color: #d6e4ff;
+  --border-color: #d6e4ff;
+}
+
 html,
 body,
 #__next {
@@ -9,8 +17,6 @@ body,
 }
 
 .mainContainer {
-/*   min-height: calc(100vh - 11.1rem);
- */ 
- min-height: calc(100vh - 7.5rem);
- height:  100% !important;
+  min-height: calc(100vh - 7.5rem);
+  height: 100% !important;
 }
