@@ -12,6 +12,8 @@ import * as motion from "motion/react-client";
 import { currentStep } from "@/lib/redux/features/portfolioCurrentPage/portfolioCurrentPageSlice";
 import { FaEye } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
+import axios from "axios";
+import CustomizedHook from "@/components/Autocompleted";
 
 
 interface IExtendFile extends File {
@@ -24,26 +26,46 @@ function CreatePortfolio() {
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
   const [photo, setPhoto] = useState<IExtendFile | null>(null);
+  const [jobList, setJobList] = useState([]);
   const formik = useFormik({
     initialValues: {
-      name: "",
-      surname: "",
-      title: "",
+      name: null,
+      surname: null,
+      title: null,
       photo: null,
-      shortBiography: "",
-      email: ""
+      shortBiography: null,
+      email: null,
+      job: {
+        name: null,
+        id: null
+      },
+      otherJob: null
     },
     validationSchema: createPortfolioValidation,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+      console.log(JSON.stringify(values, null, 2));
     }
   })
 
   useEffect(() => {
-    console.log("step : ", step);
-    console.log("photo : ", photo);
+    console.log("jobList : ", jobList);
+  }, [jobList])
 
-  }, [step, photo])
+  useEffect(() => {
+    getJobList();
+  }, []);
+
+  const getJobList = async () => {
+    const res = await axios.get("/api/jobList");
+    console.log("jobList response: ", res.data.data);
+    if (res.status === 200) {
+      const sorted = res.data.data.sort((a: any, b: any) => a.id - b.id);
+      setJobList(sorted);
+    } else {
+      setJobList([]);
+    }
+  };
+
 
   return (
     <Grid container display="flex" justifyContent="center" sx={{ backgroundColor: theme === "dark" ? "#000" : "#fff", minHeight: 'calc(100vh - 7.5rem)' }} >
@@ -196,17 +218,45 @@ function CreatePortfolio() {
           <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
             <FormControl className="portfolioLabel">Meslek / Unvan</FormControl>
             {/* <Autocomplete
+              className="portfolioInput"
               disablePortal
-              options={top100Films}
-              sx={{ width: 300 }}
-              renderInput={(params) => <TextField {...params} label="Movie" />}
+              options={jobList}
+              getOptionLabel={(option: any) => option.name}
+              onChange={(event, value) => {
+                formik.setFieldValue("job", value);
+                formik.setFieldValue("otherJob", null);
+              }}
+              renderInput={(params: any) => (
+                <TextField
+                  {...params}
+                  name="job"
+                  autoComplete="off"
+                  error={formik.touched.job && Boolean(formik.errors.job)}
+                  helperText={formik.touched.job && formik.errors.job}
+                />
+              )}
             /> */}
+            <CustomizedHook jobList={jobList} />
           </Grid>
-
-
-
+          {/* Diğer Meslek / Unvan */}
+          {
+            formik.values.job.name === "Diğer" && (
+              <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
+                <FormControl className='portfolioLabel'>Diğer Meslek / Unvan</FormControl>
+                <TextField
+                  name='otherJob'
+                  id='otherJob'
+                  className='portfolioInput'
+                  value={formik.values.otherJob}
+                  onChange={formik.handleChange}
+                  error={formik.touched.otherJob && Boolean(formik.errors.otherJob)}
+                  helperText={formik.touched.otherJob && formik.errors.otherJob}
+                />
+              </Grid>
+            )
+          }
           {/* Buton */}
-          <Grid size={12} display="flex" justifyContent="center">
+          <Grid size={12} display="flex" justifyContent="center" sx={{ marginBottom: "10px" }}>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
               <Button
                 variant="contained"

@@ -1,0 +1,241 @@
+import * as React from 'react';
+import useAutocomplete, {
+    AutocompleteGetTagProps,
+} from '@mui/material/useAutocomplete';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import { styled } from '@mui/material/styles';
+import { autocompleteClasses } from '@mui/material/Autocomplete';
+import { colorOptions } from '@/lists/color';
+import { useSelector } from 'react-redux';
+import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
+import { selectColor } from '@/lib/redux/features/color/colorSlice';
+
+interface IJob {
+    id: number;
+    name: string;
+}
+
+interface CustomizedHookProps {
+    jobList: IJob[];
+}
+
+const Root = styled('div')(({ theme }) => ({
+    width: "90%",
+    height: "58px",
+    color: 'rgba(0,0,0,0.85)',
+    fontSize: '14px',
+    ...theme.applyStyles?.('dark', {
+        color: 'rgba(255,255,255,0.65)',
+    }),
+}));
+
+interface InputWrapperProps {
+    mode: string;
+    className?: string;
+    color: string;
+}
+
+const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
+    const isDark = mode === 'dark';
+
+    return {
+        width: '100%',
+        border: `1px solid var(--border-color)`,
+        backgroundColor: isDark ? '#141414' : '#fff',
+        borderRadius: '4px',
+        padding: '1px',
+        display: 'flex',
+        alignItems:"center !important",
+        justifyContent:"space-between",
+        flexWrap: 'wrap',
+        height:"58px",
+
+        '&:hover': {
+            borderColor: colorOptions[color].dark,
+        },
+        '&.focused': {
+            borderColor: colorOptions[color].dark,
+            boxShadow: '0 0 0 2px rgb(24 144 255 / 0.2)',
+        },
+        '& input': {
+            backgroundColor: isDark ? '#000' : colorOptions[color].dark,
+            color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,.85)',
+            height: '58px',
+            boxSizing: 'border-box',
+            padding: '4px 6px',
+            width: '90%',
+            flexGrow: 1,
+            border: 0,
+            margin: 0,
+            outline: 0,
+        },
+    };
+});
+
+
+function Tag(props: TagProps) {
+    const { label, onDelete, ...other } = props;
+    return (
+        <div {...other}>
+            <span>{label}</span>
+            <CloseIcon onClick={onDelete} />
+        </div>
+    );
+}
+
+interface TagProps extends ReturnType<AutocompleteGetTagProps> {
+    label: string;
+}
+
+interface StyledTagProps extends TagProps {
+    colorMode: 'light' | 'dark';
+    color: keyof typeof colorOptions;
+}
+
+
+const StyledTag = styled(Tag, {
+    shouldForwardProp: (prop) => prop !== 'color' && prop !== 'colorMode'
+})<StyledTagProps>(({ colorMode, color }) => {
+    const isDark = colorMode === 'dark';
+
+    return {
+        display: 'flex',
+        alignItems: 'center',
+        height: '30px',
+        margin: '2px',
+        lineHeight: '22px',
+        backgroundColor: "#fff",
+        border: `1px solid ${isDark ? colorOptions[color].light : colorOptions[color].dark}`,
+        borderRadius: '2px',
+        boxSizing: 'content-box',
+        padding: '5px 20px',
+        outline: 0,
+        overflow: 'hidden',
+        color: isDark ? '#000' : colorOptions[color].dark,
+
+        '&:hover': {
+            borderColor: colorOptions[color].dark,
+        },
+        '&:focus': {
+            borderColor: colorOptions[color].dark,
+        },
+        '& span': {
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+        },
+        '& svg': {
+            fontSize: '12px',
+            cursor: 'pointer',
+            padding: '4px',
+        },
+    };
+});
+
+
+const Listbox = styled('ul')(({ theme }) => ({
+    width: '31%',
+    margin: '2px 0 0',
+    padding: 0,
+    position: 'absolute',
+    listStyle: 'none',
+    backgroundColor: '#fff',
+    overflow: 'auto',
+    maxHeight: '250px',
+    borderRadius: '4px',
+    boxShadow: '0 2px 8px rgb(0 0 0 / 0.15)',
+    zIndex: 1,
+    ...theme.applyStyles?.('dark', {
+        backgroundColor: '#141414',
+    }),
+    '& li': {
+        padding: '5px 12px',
+        display: 'flex',
+        fontSize: "16px",
+        '& span': {
+            flexGrow: 1,
+        },
+        '& svg': {
+            color: 'transparent',
+        },
+    },
+    "& li[aria-selected='true']": {
+        backgroundColor: '#fafafa',
+        fontWeight: 600,
+        ...theme.applyStyles?.('dark', {
+            backgroundColor: '#2b2b2b',
+        }),
+        '& svg': {
+            color: '#1890ff',
+        },
+    },
+    [`& li.${autocompleteClasses.focused}`]: {
+        backgroundColor: '#e6f7ff',
+        cursor: 'pointer',
+        ...theme.applyStyles?.('dark', {
+            backgroundColor: '#003b57',
+        }),
+        '& svg': {
+            color: 'currentColor',
+        },
+    },
+}));
+
+export default function CustomizedHook({ jobList }: CustomizedHookProps) {
+    const theme = useSelector(selectTheme);
+    const color = useSelector(selectColor);
+    const {
+        getRootProps,
+        getInputLabelProps,
+        getInputProps,
+        getTagProps,
+        getListboxProps,
+        getOptionProps,
+        groupedOptions,
+        value,
+        focused,
+        setAnchorEl,
+    } = useAutocomplete<IJob, false, false, false>({
+        id: 'customized-hook-demo',
+        multiple: false,
+        defaultValue: jobList[0] || null,
+        options: jobList,
+        getOptionLabel: (option) => option.name,
+    });
+
+    return (
+        <Root>
+            <div {...getRootProps()}>
+                <InputWrapper mode={theme} color={color} ref={setAnchorEl} className={focused ? 'focused' : ''}>
+                    {value && (
+                        <StyledTag
+                            label={value.name}
+                            color="blue"
+                            colorMode={theme === 'dark' ? 'dark' : 'light'} // 'themeMode' senin state'in
+                            {...getTagProps({ index: 0 })}
+                        />
+                    )}
+                    <input
+                        {...getInputProps()}
+                        style={{ opacity: 0 }}
+                    />
+                </InputWrapper>
+            </div>
+            {groupedOptions.length > 0 && (
+                <Listbox {...getListboxProps()}>
+                    {(groupedOptions as IJob[]).map((option, index) => {
+                        const { key, ...optionProps } = getOptionProps({ option, index });
+                        return (
+                            <li key={key} {...optionProps}>
+                                <span>{option.name}</span>
+                                <CheckIcon fontSize="small" />
+                            </li>
+                        );
+                    })}
+                </Listbox>
+            )}
+        </Root>
+    );
+}
+
