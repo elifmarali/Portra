@@ -22,7 +22,6 @@ interface CustomizedHookProps {
 
 const Root = styled('div')(({ theme }) => ({
     width: "90%",
-    height: "58px",
     color: 'rgba(0,0,0,0.85)',
     fontSize: '14px',
     ...theme.applyStyles?.('dark', {
@@ -46,11 +45,9 @@ const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
         borderRadius: '4px',
         padding: '1px',
         display: 'flex',
-        alignItems:"center !important",
-        justifyContent:"space-between",
+        alignItems: "center !important",
         flexWrap: 'wrap',
-        height:"58px",
-
+        minHeight: "58px",
         '&:hover': {
             borderColor: colorOptions[color].dark,
         },
@@ -60,10 +57,9 @@ const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
         },
         '& input': {
             backgroundColor: isDark ? '#000' : colorOptions[color].dark,
-            color: isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,.85)',
-            height: '58px',
+            color: isDark ? "#fff" : "#000" ,
             boxSizing: 'border-box',
-            padding: '4px 6px',
+            padding: '10px 4px',
             width: '90%',
             flexGrow: 1,
             border: 0,
@@ -183,11 +179,11 @@ const Listbox = styled('ul')(({ theme }) => ({
 }));
 
 export default function CustomizedHook({ jobList }: CustomizedHookProps) {
-    const theme = useSelector(selectTheme);
-    const color = useSelector(selectColor);
+    const theme = useSelector(selectTheme); // 'light' | 'dark'
+    const color = useSelector(selectColor); // örn: 'blue'
+
     const {
         getRootProps,
-        getInputLabelProps,
         getInputProps,
         getTagProps,
         getListboxProps,
@@ -196,10 +192,10 @@ export default function CustomizedHook({ jobList }: CustomizedHookProps) {
         value,
         focused,
         setAnchorEl,
-    } = useAutocomplete<IJob, false, false, false>({
+    } = useAutocomplete<IJob, true, false, false>({
         id: 'customized-hook-demo',
-        multiple: false,
-        defaultValue: jobList[0] || null,
+        multiple: true,
+        defaultValue: [],
         options: jobList,
         getOptionLabel: (option) => option.name,
     });
@@ -207,27 +203,34 @@ export default function CustomizedHook({ jobList }: CustomizedHookProps) {
     return (
         <Root>
             <div {...getRootProps()}>
-                <InputWrapper mode={theme} color={color} ref={setAnchorEl} className={focused ? 'focused' : ''}>
-                    {value && (
+                <InputWrapper
+                    mode={theme}
+                    color={color}
+                    ref={setAnchorEl}
+                    className={focused ? 'focused' : ''}
+                >
+                    {value.map((option: IJob, index: number) => (
                         <StyledTag
-                            label={value.name}
-                            color="blue"
-                            colorMode={theme === 'dark' ? 'dark' : 'light'} // 'themeMode' senin state'in
-                            {...getTagProps({ index: 0 })}
+                            label={option.name}
+                            color={color}
+                            colorMode={theme === 'dark' ? 'dark' : 'light'}
+                            {...getTagProps({ index })}
                         />
-                    )}
+                    ))}
                     <input
                         {...getInputProps()}
-                        style={{ opacity: 0 }}
+                        aria-hidden="true"
+                        placeholder='Yeni ekle...'
                     />
                 </InputWrapper>
             </div>
+
             {groupedOptions.length > 0 && (
                 <Listbox {...getListboxProps()}>
                     {(groupedOptions as IJob[]).map((option, index) => {
                         const { key, ...optionProps } = getOptionProps({ option, index });
                         return (
-                            <li key={key} {...optionProps}>
+                            <li key={option.id} {...optionProps}>
                                 <span>{option.name}</span>
                                 <CheckIcon fontSize="small" />
                             </li>
@@ -238,4 +241,3 @@ export default function CustomizedHook({ jobList }: CustomizedHookProps) {
         </Root>
     );
 }
-

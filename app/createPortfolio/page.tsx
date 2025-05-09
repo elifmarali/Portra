@@ -29,17 +29,17 @@ function CreatePortfolio() {
   const [jobList, setJobList] = useState([]);
   const formik = useFormik({
     initialValues: {
-      name: null,
-      surname: null,
-      title: null,
+      name: "",
+      surname: "",
+      title: "",
       photo: null,
-      shortBiography: null,
-      email: null,
+      shortBiography: "",
+      email: "",
       job: {
         name: null,
         id: null
       },
-      otherJob: null
+      otherJob: ""
     },
     validationSchema: createPortfolioValidation,
     onSubmit: (values) => {
@@ -217,25 +217,6 @@ function CreatePortfolio() {
           {/* Uzmanlık Alanı / Meslek */}
           <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
             <FormControl className="portfolioLabel">Meslek / Unvan</FormControl>
-            {/* <Autocomplete
-              className="portfolioInput"
-              disablePortal
-              options={jobList}
-              getOptionLabel={(option: any) => option.name}
-              onChange={(event, value) => {
-                formik.setFieldValue("job", value);
-                formik.setFieldValue("otherJob", null);
-              }}
-              renderInput={(params: any) => (
-                <TextField
-                  {...params}
-                  name="job"
-                  autoComplete="off"
-                  error={formik.touched.job && Boolean(formik.errors.job)}
-                  helperText={formik.touched.job && formik.errors.job}
-                />
-              )}
-            /> */}
             <CustomizedHook jobList={jobList} />
           </Grid>
           {/* Diğer Meslek / Unvan */}
