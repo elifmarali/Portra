@@ -1,20 +1,20 @@
 import { initMongoose } from "@/lib/mongoose/mongoose";
-import JobList from "@/models/JobList";
+import CountryList from "@/models/CountryList";
 
 export async function GET() {
   await initMongoose();
   try {
-    const jobs = await JobList.find({});
-    return new Response(JSON.stringify({ success: true, data: jobs }), {
+    const country = await CountryList.find({});
+    return new Response(JSON.stringify({ success: true, data: country }), {
       status: 200,
     });
   } catch (err) {
     console.error(
-      "ERR [JobList/GET] : ",
+      "ERR [CountryList/GET] : ",
       err instanceof Error ? err.message : err
     );
     return new Response(
-      JSON.stringify({ success: false, message: "Job list alınamadı" }),
+      JSON.stringify({ success: false, message: "CountryList alınamadı" }),
       { status: 500 }
     );
   }

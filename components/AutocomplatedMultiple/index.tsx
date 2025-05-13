@@ -2,27 +2,23 @@ import React, { useEffect, useState } from 'react';
 import useAutocomplete, { AutocompleteGetTagProps } from '@mui/material/useAutocomplete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { darken, lighten, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { colorOptions } from '@/lists/color';
 import { useSelector } from 'react-redux';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
-import { ICity, ICountry } from '@/app/createPortfolio/IProps';
 
-export interface IList {
-    id: number,
-    name: string,
-    country_id?: number,
+export interface IListMultiple {
+    id: number;
+    name: string;
 }
 
 interface CustomizedHookProps {
     type: string;
-    list: IList[];
-    selectedCountry?: ICountry | null;
-    setSelectedCountry?: React.Dispatch<React.SetStateAction<ICountry | null>>;
-    selectedCity?: ICity | null;
-    setSelectedCity?: React.Dispatch<React.SetStateAction<ICity | null>>;
+    list: IListMultiple[];
+    selectedJobList?: IListMultiple[] | [];
+    setSelectedJobList?: React.Dispatch<React.SetStateAction<IListMultiple[]>>;
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -46,7 +42,7 @@ const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
     return {
         width: '100%',
         border: `1px solid var(--border-color)`,
-        backgroundColor: isDark ? '#141414' : '#fff',
+        backgroundColor: isDark ? '#000' : '#fff',
         borderRadius: '4px',
         display: 'flex',
         alignItems: "center !important",
@@ -65,14 +61,10 @@ const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
             padding: '10px 4px',
             width: '90%',
             flexGrow: 1,
-            border: 0,
             margin: 0,
             outline: 0,
             height: "58.3px",
-            borderRadius: "4px",
-            '&:focus': {
-                border: "none !important"
-            }
+            borderTop:`.1px  solid ${colorOptions[color].dark}`
         },
     };
 });
@@ -82,14 +74,12 @@ function Tag(props: TagProps) {
     return (
         <div {...other}>
             <span>{label}</span>
-            <CloseIcon onClick={() => onDelete()} />
+            <CloseIcon onClick={onDelete} />
         </div>
     );
 }
 
 interface TagProps extends ReturnType<AutocompleteGetTagProps> {
-    key: number;
-    onDelete: () => void;
     label: string;
 }
 
@@ -128,7 +118,6 @@ const StyledTag = styled(Tag, {
             overflow: 'hidden',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
-            width: "100%"
         },
         '& svg': {
             fontSize: '30px',
@@ -186,58 +175,21 @@ const Listbox = styled('ul')(({ theme }) => ({
     },
 }));
 
-export default function CustomizedHook({
+export default function CustomizedHookMultiple({
     type,
     list,
-    selectedCountry,
-    setSelectedCountry,
-    selectedCity,
-    setSelectedCity
+    selectedJobList,
+    setSelectedJobList,
 }: CustomizedHookProps) {
     const theme = useSelector(selectTheme); // 'light' | 'dark'
     const color = useSelector(selectColor); // örn: 'blue'
-    const [inputValue, setInputValue] = useState('');
-    const [currentSelected, setCurrentSelected] = useState<IList | null>(null);
+    const [currentSelectedList, setCurrentSelectedList] = useState<IListMultiple[] | []>([]);
 
     useEffect(() => {
-        if (type === "city") {
-            if (selectedCity === null) {
-                setCurrentSelected(null);  // Şehir dışarıdan null geldiyse içerideki state'i de sıfırla
-            } else if (selectedCity) {
-                setCurrentSelected(selectedCity);
-            }
+        if (type === "job") {
+            selectedJobList && setCurrentSelectedList(selectedJobList);
         }
-    }, [selectedCity]);
-
-    useEffect(() => {
-        if (type === "country") {
-            if (selectedCountry === null && setSelectedCity && setSelectedCountry) {
-                setCurrentSelected(null);
-                setSelectedCity(null);
-                setSelectedCountry(null);  // Şehir dışarıdan null geldiyse içerideki state'i de sıfırla
-            } else if (selectedCountry) {
-                setCurrentSelected(selectedCountry);
-            }
-        }
-    }, [selectedCountry]);
-
-    useEffect(() => {
-        if (type === "country" && selectedCountry) {
-            setCurrentSelected(selectedCountry);
-        } else if (type === "city" && selectedCity) {
-            setCurrentSelected(selectedCity);
-        }
-    }, [type, selectedCountry, selectedCity]);
-
-
-    useEffect(() => {
-        setInputValue('');
-    }, [currentSelected]);
-
-    useEffect(() => {
-        console.log("inputValue : ", inputValue, "currentSelected : ", currentSelected);
-    }, [inputValue, currentSelected])
-
+    }, [type, selectedJobList]);
 
     const {
         getRootProps,
@@ -249,28 +201,18 @@ export default function CustomizedHook({
         value,
         focused,
         setAnchorEl,
-    } = useAutocomplete<IList, false, false, false>({
+    } = useAutocomplete<IListMultiple, true, false, false>({
         id: 'customized-hook-demo',
+        multiple: true, // Always enabled
         options: list,
-        value: currentSelected,
+        value: currentSelectedList,
         getOptionLabel: (option) => option.name,
-        inputValue: inputValue,
-        onInputChange: (event, newInputValue) => {
-            setInputValue(newInputValue);
-        },
-        onChange: (event, value: IList | null) => {
-            if (type === "country" && setSelectedCountry && setSelectedCity) {
-                setSelectedCountry(value ?? null);
-                setSelectedCity(null);
+        onChange: (event, value) => {
+            if (type === "job" && setSelectedJobList) {
+                setSelectedJobList(value);
             }
-            else if (type == "city" && setSelectedCity) {
-                setSelectedCity(value as ICity ?? null);
-            }
-            setCurrentSelected(value ?? null);
-            setInputValue('');
         }
     });
-
 
     return (
         <Root>
@@ -281,43 +223,30 @@ export default function CustomizedHook({
                     ref={setAnchorEl}
                     className={focused ? 'focused' : ''}
                 >
-                    {value && (() => {
-                        const { key, ...tagProps } = getTagProps({ index: 0 });
-                        if (value.id !== null) {
-                            return (
-                                <StyledTag
-                                    {...tagProps}
-                                    key={value.id} // kendi ID değerini kullan
-                                    label={value.name}
-                                    color={color}
-                                    colorMode={theme === 'dark' ? 'dark' : 'light'}
-                                    onDelete={() => {
-                                        setCurrentSelected(null);
-                                        setInputValue("");
-                                        if (type === "country" && setSelectedCountry && setSelectedCity) {
-                                            setSelectedCountry(null);
-                                            setSelectedCity(null);
-                                            setCurrentSelected(null);
-                                        }
-                                    }}
-                                />
-                            );
-                        }
-                    })()}
+                    {value.map((option: IListMultiple, index: number) => {
+                        const { key, ...tagProps } = getTagProps({ index });
+                        return (
+                            <StyledTag
+                                key={key}
+                                label={option.name}
+                                color={color}
+                                colorMode={theme === 'dark' ? 'dark' : 'light'}
+                                {...tagProps}
+                            />
+                        );
+                    })}
                     <input
                         {...getInputProps()}
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        aria-hidden="true"
                         placeholder='Yeni ekle...'
-                        className={`!color-[#fff] ${(currentSelected instanceof Object) && "!hidden"}`}
+                        className='!color-[#fff]'
                     />
-
                 </InputWrapper>
             </div>
 
             {groupedOptions.length > 0 && (
                 <Listbox {...getListboxProps()}>
-                    {(groupedOptions as IList[]).map((option, index) => {
+                    {(groupedOptions as IListMultiple[]).map((option, index) => {
                         const { key, ...optionProps } = getOptionProps({ option, index });
                         return (
                             <li key={option.id} {...optionProps}>

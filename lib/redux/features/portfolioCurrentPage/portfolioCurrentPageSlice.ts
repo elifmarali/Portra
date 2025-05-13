@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-interface IPortfolioCurrentPage {
+export interface IPortfolioCurrentPage {
   currentStep: number;
 }
 
@@ -22,4 +22,4 @@ export const portfolioCurrentPageSlice = createSlice({
 
 export const {changeCurrentPage} = portfolioCurrentPageSlice.actions;
 export const portfolioCurrentPageReducer = portfolioCurrentPageSlice.reducer;
-export const currentStep = (state : {currentStep : IPortfolioCurrentPage}) => state.currentStep;
+export const currentStep = (state : {portfolioCurrentPage : IPortfolioCurrentPage}) => state.portfolioCurrentPage.currentStep;

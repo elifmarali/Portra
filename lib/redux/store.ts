@@ -9,6 +9,6 @@ export const store = configureStore({
         color:colorReducer,
         theme: themeReducer,
         auth: authReducer,  
-        currentPage : portfolioCurrentPageReducer      
+        portfolioCurrentPage : portfolioCurrentPageReducer      
     }
 })
