@@ -12,3 +12,5 @@ export const store = configureStore({
         portfolioCurrentPage : portfolioCurrentPageReducer      
     }
 })
+
+export type AppDispatch = typeof store.dispatch;

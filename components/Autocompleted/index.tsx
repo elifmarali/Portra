@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import useAutocomplete, { AutocompleteGetTagProps } from '@mui/material/useAutocomplete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { darken, lighten, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { colorOptions } from '@/lists/color';
 import { useSelector } from 'react-redux';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
-import { ICity, ICountry } from '@/app/createPortfolio/IProps';
+import { ICity, ICountry, IDistirct } from '@/app/createPortfolio/IProps';
 
 export interface IList {
     id: number,
@@ -23,6 +23,8 @@ interface CustomizedHookProps {
     setSelectedCountry?: React.Dispatch<React.SetStateAction<ICountry | null>>;
     selectedCity?: ICity | null;
     setSelectedCity?: React.Dispatch<React.SetStateAction<ICity | null>>;
+    selectedDistirct?: IDistirct | null;
+    setSelectedDistirct?: React.Dispatch<React.SetStateAction<IDistirct | null>>
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -192,12 +194,25 @@ export default function CustomizedHook({
     selectedCountry,
     setSelectedCountry,
     selectedCity,
-    setSelectedCity
+    setSelectedCity,
+    selectedDistirct,
+    setSelectedDistirct
 }: CustomizedHookProps) {
     const theme = useSelector(selectTheme); // 'light' | 'dark'
     const color = useSelector(selectColor); // örn: 'blue'
     const [inputValue, setInputValue] = useState('');
     const [currentSelected, setCurrentSelected] = useState<IList | null>(null);
+
+    useEffect(() => {
+        if (type === "distirct") {
+            if (selectedDistirct === null) {
+                setCurrentSelected(null);  // İlçe dışarıdan null geldiyse içerideki state'i de sıfırla
+            } else if (selectedDistirct) {
+                setCurrentSelected(selectedDistirct);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedDistirct]);
 
     useEffect(() => {
         if (type === "city") {
@@ -207,18 +222,21 @@ export default function CustomizedHook({
                 setCurrentSelected(selectedCity);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCity]);
 
     useEffect(() => {
         if (type === "country") {
-            if (selectedCountry === null && setSelectedCity && setSelectedCountry) {
+            if (selectedCountry === null && setSelectedCity && setSelectedCountry && setSelectedDistirct) {
                 setCurrentSelected(null);
                 setSelectedCity(null);
                 setSelectedCountry(null);  // Şehir dışarıdan null geldiyse içerideki state'i de sıfırla
+                setSelectedDistirct(null);
             } else if (selectedCountry) {
                 setCurrentSelected(selectedCountry);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCountry]);
 
     useEffect(() => {
@@ -226,8 +244,10 @@ export default function CustomizedHook({
             setCurrentSelected(selectedCountry);
         } else if (type === "city" && selectedCity) {
             setCurrentSelected(selectedCity);
+        } else if (type === 'distirct' && selectedDistirct) {
+            setCurrentSelected(selectedDistirct)
         }
-    }, [type, selectedCountry, selectedCity]);
+    }, [type, selectedCountry, selectedCity, selectedDistirct]);
 
 
     useEffect(() => {
@@ -236,8 +256,7 @@ export default function CustomizedHook({
 
     useEffect(() => {
         console.log("inputValue : ", inputValue, "currentSelected : ", currentSelected);
-    }, [inputValue, currentSelected])
-
+    }, [inputValue, currentSelected]);
 
     const {
         getRootProps,
@@ -259,12 +278,17 @@ export default function CustomizedHook({
             setInputValue(newInputValue);
         },
         onChange: (event, value: IList | null) => {
-            if (type === "country" && setSelectedCountry && setSelectedCity) {
+            if (type === "country" && setSelectedCountry && setSelectedCity && setSelectedDistirct) {
                 setSelectedCountry(value ?? null);
                 setSelectedCity(null);
+                setSelectedDistirct(null);
             }
-            else if (type == "city" && setSelectedCity) {
+            else if (type == "city" && setSelectedCity && setSelectedDistirct) {
                 setSelectedCity(value as ICity ?? null);
+                setSelectedDistirct(null);
+            }
+            else if (type === 'distirct' && setSelectedDistirct) {
+                setSelectedDistirct(value as IDistirct ?? null);
             }
             setCurrentSelected(value ?? null);
             setInputValue('');
@@ -287,16 +311,17 @@ export default function CustomizedHook({
                             return (
                                 <StyledTag
                                     {...tagProps}
-                                    key={value.id} // kendi ID değerini kullan
+                                    key={key} // kendi ID değerini kullan
                                     label={value.name}
                                     color={color}
                                     colorMode={theme === 'dark' ? 'dark' : 'light'}
                                     onDelete={() => {
                                         setCurrentSelected(null);
                                         setInputValue("");
-                                        if (type === "country" && setSelectedCountry && setSelectedCity) {
+                                        if (type === "country" && setSelectedCountry && setSelectedCity && setSelectedDistirct) {
                                             setSelectedCountry(null);
                                             setSelectedCity(null);
+                                            setSelectedDistirct(null);
                                             setCurrentSelected(null);
                                         }
                                     }}
@@ -320,7 +345,7 @@ export default function CustomizedHook({
                     {(groupedOptions as IList[]).map((option, index) => {
                         const { key, ...optionProps } = getOptionProps({ option, index });
                         return (
-                            <li key={option.id} {...optionProps}>
+                            <li key={key} {...optionProps}>
                                 <span>{option.name}</span>
                                 <CheckIcon fontSize="small" />
                             </li>

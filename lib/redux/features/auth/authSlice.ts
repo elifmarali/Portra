@@ -8,6 +8,7 @@ export interface IAuth {
   email?: string | null;
   password?: string | null;
   role?: string | null;
+  loading: boolean;
 }
 
 const initialState: IAuth = {
@@ -17,6 +18,7 @@ const initialState: IAuth = {
   email: null,
   password: null,
   role: null,
+  loading: false,
 };
 
 export const authSlice = createSlice({
@@ -24,36 +26,41 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     changeToken: (state, action: PayloadAction<string | null>) => {
-      if(action.payload!==null){
-       const jwtDecode = parseJwt(action.payload);
-       state.name=jwtDecode.name;
-       state.surname=jwtDecode.surname;
-       state.email=jwtDecode.email;
-       state.username=jwtDecode.username;
-       state.password=jwtDecode.password;
-       state.role=jwtDecode.role;
+      if (action.payload !== null) {
+        const jwtDecode = parseJwt(action.payload);
+        state.name = jwtDecode.name;
+        state.surname = jwtDecode.surname;
+        state.email = jwtDecode.email;
+        state.username = jwtDecode.username;
+        state.password = jwtDecode.password;
+        state.role = jwtDecode.role;
       }
     },
-    authRemove : (state) => {
-      state.email=null;
-      state.name=null;
-      state.password=null;
-      state.role=null;
-      state.username=null;
-      state.surname=null;
-    }
+    authRemove: (state) => {
+      state.email = null;
+      state.name = null;
+      state.password = null;
+      state.role = null;
+      state.username = null;
+      state.surname = null;
+      state.loading = false;
+    },
+    changeLoading: (state, action : PayloadAction<boolean>) => {
+      console.log("çalıştı loading ");
+      state.loading = action.payload;
+    },
   },
 });
 
 function parseJwt(token: string) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
-        .map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-        .join('')
+        .split("")
+        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join("")
     );
 
     return JSON.parse(jsonPayload);
@@ -63,7 +70,6 @@ function parseJwt(token: string) {
   }
 }
 
-
-export const { changeToken, authRemove } = authSlice.actions;
+export const { changeToken, authRemove, changeLoading } = authSlice.actions;
 export const authReducer = authSlice.reducer;
 export const currentAuth = (state: { auth: IAuth }) => state.auth;

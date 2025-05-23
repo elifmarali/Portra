@@ -4,7 +4,7 @@ import { selectColor } from '@/lib/redux/features/color/colorSlice';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { colorOptions } from "@/lists/color";
 import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
-import { Box, Button, FormControl, Grid, Select, TextField, Typography } from '@mui/material';
+import { Box, Button, FormControl, Grid, TextField, Typography } from '@mui/material';
 import { useFormik } from "formik";
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux';
@@ -16,7 +16,7 @@ import CustomizedHook, { IList } from "@/components/Autocompleted";
 import Stepper from "@/components/Stepper";
 import { currentStep } from "@/lib/redux/features/portfolioCurrentPage/portfolioCurrentPageSlice";
 import CustomizedHookMultiple, { IListMultiple } from "@/components/AutocomplatedMultiple";
-import { ICountry, ICity } from "./IProps";
+import { ICountry, ICity, IJob, IDistirct } from "./IProps";
 
 
 interface IExtendFile extends File {
@@ -35,6 +35,8 @@ function CreatePortfolio() {
   const [countryList, setCountryList] = useState<ICountry[] | []>([]);
   const [cityList, setCityList] = useState<ICity[] | []>([]);
   const [selectedCity, setSelectedCity] = useState<ICity | null>(null);
+  const [distirctList, setDistirctList] = useState<IDistirct[] | []>([]);
+  const [selectedDistirct, setSelectedDistirct] = useState<IDistirct | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -47,7 +49,8 @@ function CreatePortfolio() {
       jobs: [],
       otherJob: "",
       country: "",
-      city: ""
+      city: "",
+      distirct: ""
     },
     validationSchema: createPortfolioValidation,
     onSubmit: (values) => {
@@ -56,16 +59,13 @@ function CreatePortfolio() {
   })
 
   useEffect(() => {
-    console.log("selectedCountry : ", selectedCountry, " selectCity : ", selectedCity);
-  }, [selectedCountry, selectedCity])
-
-  useEffect(() => {
     getJobList();
     getCountryList();
   }, []);
 
   useEffect(() => {
     formik.setFieldValue("jobs", selectedJobList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJobList]);
 
   useEffect(() => {
@@ -73,12 +73,13 @@ function CreatePortfolio() {
     if (!diğerMevcutMu) {
       formik.setFieldValue("otherJob", "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJobList]);
 
   const getJobList = async () => {
     const res = await axios.get("/api/jobList");
     if (res.status === 200) {
-      const sorted = res.data.data.sort((a: any, b: any) => a.id - b.id);
+      const sorted = res.data.data.sort((a: IJob, b: IJob) => a.id - b.id);
       setJobList(sorted);
     } else {
       setJobList([]);
@@ -88,10 +89,12 @@ function CreatePortfolio() {
   useEffect(() => {
     formik.setFieldValue("country", selectedCountry);
     formik.setFieldValue("city", "");
+    formik.setFieldValue("distirct", "");
     if (selectedCountry) {
       getCityList();
     }
-  }, [selectedCountry])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry]);
 
   const getCountryList = async () => {
     const res = await axios.get("/api/countryList");
@@ -105,6 +108,11 @@ function CreatePortfolio() {
 
   useEffect(() => {
     formik.setFieldValue("city", selectedCity);
+    formik.setFieldValue("distirct", "");
+    if (selectedCity) {
+      getDistirct();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCity])
 
   const getCityList = async () => {
@@ -119,6 +127,23 @@ function CreatePortfolio() {
       setCityList([]);
     }
   }
+
+  const getDistirct = async () => {
+    const res = await axios.get("/api/distirctList", {
+      params: {
+        city_id: selectedCity?.id
+      }
+    });
+    if (res.status === 200) {
+      setDistirctList(res.data.data);
+    } else {
+      setDistirctList([]);
+    }
+  }
+
+  useEffect(() => {
+    formik.setFieldValue("distirct", selectedDistirct);
+  }, [selectedDistirct])
 
   return (
     <Grid container display="flex" justifyContent="center" sx={{ backgroundColor: theme === "dark" ? "#000" : "#fff", minHeight: 'calc(100vh - 7.5rem)' }} >
@@ -308,17 +333,17 @@ function CreatePortfolio() {
                 {/* Ülke */}
                 <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
                   <FormControl className="portfolioLabel">Ülke</FormControl>
-                  <CustomizedHook type="country" list={countryList} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} setSelectedCity={setSelectedCity} />
+                  <CustomizedHook type="country" list={countryList} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} setSelectedCity={setSelectedCity} setSelectedDistirct={setSelectedDistirct} />
                 </Grid>
                 {/* İl */}
                 <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
                   <FormControl className="portfolioLabel">İl</FormControl>
-                  <CustomizedHook type="city" list={cityList} selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
+                  <CustomizedHook type="city" list={cityList} selectedCity={selectedCity} setSelectedCity={setSelectedCity} setSelectedDistirct={setSelectedDistirct} />
                 </Grid>
                 {/* İlçe */}
                 <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
                   <FormControl className="portfolioLabel">İlçe</FormControl>
-                  {/* <CustomizedHook type="distirct" list={countryList} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} /> */}
+                  <CustomizedHook type="distirct" list={distirctList} selectedDistirct={selectedDistirct} setSelectedDistirct={setSelectedDistirct} />
                 </Grid>
               </>
             )

@@ -16,6 +16,7 @@ async function verifyJWTToken(token: string) {
     const { payload } = await jwtVerify(token, getJwtSecretKey());
     return payload;
   } catch (err) {
+    console.error("ERR [VerifyJWTToken] : ", err instanceof Error ? err.message : err);
     return null;
   }
 }

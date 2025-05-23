@@ -2,7 +2,7 @@
 "use client";
 import { changeColor } from '@/lib/redux/features/color/colorSlice';
 import { MenuItem, Select } from '@mui/material';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaCheck } from "react-icons/fa6";
 import { motion } from "motion/react"
@@ -51,7 +51,7 @@ function CustomSelect({ name, values }: ICustomSelect) {
                     },
                 }}
                 value={color}
-                renderValue={(selected: any) => (
+                renderValue={(selected: string) => (
                     <div
                         style={{
                             width: "2rem",

@@ -19,7 +19,7 @@ export async function initMongoose() {
 
   try {
     if (process.env.NEXT_PUBLIC_MONGODB_URI) {
-      const conn = await mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URI);
+      await mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URI);
       console.log("Connected to MongoDB ✅");
     } else {
       console.log("ERR [initMongoose] NEXT_PUBLIC_MONGODB_URI bulunamadı : ");

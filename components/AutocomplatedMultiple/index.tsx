@@ -64,7 +64,7 @@ const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
             margin: 0,
             outline: 0,
             height: "58.3px",
-            borderTop:`.1px  solid ${colorOptions[color].dark}`
+            borderTop: `.1px  solid ${colorOptions[color].dark}`
         },
     };
 });
@@ -186,8 +186,8 @@ export default function CustomizedHookMultiple({
     const [currentSelectedList, setCurrentSelectedList] = useState<IListMultiple[] | []>([]);
 
     useEffect(() => {
-        if (type === "job") {
-            selectedJobList && setCurrentSelectedList(selectedJobList);
+        if (type === "job" && selectedJobList) {
+            setCurrentSelectedList(selectedJobList);
         }
     }, [type, selectedJobList]);
 
@@ -249,7 +249,7 @@ export default function CustomizedHookMultiple({
                     {(groupedOptions as IListMultiple[]).map((option, index) => {
                         const { key, ...optionProps } = getOptionProps({ option, index });
                         return (
-                            <li key={option.id} {...optionProps}>
+                            <li key={key} {...optionProps}>
                                 <span>{option.name}</span>
                                 <CheckIcon fontSize="small" />
                             </li>

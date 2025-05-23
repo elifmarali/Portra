@@ -8,3 +8,14 @@ export interface ICity {
   name: string;
   country_id: number;
 }
+
+export interface IJob{
+  id:number;
+  name:string;
+}
+
+export interface IDistirct{
+  id:number;
+  name:string;
+  city_id:number;
+}

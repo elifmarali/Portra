@@ -7,15 +7,19 @@ import { colorOptions } from '@/lists/color';
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 
+interface IAuthState{
+        auth:IAuth
+}
 
 function ClientWrapper({ children }: { children: React.ReactNode }) {
     const dispatch = useDispatch();
-    const auth: IAuth = useSelector((state: any) => state.auth);
+    const auth: IAuth = useSelector((state: IAuthState) => state.auth);
     const theme = useSelector(selectTheme);
     const color = useSelector(selectColor);
 
     useEffect(() => {
         loadTokenFromCookies(dispatch);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {

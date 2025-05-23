@@ -3,8 +3,6 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ReduxProvider from "./ReduxProvider";
-import { ITheme } from "@/lib/redux/interfaces/ITheme";
-import { useSelector } from "react-redux";
 import ClientWrapper from "./ClientWrapper";
 
 export const metadata: Metadata = {

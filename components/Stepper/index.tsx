@@ -13,7 +13,7 @@ import { darken } from '@mui/material';
 
 
 function Stepper() {
-    const step: any = useSelector(currentStep);
+    const step: number = useSelector(currentStep);
     const dispatch = useDispatch();
     const theme = useSelector(selectTheme);
     const color = useSelector(selectColor);

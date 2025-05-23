@@ -5,7 +5,7 @@ import Users from "@/models/User";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   await initMongoose();
   try {
     const cookieStore = await cookies();
