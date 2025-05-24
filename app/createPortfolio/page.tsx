@@ -1,13 +1,22 @@
 "use client";
-import "./style.css"
-import { selectColor } from '@/lib/redux/features/color/colorSlice';
-import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
+import "./style.css";
+import { selectColor } from "@/lib/redux/features/color/colorSlice";
+import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
 import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
-import { Box, Button, FormControl, Grid, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControl,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useFormik } from "formik";
-import React, { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux';
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import * as motion from "motion/react-client";
 import { FaEye } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
@@ -15,9 +24,10 @@ import axios from "axios";
 import CustomizedHook, { IList } from "@/components/Autocompleted";
 import Stepper from "@/components/Stepper";
 import { currentStep } from "@/lib/redux/features/portfolioCurrentPage/portfolioCurrentPageSlice";
-import CustomizedHookMultiple, { IListMultiple } from "@/components/AutocomplatedMultiple";
-import { ICountry, ICity, IJob, IDistirct } from "./IProps";
-
+import CustomizedHookMultiple, {
+  IListMultiple,
+} from "@/components/AutocomplatedMultiple";
+import { ICountry, ICity, IJob, IDistrict } from "./IProps";
 
 interface IExtendFile extends File {
   previewUrl: string;
@@ -30,13 +40,20 @@ function CreatePortfolio() {
   const step = useSelector(currentStep);
   const [photo, setPhoto] = useState<IExtendFile | null>(null);
   const [jobList, setJobList] = useState([]);
-  const [selectedJobList, setSelectedJobList] = useState<IListMultiple[] | []>([]);
+  const [selectedJobList, setSelectedJobList] = useState<IListMultiple[] | []>(
+    []
+  );
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
   const [countryList, setCountryList] = useState<ICountry[] | []>([]);
   const [cityList, setCityList] = useState<ICity[] | []>([]);
   const [selectedCity, setSelectedCity] = useState<ICity | null>(null);
-  const [distirctList, setDistirctList] = useState<IDistirct[] | []>([]);
-  const [selectedDistirct, setSelectedDistirct] = useState<IDistirct | null>(null);
+  const [districtList, setDistrictList] = useState<IDistrict[] | []>([]);
+  const [selectedDistrict, setSelectedDistrict] = useState<IDistrict | null>(
+    null
+  );
+  const [skillsArrayState, setSkillsArrayState] = useState<String[] | []>([]);
+  const [skillsState, setSkillsState] = useState("");
+  const [skillLengthAlertState, setSkillLengthAlertState] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -48,15 +65,24 @@ function CreatePortfolio() {
       email: "",
       jobs: [],
       otherJob: "",
-      country: "",
-      city: "",
-      distirct: ""
+      country: null,
+      city: null,
+      district: null,
+      skills: [],
     },
     validationSchema: createPortfolioValidation,
     onSubmit: (values) => {
       console.log(JSON.stringify(values, null, 2));
+    },
+  });
+
+  useEffect(() => {
+    if (skillsState.length > 50) {
+      setSkillLengthAlertState(true);
+    } else {
+      setSkillLengthAlertState(false);
     }
-  })
+  }, [skillsState]);
 
   useEffect(() => {
     getJobList();
@@ -69,7 +95,9 @@ function CreatePortfolio() {
   }, [selectedJobList]);
 
   useEffect(() => {
-    const diğerMevcutMu = selectedJobList.some((selectedJobItem: IList) => selectedJobItem.name === "Diğer");
+    const diğerMevcutMu = selectedJobList.some(
+      (selectedJobItem: IList) => selectedJobItem.name === "Diğer"
+    );
     if (!diğerMevcutMu) {
       formik.setFieldValue("otherJob", "");
     }
@@ -89,7 +117,8 @@ function CreatePortfolio() {
   useEffect(() => {
     formik.setFieldValue("country", selectedCountry);
     formik.setFieldValue("city", "");
-    formik.setFieldValue("distirct", "");
+    formik.setFieldValue("district", "");
+    setCityList([]);
     if (selectedCountry) {
       getCityList();
     }
@@ -100,299 +129,556 @@ function CreatePortfolio() {
     const res = await axios.get("/api/countryList");
     if (res.status === 200) {
       setCountryList(res.data.data);
-    }
-    else {
+    } else {
       setCountryList([]);
     }
-  }
+  };
 
   useEffect(() => {
     formik.setFieldValue("city", selectedCity);
-    formik.setFieldValue("distirct", "");
+    formik.setFieldValue("district", "");
+    setDistrictList([]);
     if (selectedCity) {
-      getDistirct();
+      getDistrict();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCity])
+  }, [selectedCity]);
 
   const getCityList = async () => {
     const res = await axios.get("/api/cityList", {
       params: {
-        country_id: selectedCountry?.id
-      }
+        country_id: selectedCountry?.id,
+      },
     });
     if (res.status === 200) {
       setCityList(res.data.data);
     } else {
       setCityList([]);
     }
-  }
+  };
 
-  const getDistirct = async () => {
-    const res = await axios.get("/api/distirctList", {
+  const getDistrict = async () => {
+    const res = await axios.get("/api/districtList", {
       params: {
-        city_id: selectedCity?.id
-      }
+        city_id: selectedCity?.id,
+      },
     });
     if (res.status === 200) {
-      setDistirctList(res.data.data);
+      setDistrictList(res.data.data);
     } else {
-      setDistirctList([]);
+      setDistrictList([]);
     }
-  }
+  };
 
   useEffect(() => {
-    formik.setFieldValue("distirct", selectedDistirct);
-  }, [selectedDistirct])
+    formik.setFieldValue("district", selectedDistrict);
+  }, [selectedDistrict]);
+
+  useEffect(() => {
+    formik.setFieldValue("skills", skillsArrayState);
+  }, [skillsArrayState]);
 
   return (
-    <Grid container display="flex" justifyContent="center" sx={{ backgroundColor: theme === "dark" ? "#000" : "#fff", minHeight: 'calc(100vh - 7.5rem)' }} >
+    <Grid
+      container
+      display="flex"
+      justifyContent="center"
+      sx={{
+        backgroundColor: theme === "dark" ? "#000" : "#fff",
+        minHeight: "calc(100vh - 7.5rem)",
+      }}
+    >
       <Grid sx={{ width: "90%", marginTop: { xs: 4, sm: 4, md: 4, lg: 2 } }}>
         <Grid size={{ xs: 12 }}>
-          <Typography variant='h3' sx={{ fontWeight: "600", fontFamily: "inherit", textAlign: "center", color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}>Portfolyo Oluştur</Typography>
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: "600",
+              fontFamily: "inherit",
+              textAlign: "center",
+              color:
+                theme === "dark"
+                  ? colorOptions[color].light
+                  : colorOptions[color].dark,
+            }}
+          >
+            Portfolyo Oluştur
+          </Typography>
         </Grid>
 
         <Grid container spacing={{ xs: 2, sm: 2, md: 6 }}>
-          {
-            step === 0 && (
-              <>
-                <Grid size={12}>
-                  <Typography sx={{ color: colorOptions[color].light }} variant="h4">Temel Bilgiler</Typography>
-                </Grid>
-                {/* Name */}
-                < Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start">
-                  <FormControl className='portfolioLabel'>Ad</FormControl>
-                  <TextField
-                    name='name'
-                    id='name'
-                    className='portfolioInput'
-                    value={formik.values.name}
-                    onChange={formik.handleChange}
-                    error={formik.touched.name && Boolean(formik.errors.name)}
-                    helperText={formik.touched.name && formik.errors.name}
-                  />
-                </Grid>
-                {/* Surname */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start">
-                  <FormControl className='portfolioLabel'>Soyad</FormControl>
-                  <TextField
-                    name="surname"
-                    id="surname"
-                    className='portfolioInput'
-                    value={formik.values.surname}
-                    onChange={formik.handleChange}
-                    error={formik.touched.surname && Boolean(formik.errors.surname)}
-                    helperText={formik.touched.surname && formik.errors.surname}
-                  />
-                </Grid>
-                {/* Title */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className='portfolioLabel'>Başlık / Unvan</FormControl>
-                  <TextField
-                    name="title"
-                    id="title"
-                    className='portfolioInput'
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    error={formik.touched.title && Boolean(formik.errors.title)}
-                    helperText={formik.touched.title && formik.errors.title}
-                  />
-                </Grid>
-                {/* Photo */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} sx={{ marginTop: 4 }}>
-                  <Box display="flex" alignItems="start">
-                    <FormControl className='portfolioLabel'>Profil Fotoğrafı</FormControl>
-                    <Box sx={{ width: "100%", position: "relative" }}>
-                      <TextField
-                        inputRef={inputRef}
-                        sx={{ position: "absolute", left: "20px", top: "0px", width: "97%" }}
-                        name="photo"
-                        id="photo"
-                        type="file"
-                        className='portfolioInput'
-                        inputProps={{ accept: "image/*" }}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setPhoto(null);
-                          const file = e.currentTarget.files?.[0];
-                          if (file) {
-                            const extendedFile: IExtendFile = Object.assign(file, {
-                              previewUrl: URL.createObjectURL(file)
-                            })
-                            setPhoto(extendedFile);
-                            formik.setFieldValue("photo", file);
-                          }
-                        }}
-                        error={formik.touched.photo && Boolean(formik.errors.photo)}
-                        helperText={formik.touched.photo && formik.errors.photo}
-                      />
-                      {photo && (
-                        <Box sx={{
+          {step === 0 && (
+            <>
+              <Grid size={12}>
+                <Typography
+                  sx={{ color: colorOptions[color].light }}
+                  variant="h4"
+                >
+                  Temel Bilgiler
+                </Typography>
+              </Grid>
+              {/* Name */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+              >
+                <FormControl className="portfolioLabel">Ad</FormControl>
+                <TextField
+                  name="name"
+                  id="name"
+                  className="portfolioInput"
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
+                  helperText={formik.touched.name && formik.errors.name}
+                />
+              </Grid>
+              {/* Surname */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+              >
+                <FormControl className="portfolioLabel">Soyad</FormControl>
+                <TextField
+                  name="surname"
+                  id="surname"
+                  className="portfolioInput"
+                  value={formik.values.surname}
+                  onChange={formik.handleChange}
+                  error={
+                    formik.touched.surname && Boolean(formik.errors.surname)
+                  }
+                  helperText={formik.touched.surname && formik.errors.surname}
+                />
+              </Grid>
+              {/* Title */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">
+                  Başlık / Unvan
+                </FormControl>
+                <TextField
+                  name="title"
+                  id="title"
+                  className="portfolioInput"
+                  value={formik.values.title}
+                  onChange={formik.handleChange}
+                  error={formik.touched.title && Boolean(formik.errors.title)}
+                  helperText={formik.touched.title && formik.errors.title}
+                />
+              </Grid>
+              {/* Photo */}
+              <Grid size={{ xs: 12, sm: 12, md: 6 }} sx={{ marginTop: 4 }}>
+                <Box display="flex" alignItems="start">
+                  <FormControl className="portfolioLabel">
+                    Profil Fotoğrafı
+                  </FormControl>
+                  <Box sx={{ width: "100%", position: "relative" }}>
+                    <TextField
+                      inputRef={inputRef}
+                      sx={{
+                        position: "absolute",
+                        left: "20px",
+                        top: "0px",
+                        width: "97%",
+                      }}
+                      name="photo"
+                      id="photo"
+                      type="file"
+                      className="portfolioInput"
+                      inputProps={{ accept: "image/*" }}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setPhoto(null);
+                        const file = e.currentTarget.files?.[0];
+                        if (file) {
+                          const extendedFile: IExtendFile = Object.assign(
+                            file,
+                            {
+                              previewUrl: URL.createObjectURL(file),
+                            }
+                          );
+                          setPhoto(extendedFile);
+                          formik.setFieldValue("photo", file);
+                        }
+                      }}
+                      error={
+                        formik.touched.photo && Boolean(formik.errors.photo)
+                      }
+                      helperText={formik.touched.photo && formik.errors.photo}
+                    />
+                    {photo && (
+                      <Box
+                        sx={{
                           mt: 1,
                           position: "absolute",
                           left: "26px",
                           top: "60px",
                           width: "97%",
                           display: "flex",
-                          justifyContent: "space-between"
-                        }}>
-                          <Typography
-                            sx={{
-                              color: theme === "dark" ? colorOptions[color].light : "#000",
-                            }}>
-                            {photo?.name}
-                          </Typography>
-                          <Box className="flex gap-4 absolute right-2.5">
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
-                              <Button variant="contained"
-                                sx={{ backgroundColor: colorOptions[color].dark }}
-                                onClick={() => window.open(photo.previewUrl)}
-                              >
-                                <FaEye size={20} />
-                              </Button>
-                            </motion.div>
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
-                              <Button
-                                variant="contained"
-                                sx={{ backgroundColor: colorOptions["red"].dark }}
-                                onClick={() => {
-                                  setPhoto(null);
-                                  formik.setFieldValue("photo", null);
-                                  if (inputRef.current) {
-                                    inputRef.current.value = "";
-                                  }
-                                }}
-                              >
-                                <RiDeleteBin2Line size={20} />
-                              </Button>
-                            </motion.div>
-                          </Box>
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            color:
+                              theme === "dark"
+                                ? colorOptions[color].light
+                                : "#000",
+                          }}
+                        >
+                          {photo?.name}
+                        </Typography>
+                        <Box className="flex gap-4 absolute right-2.5">
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.8 }}
+                          >
+                            <Button
+                              variant="contained"
+                              sx={{ backgroundColor: colorOptions[color].dark }}
+                              onClick={() => window.open(photo.previewUrl)}
+                            >
+                              <FaEye size={20} />
+                            </Button>
+                          </motion.div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.8 }}
+                          >
+                            <Button
+                              variant="contained"
+                              sx={{ backgroundColor: colorOptions["red"].dark }}
+                              onClick={() => {
+                                setPhoto(null);
+                                formik.setFieldValue("photo", null);
+                                if (inputRef.current) {
+                                  inputRef.current.value = "";
+                                }
+                              }}
+                            >
+                              <RiDeleteBin2Line size={20} />
+                            </Button>
+                          </motion.div>
                         </Box>
-                      )}
-                    </Box>
+                      </Box>
+                    )}
                   </Box>
-                </Grid>
-                {/* Short Biography */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className='portfolioLabel'>Kısa Biyografi <br /> <span style={{ fontSize: ".9rem" }}>(max:300 karakter)</span></FormControl>
+                </Box>
+              </Grid>
+              {/* Short Biography */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">
+                  Kısa Biyografi <br />{" "}
+                  <span style={{ fontSize: ".9rem" }}>(max:300 karakter)</span>
+                </FormControl>
+                <TextField
+                  multiline
+                  rows={4}
+                  name="shortBiography"
+                  id="shortBiography"
+                  className="portfolioInput"
+                  value={formik.values.shortBiography}
+                  onChange={formik.handleChange}
+                  error={
+                    formik.touched.shortBiography &&
+                    Boolean(formik.errors.shortBiography)
+                  }
+                  helperText={
+                    formik.touched.shortBiography &&
+                    formik.errors.shortBiography
+                  }
+                />
+              </Grid>
+              {/* Email */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">Email</FormControl>
+                <TextField
+                  name="email"
+                  id="email"
+                  className="portfolioInput"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  error={formik.touched.email && Boolean(formik.errors.email)}
+                  helperText={formik.touched.email && formik.errors.email}
+                />
+              </Grid>
+            </>
+          )}
+          {step === 1 && (
+            <>
+              <Grid size={12}>
+                <Typography
+                  sx={{ color: colorOptions[color].light }}
+                  variant="h4"
+                >
+                  Lokasyon
+                </Typography>
+              </Grid>
+              {/* Ülke */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                justifyContent="space-between"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">Ülke</FormControl>
+                <CustomizedHook
+                  type="country"
+                  list={countryList}
+                  selectedCountry={selectedCountry}
+                  setSelectedCountry={setSelectedCountry}
+                  setSelectedCity={setSelectedCity}
+                  setSelectedDistrict={setSelectedDistrict}
+                />
+              </Grid>
+              {/* İl */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                justifyContent="space-between"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">İl</FormControl>
+                <CustomizedHook
+                  type="city"
+                  list={cityList}
+                  selectedCity={selectedCity}
+                  setSelectedCity={setSelectedCity}
+                  setSelectedDistrict={setSelectedDistrict}
+                />
+              </Grid>
+              {/* İlçe */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                justifyContent="space-between"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">İlçe</FormControl>
+                <CustomizedHook
+                  type="district"
+                  list={districtList}
+                  selectedDistrict={selectedDistrict}
+                  setSelectedDistrict={setSelectedDistrict}
+                />
+              </Grid>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <Grid size={12}>
+                <Typography
+                  sx={{ color: colorOptions[color].light }}
+                  variant="h4"
+                >
+                  Uzmanlık ve Yetenekler
+                </Typography>
+              </Grid>
+              {/* Uzmanlık Alanı / Meslek */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">
+                  Meslek / Unvan
+                </FormControl>
+                <CustomizedHookMultiple
+                  type="job"
+                  list={jobList}
+                  selectedJobList={selectedJobList}
+                  setSelectedJobList={setSelectedJobList}
+                />
+              </Grid>
+              {/* Diğer Meslek / Unvan */}
+              {formik.values.jobs.find(
+                (jobItem: IList) => jobItem.name === "Diğer"
+              ) && (
+                <Grid
+                  size={{ xs: 12, sm: 12, md: 6 }}
+                  display="flex"
+                  alignItems="start"
+                  justifyContent="space-between"
+                  sx={{ marginTop: 4 }}
+                >
+                  <FormControl className="portfolioLabel">
+                    Diğer Meslek / Unvan
+                  </FormControl>
                   <TextField
-                    multiline
-                    rows={4}
-                    name="shortBiography"
-                    id="shortBiography"
+                    name="otherJob"
+                    id="otherJob"
                     className="portfolioInput"
-                    value={formik.values.shortBiography}
+                    value={formik.values.otherJob}
                     onChange={formik.handleChange}
-                    error={formik.touched.shortBiography && Boolean(formik.errors.shortBiography)}
-                    helperText={formik.touched.shortBiography && formik.errors.shortBiography}
+                    error={
+                      formik.touched.otherJob && Boolean(formik.errors.otherJob)
+                    }
+                    helperText={
+                      formik.touched.otherJob && formik.errors.otherJob
+                    }
                   />
                 </Grid>
-                {/* Email */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className='portfolioLabel'>Email</FormControl>
+              )}
+              {/* Yetenekler */}
+              <Grid
+                size={{ xs: 12, sm: 12, md: 6 }}
+                display="flex"
+                alignItems="start"
+                sx={{ marginTop: 4 }}
+              >
+                <FormControl className="portfolioLabel">Yetenekler</FormControl>
+                <Grid display="flex" flexDirection="column" width="100%">
                   <TextField
-                    name='email'
-                    id='email'
-                    className='portfolioInput'
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
-                    error={formik.touched.email && Boolean(formik.errors.email)}
-                    helperText={formik.touched.email && formik.errors.email}
+                    name="skills"
+                    id="skills"
+                    className="portfolioInput"
+                    // value={formik.values.skills}
+                    value={skillsState}
+                    onChange={(e) => {
+                      setSkillsState(e.target.value);
+                    }}
+                    error={
+                      formik.touched.skills && Boolean(formik.errors.skills)
+                    }
+                    helperText={formik.touched.skills && formik.errors.skills}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Button
+                            onClick={() => {
+                              if (
+                                skillsState?.trim() !== "" &&
+                                !skillLengthAlertState
+                              ) {
+                                setSkillsArrayState((prev: any) => [
+                                  ...prev,
+                                  skillsState,
+                                ]);
+                                setSkillsState("");
+                                setSkillLengthAlertState(false);
+                              }
+                            }}
+                          >
+                            Ekle
+                          </Button>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
+                  {skillLengthAlertState && (
+                    <p
+                      className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                      id="photo-helper-text"
+                    >
+                      Yetenek maximum 50 karakter uzunlukta olmalıdır
+                    </p>
+                  )}
+                  <Grid
+                    display="flex"
+                    gap={2}
+                    marginTop={2}
+                    maxWidth="90%"
+                    flexWrap="wrap"
+                  >
+                    {skillsArrayState.length > 0 &&
+                      skillsArrayState.map((skillItem, i) => {
+                        return (
+                          <Box
+                            key={i}
+                            sx={{
+                              padding: 1,
+                              color: theme === "dark" ? "#fff " : "#3a3a3a",
+                              border: `1px solid ${colorOptions[color].dark}`,
+                              borderRadius: "4px",
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "10px",
+                              wordBreak: "break-word",
+                              overflowWrap: "break-word",
+                              maxWidth: "100%",
+                            }}
+                          >
+                            {skillItem}
+                            <RiDeleteBin2Line
+                              size={30}
+                              style={{
+                                color: colorOptions[color].dark,
+                                minWidth: "9%",
+                              }}
+                              onClick={(e) => {
+                                const newSkillsArray = skillsArrayState.filter(
+                                  (item) => item !== skillItem
+                                );
+                                console.log(
+                                  "newSkillsArray : ",
+                                  newSkillsArray
+                                );
+
+                                setSkillsArrayState(newSkillsArray);
+                              }}
+                            />
+                          </Box>
+                        );
+                      })}
+                  </Grid>
                 </Grid>
-                {/* Uzmanlık Alanı / Meslek */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">Meslek / Unvan</FormControl>
-                  <CustomizedHookMultiple type="job" list={jobList} selectedJobList={selectedJobList} setSelectedJobList={setSelectedJobList} />
-                </Grid>
-                {/* Diğer Meslek / Unvan */}
-                {
-                  formik.values.jobs.find((jobItem: IList) => jobItem.name === "Diğer") && (
-                    <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                      <FormControl className='portfolioLabel'>Diğer Meslek / Unvan</FormControl>
-                      <TextField
-                        name='otherJob'
-                        id='otherJob'
-                        className='portfolioInput'
-                        value={formik.values.otherJob}
-                        onChange={formik.handleChange}
-                        error={formik.touched.otherJob && Boolean(formik.errors.otherJob)}
-                        helperText={formik.touched.otherJob && formik.errors.otherJob}
-                      />
-                    </Grid>
-                  )
-                }
-              </>
-            )
-          }
-          {
-            step === 1 && (
-              <>
-                <Grid size={12}>
-                  <Typography sx={{ color: colorOptions[color].light }} variant="h4">Lokasyon</Typography>
-                </Grid>
-                {/* Ülke */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">Ülke</FormControl>
-                  <CustomizedHook type="country" list={countryList} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} setSelectedCity={setSelectedCity} setSelectedDistirct={setSelectedDistirct} />
-                </Grid>
-                {/* İl */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">İl</FormControl>
-                  <CustomizedHook type="city" list={cityList} selectedCity={selectedCity} setSelectedCity={setSelectedCity} setSelectedDistirct={setSelectedDistirct} />
-                </Grid>
-                {/* İlçe */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">İlçe</FormControl>
-                  <CustomizedHook type="distirct" list={distirctList} selectedDistirct={selectedDistirct} setSelectedDistirct={setSelectedDistirct} />
-                </Grid>
-              </>
-            )
-          }
-          {
-            step === 2 && (
-              <div style={{ color: "#fff" }}>
-                <Grid size={12}>
-                  <Typography sx={{ color: colorOptions[color].light }} variant="h4">Uzmanlık ve Yetenekler</Typography>
-                </Grid>
-              </div>
-            )
-          }
-          {
-            step === 3 && (
-              <div style={{ color: "#fff" }}>Step 4</div>
-            )
-          }
-          {
-            step === 4 && (
-              <div style={{ color: "#fff" }}>Step 5</div>
-            )
-          }
-          {
-            step === 5 && (
-              <div style={{ color: "#fff" }}>Step 6</div>
-            )
-          }
-          {
-            step === 6 && (
-              <div style={{ color: "#fff" }}>Step 7</div>
-            )
-          }
+              </Grid>
+            </>
+          )}
+          {step === 3 && <div style={{ color: "#fff" }}>Step 4</div>}
+          {step === 4 && <div style={{ color: "#fff" }}>Step 5</div>}
+          {step === 5 && <div style={{ color: "#fff" }}>Step 6</div>}
+          {step === 6 && <div style={{ color: "#fff" }}>Step 7</div>}
         </Grid>
         <Grid size={12} sx={{ margin: "30px 0" }}>
           <Stepper />
         </Grid>
         {/* Buton */}
-        <Grid size={12} display="flex" justifyContent="center" sx={{ marginBottom: "10px" }}>
+        <Grid
+          size={12}
+          display="flex"
+          justifyContent="center"
+          sx={{ marginBottom: "10px" }}
+        >
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
             <Button
               variant="contained"
-              sx={{ backgroundColor: colorOptions[color].dark, padding: "12px", fontSize: "16px" }}
-              onClick={() => formik.handleSubmit()}>Portfolyo Oluştur</Button>
+              sx={{
+                backgroundColor: colorOptions[color].dark,
+                padding: "12px",
+                fontSize: "16px",
+              }}
+              onClick={() => formik.handleSubmit()}
+            >
+              Portfolyo Oluştur
+            </Button>
           </motion.div>
         </Grid>
       </Grid>
-    </Grid >
-  )
+    </Grid>
+  );
 }
 
-export default CreatePortfolio
+export default CreatePortfolio;
