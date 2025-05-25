@@ -50,7 +50,7 @@ const InputWrapper = styled("div")<InputWrapperProps>(({ mode, color }) => {
   return {
     width: "100%",
     border: `1px solid var(--border-color)`,
-    backgroundColor: isDark ? "#141414" : "#fff",
+    backgroundColor: isDark ? "#000" : "#fff",
     borderRadius: "4px",
     display: "flex",
     alignItems: "center !important",
