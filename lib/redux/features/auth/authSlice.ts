@@ -45,7 +45,8 @@ export const authSlice = createSlice({
       state.surname = null;
       state.loading = false;
     },
-    changeLoading: (state, action: PayloadAction<boolean>) => {
+    changeLoading: (state, action : PayloadAction<boolean>) => {
+      console.log("çalıştı loading ");
       state.loading = action.payload;
     },
   },

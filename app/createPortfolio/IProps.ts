@@ -9,13 +9,13 @@ export interface ICity {
   country_id: number;
 }
 
-export interface IJob {
-  id: number;
-  name: string;
+export interface IJob{
+  id:number;
+  name:string;
 }
 
-export interface IDistrict {
-  id: number;
-  name: string;
-  city_id: number;
+export interface IDistirct{
+  id:number;
+  name:string;
+  city_id:number;
 }
