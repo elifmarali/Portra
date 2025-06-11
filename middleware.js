@@ -35,7 +35,6 @@ export async function middleware(req) {
    if (isAuthRequiredPages(pathname) && !isAuth) {
       const searchParams = new URLSearchParams(nextUrl.searchParams);
       searchParams.set("next", nextUrl.pathname);
-
       const response = NextResponse.redirect(
          new URL(`/login?${searchParams}`, req.url)
       );

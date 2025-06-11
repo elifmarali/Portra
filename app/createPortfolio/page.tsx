@@ -1,398 +1,293 @@
 "use client";
-import "./style.css"
-import { selectColor } from '@/lib/redux/features/color/colorSlice';
-import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
+import "./style.css";
+import { selectColor } from "@/lib/redux/features/color/colorSlice";
+import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
 import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
-import { Box, Button, FormControl, Grid, TextField, Typography } from '@mui/material';
-import { useFormik } from "formik";
-import React, { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { Box, Button, Grid, Typography } from "@mui/material";
+import { Form, Formik } from "formik";
+import React, { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import * as motion from "motion/react-client";
-import { FaEye } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
-import axios from "axios";
-import CustomizedHook, { IList } from "@/components/Autocompleted";
 import Stepper from "@/components/Stepper";
 import { currentStep } from "@/lib/redux/features/portfolioCurrentPage/portfolioCurrentPageSlice";
-import CustomizedHookMultiple, { IListMultiple } from "@/components/AutocomplatedMultiple";
-import { ICountry, ICity, IJob, IDistirct } from "./IProps";
-
+import Step0 from "@/components/Steps/Step0";
+import Step1 from "@/components/Steps/Step1";
+import Step2 from "@/components/Steps/Step2";
+import { FaEye } from "react-icons/fa6";
+import { convertToBase64 } from "@/functions/convertToBase64";
+import Step3 from "@/components/Steps/Step3";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 interface IExtendFile extends File {
   previewUrl: string;
 }
 
 function CreatePortfolio() {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const initialValues = {
+    name: "",
+    surname: "",
+    title: "",
+    photo: null,
+    shortBiography: "",
+    email: "",
+    jobs: [],
+    otherJob: "",
+    country: null,
+    city: null,
+    district: null,
+    skills: [],
+    languages: [{ id: -1, name: "", level: "" }],
+    certificates: []
+  };
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
   const step = useSelector(currentStep);
   const [photo, setPhoto] = useState<IExtendFile | null>(null);
-  const [jobList, setJobList] = useState([]);
-  const [selectedJobList, setSelectedJobList] = useState<IListMultiple[] | []>([]);
-  const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
-  const [countryList, setCountryList] = useState<ICountry[] | []>([]);
-  const [cityList, setCityList] = useState<ICity[] | []>([]);
-  const [selectedCity, setSelectedCity] = useState<ICity | null>(null);
-  const [distirctList, setDistirctList] = useState<IDistirct[] | []>([]);
-  const [selectedDistirct, setSelectedDistirct] = useState<IDistirct | null>(null);
-
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      surname: "",
-      title: "",
-      photo: null,
-      shortBiography: "",
-      email: "",
-      jobs: [],
-      otherJob: "",
-      country: "",
-      city: "",
-      distirct: ""
-    },
-    validationSchema: createPortfolioValidation,
-    onSubmit: (values) => {
-      console.log(JSON.stringify(values, null, 2));
-    }
-  })
-
-  useEffect(() => {
-    getJobList();
-    getCountryList();
-  }, []);
-
-  useEffect(() => {
-    formik.setFieldValue("jobs", selectedJobList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedJobList]);
-
-  useEffect(() => {
-    const diğerMevcutMu = selectedJobList.some((selectedJobItem: IList) => selectedJobItem.name === "Diğer");
-    if (!diğerMevcutMu) {
-      formik.setFieldValue("otherJob", "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedJobList]);
-
-  const getJobList = async () => {
-    const res = await axios.get("/api/jobList");
-    if (res.status === 200) {
-      const sorted = res.data.data.sort((a: IJob, b: IJob) => a.id - b.id);
-      setJobList(sorted);
-    } else {
-      setJobList([]);
-    }
-  };
-
-  useEffect(() => {
-    formik.setFieldValue("country", selectedCountry);
-    formik.setFieldValue("city", "");
-    formik.setFieldValue("distirct", "");
-    if (selectedCountry) {
-      getCityList();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCountry]);
-
-  const getCountryList = async () => {
-    const res = await axios.get("/api/countryList");
-    if (res.status === 200) {
-      setCountryList(res.data.data);
-    }
-    else {
-      setCountryList([]);
-    }
-  }
-
-  useEffect(() => {
-    formik.setFieldValue("city", selectedCity);
-    formik.setFieldValue("distirct", "");
-    if (selectedCity) {
-      getDistirct();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCity])
-
-  const getCityList = async () => {
-    const res = await axios.get("/api/cityList", {
-      params: {
-        country_id: selectedCountry?.id
-      }
-    });
-    if (res.status === 200) {
-      setCityList(res.data.data);
-    } else {
-      setCityList([]);
-    }
-  }
-
-  const getDistirct = async () => {
-    const res = await axios.get("/api/distirctList", {
-      params: {
-        city_id: selectedCity?.id
-      }
-    });
-    if (res.status === 200) {
-      setDistirctList(res.data.data);
-    } else {
-      setDistirctList([]);
-    }
-  }
-
-  useEffect(() => {
-    formik.setFieldValue("distirct", selectedDistirct);
-  }, [selectedDistirct])
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
-    <Grid container display="flex" justifyContent="center" sx={{ backgroundColor: theme === "dark" ? "#000" : "#fff", minHeight: 'calc(100vh - 7.5rem)' }} >
+    <Grid
+      container
+      display="flex"
+      justifyContent="center"
+      sx={{
+        backgroundColor: theme === "dark" ? "#000" : "#fff",
+        minHeight: "calc(100vh - 7.5rem)",
+      }}
+    >
       <Grid sx={{ width: "90%", marginTop: { xs: 4, sm: 4, md: 4, lg: 2 } }}>
         <Grid size={{ xs: 12 }}>
-          <Typography variant='h3' sx={{ fontWeight: "600", fontFamily: "inherit", textAlign: "center", color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}>Portfolyo Oluştur</Typography>
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: "600",
+              fontFamily: "inherit",
+              textAlign: "center",
+              color:
+                theme === "dark"
+                  ? colorOptions[color].light
+                  : colorOptions[color].dark,
+            }}
+          >
+            Portfolyo Oluştur
+          </Typography>
         </Grid>
-
-        <Grid container spacing={{ xs: 2, sm: 2, md: 6 }}>
-          {
-            step === 0 && (
-              <>
-                <Grid size={12}>
-                  <Typography sx={{ color: colorOptions[color].light }} variant="h4">Temel Bilgiler</Typography>
-                </Grid>
-                {/* Name */}
-                < Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start">
-                  <FormControl className='portfolioLabel'>Ad</FormControl>
-                  <TextField
-                    name='name'
-                    id='name'
-                    className='portfolioInput'
-                    value={formik.values.name}
-                    onChange={formik.handleChange}
-                    error={formik.touched.name && Boolean(formik.errors.name)}
-                    helperText={formik.touched.name && formik.errors.name}
-                  />
-                </Grid>
-                {/* Surname */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start">
-                  <FormControl className='portfolioLabel'>Soyad</FormControl>
-                  <TextField
-                    name="surname"
-                    id="surname"
-                    className='portfolioInput'
-                    value={formik.values.surname}
-                    onChange={formik.handleChange}
-                    error={formik.touched.surname && Boolean(formik.errors.surname)}
-                    helperText={formik.touched.surname && formik.errors.surname}
-                  />
-                </Grid>
-                {/* Title */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className='portfolioLabel'>Başlık / Unvan</FormControl>
-                  <TextField
-                    name="title"
-                    id="title"
-                    className='portfolioInput'
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    error={formik.touched.title && Boolean(formik.errors.title)}
-                    helperText={formik.touched.title && formik.errors.title}
-                  />
-                </Grid>
-                {/* Photo */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} sx={{ marginTop: 4 }}>
-                  <Box display="flex" alignItems="start">
-                    <FormControl className='portfolioLabel'>Profil Fotoğrafı</FormControl>
-                    <Box sx={{ width: "100%", position: "relative" }}>
-                      <TextField
-                        inputRef={inputRef}
-                        sx={{ position: "absolute", left: "20px", top: "0px", width: "97%" }}
-                        name="photo"
-                        id="photo"
-                        type="file"
-                        className='portfolioInput'
-                        inputProps={{ accept: "image/*" }}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setPhoto(null);
-                          const file = e.currentTarget.files?.[0];
-                          if (file) {
-                            const extendedFile: IExtendFile = Object.assign(file, {
-                              previewUrl: URL.createObjectURL(file)
-                            })
-                            setPhoto(extendedFile);
-                            formik.setFieldValue("photo", file);
-                          }
-                        }}
-                        error={formik.touched.photo && Boolean(formik.errors.photo)}
-                        helperText={formik.touched.photo && formik.errors.photo}
-                      />
-                      {photo && (
-                        <Box sx={{
-                          mt: 1,
-                          position: "absolute",
-                          left: "26px",
-                          top: "60px",
-                          width: "97%",
-                          display: "flex",
-                          justifyContent: "space-between"
-                        }}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Formik
+            initialValues={initialValues}
+            enableReinitialize
+            validationSchema={createPortfolioValidation}
+            validateOnBlur={false}
+            onSubmit={(values) => {
+              console.log(JSON.stringify(values, null, 2));
+            }}
+          >
+            {
+              ({ errors, setFieldValue }) => (
+                <Form>
+                  <Grid container spacing={{ xs: 2, sm: 2, md: 6 }}>
+                    {/* Photo */}
+                    {step === 0 && (
+                      <>
+                        <Grid size={12}>
                           <Typography
-                            sx={{
-                              color: theme === "dark" ? colorOptions[color].light : "#000",
-                            }}>
-                            {photo?.name}
+                            sx={{ color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}
+                            variant="h4"
+                          >
+                            Profil Fotoğrafı <span className="labelRequired">*</span>
                           </Typography>
-                          <Box className="flex gap-4 absolute right-2.5">
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
-                              <Button variant="contained"
-                                sx={{ backgroundColor: colorOptions[color].dark }}
-                                onClick={() => window.open(photo.previewUrl)}
-                              >
-                                <FaEye size={20} />
-                              </Button>
-                            </motion.div>
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
-                              <Button
-                                variant="contained"
-                                sx={{ backgroundColor: colorOptions["red"].dark }}
-                                onClick={() => {
+                        </Grid>
+                        <Grid size={12}>
+                          <Box
+                            sx={{
+                              width: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "100%",
+                              minHeight: "calc(100vh - 400px)",
+                            }}
+                          >
+                            {/* File Upload Circle */}
+                            <Box
+                              sx={{
+                                width: 300,
+                                height: 300,
+                                borderRadius: "50%",
+                                border: "1px solid #fff",
+                                background: "#fff",
+                                overflow: "hidden",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                              onClick={() => inputRef.current?.click()}
+                            >
+                              {/* Görsel olarak bir + işareti veya açıklama */}
+                              <Typography sx={{ color: "#aaa", textAlign: "center" }}>
+                                Fotoğraf yükle
+                              </Typography>
+
+                              {/* Gerçek input */}
+                              <input
+                                ref={inputRef}
+                                type="file"
+                                name="photo"
+                                id="photo"
+                                accept="image/*"
+                                onChange={async (
+                                  e: React.ChangeEvent<HTMLInputElement>
+                                ) => {
                                   setPhoto(null);
-                                  formik.setFieldValue("photo", null);
-                                  if (inputRef.current) {
-                                    inputRef.current.value = "";
+                                  const file = e.currentTarget.files?.[0];
+                                  if (file) {
+                                    const extendedFile: IExtendFile = Object.assign(
+                                      file,
+                                      {
+                                        previewUrl: URL.createObjectURL(file),
+                                      }
+                                    );
+                                    const base64File = await convertToBase64(extendedFile);
+                                    setFieldValue("photo", base64File);
+                                    setPhoto(extendedFile);
                                   }
                                 }}
+                                style={{
+                                  opacity: 0,
+                                  position: "absolute",
+                                  top: 0,
+                                  left: 0,
+                                  cursor: "pointer",
+                                }}
+                              />
+                            </Box>
+                            {
+                              errors.photo && typeof errors.photo === "string" && (
+                                <Box
+                                  sx={{
+                                    mt: 1,
+                                    width: "90%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <p
+                                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                    id="photo-helper-text"
+                                    style={{ color: "#d32f2f" }}
+                                  >
+                                    {errors.photo}
+                                  </p>
+                                </Box>
+                              )
+                            }
+                            {/* Photo Preview & Actions */}
+                            {photo && (
+                              <Box
+                                sx={{
+                                  mt: 1,
+                                  width: "30%",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
                               >
-                                <RiDeleteBin2Line size={20} />
-                              </Button>
-                            </motion.div>
+                                <Typography
+                                  sx={{
+                                    color:
+                                      theme === "dark"
+                                        ? colorOptions[color].light
+                                        : "#000",
+                                  }}
+                                >
+                                  {photo.name}
+                                </Typography>
+                                <Box className="flex gap-4">
+                                  <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.8 }}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      sx={{
+                                        backgroundColor: colorOptions[color].dark,
+                                      }}
+                                      onClick={() => window.open(photo.previewUrl)}
+                                    >
+                                      <FaEye size={20} />
+                                    </Button>
+                                  </motion.div>
+                                  <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.8 }}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      sx={{
+                                        backgroundColor: colorOptions["red"].dark,
+                                      }}
+                                      onClick={() => {
+                                        setPhoto(null);
+                                        if (inputRef.current)
+                                          inputRef.current.value = "";
+                                      }}
+                                    >
+                                      <RiDeleteBin2Line size={20} />
+                                    </Button>
+                                  </motion.div>
+                                </Box>
+                              </Box>
+                            )}
                           </Box>
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-                </Grid>
-                {/* Short Biography */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className='portfolioLabel'>Kısa Biyografi <br /> <span style={{ fontSize: ".9rem" }}>(max:300 karakter)</span></FormControl>
-                  <TextField
-                    multiline
-                    rows={4}
-                    name="shortBiography"
-                    id="shortBiography"
-                    className="portfolioInput"
-                    value={formik.values.shortBiography}
-                    onChange={formik.handleChange}
-                    error={formik.touched.shortBiography && Boolean(formik.errors.shortBiography)}
-                    helperText={formik.touched.shortBiography && formik.errors.shortBiography}
-                  />
-                </Grid>
-                {/* Email */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className='portfolioLabel'>Email</FormControl>
-                  <TextField
-                    name='email'
-                    id='email'
-                    className='portfolioInput'
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
-                    error={formik.touched.email && Boolean(formik.errors.email)}
-                    helperText={formik.touched.email && formik.errors.email}
-                  />
-                </Grid>
-                {/* Uzmanlık Alanı / Meslek */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">Meslek / Unvan</FormControl>
-                  <CustomizedHookMultiple type="job" list={jobList} selectedJobList={selectedJobList} setSelectedJobList={setSelectedJobList} />
-                </Grid>
-                {/* Diğer Meslek / Unvan */}
-                {
-                  formik.values.jobs.find((jobItem: IList) => jobItem.name === "Diğer") && (
-                    <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                      <FormControl className='portfolioLabel'>Diğer Meslek / Unvan</FormControl>
-                      <TextField
-                        name='otherJob'
-                        id='otherJob'
-                        className='portfolioInput'
-                        value={formik.values.otherJob}
-                        onChange={formik.handleChange}
-                        error={formik.touched.otherJob && Boolean(formik.errors.otherJob)}
-                        helperText={formik.touched.otherJob && formik.errors.otherJob}
-                      />
-                    </Grid>
-                  )
-                }
-              </>
-            )
-          }
-          {
-            step === 1 && (
-              <>
-                <Grid size={12}>
-                  <Typography sx={{ color: colorOptions[color].light }} variant="h4">Lokasyon</Typography>
-                </Grid>
-                {/* Ülke */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">Ülke</FormControl>
-                  <CustomizedHook type="country" list={countryList} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} setSelectedCity={setSelectedCity} setSelectedDistirct={setSelectedDistirct} />
-                </Grid>
-                {/* İl */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">İl</FormControl>
-                  <CustomizedHook type="city" list={cityList} selectedCity={selectedCity} setSelectedCity={setSelectedCity} setSelectedDistirct={setSelectedDistirct} />
-                </Grid>
-                {/* İlçe */}
-                <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4 }}>
-                  <FormControl className="portfolioLabel">İlçe</FormControl>
-                  <CustomizedHook type="distirct" list={distirctList} selectedDistirct={selectedDistirct} setSelectedDistirct={setSelectedDistirct} />
-                </Grid>
-              </>
-            )
-          }
-          {
-            step === 2 && (
-              <div style={{ color: "#fff" }}>
-                <Grid size={12}>
-                  <Typography sx={{ color: colorOptions[color].light }} variant="h4">Uzmanlık ve Yetenekler</Typography>
-                </Grid>
-              </div>
-            )
-          }
-          {
-            step === 3 && (
-              <div style={{ color: "#fff" }}>Step 4</div>
-            )
-          }
-          {
-            step === 4 && (
-              <div style={{ color: "#fff" }}>Step 5</div>
-            )
-          }
-          {
-            step === 5 && (
-              <div style={{ color: "#fff" }}>Step 6</div>
-            )
-          }
-          {
-            step === 6 && (
-              <div style={{ color: "#fff" }}>Step 7</div>
-            )
-          }
-        </Grid>
-        <Grid size={12} sx={{ margin: "30px 0" }}>
-          <Stepper />
-        </Grid>
-        {/* Buton */}
-        <Grid size={12} display="flex" justifyContent="center" sx={{ marginBottom: "10px" }}>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
-            <Button
-              variant="contained"
-              sx={{ backgroundColor: colorOptions[color].dark, padding: "12px", fontSize: "16px" }}
-              onClick={() => formik.handleSubmit()}>Portfolyo Oluştur</Button>
-          </motion.div>
-        </Grid>
+                        </Grid>
+                      </>
+                    )}
+
+                    {step === 1 && <Step0 />}
+                    {step === 2 && <Step1 />}
+                    {step === 3 && <Step2 />}
+                    {step === 4 && <Step3 />}
+                    {step === 5 && <div style={{ color: "#fff" }}>Step 6</div>}
+                    {step === 6 && <div style={{ color: "#fff" }}>Step 7</div>}
+                  </Grid>
+                  <Grid size={12} sx={{ margin: "30px 0" }}>
+                    <Stepper />
+                  </Grid>
+                  {/* Buton */}
+                  <Grid
+                    size={12}
+                    display="flex"
+                    justifyContent="center"
+                    sx={{ marginBottom: "10px" }}
+                  >
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: colorOptions[color].dark,
+                          padding: "12px",
+                          fontSize: "16px",
+                        }}
+                        type="submit"
+                      >
+                        Portfolyo Oluştur
+                      </Button>
+                    </motion.div>
+                  </Grid>
+                </Form>
+              )
+            }
+          </Formik>
+        </LocalizationProvider>
       </Grid>
-    </Grid >
-  )
+    </Grid>
+  );
 }
 
-export default CreatePortfolio
+export default CreatePortfolio;

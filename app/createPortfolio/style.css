@@ -3,26 +3,47 @@
   font-size: 1.3rem;
   width: 35%;
   color: var(--color);
+  display: inline !important;
 }
 
 .portfolioInput {
-    width: 90%;
+  width: 90%;
 }
 
-.portfolioInput .MuiInputBase-root{
-    color: var(--label-color);
-    font-size: 1.1rem;
+.portfolioInput .MuiInputBase-root {
+  color: var(--label-color);
+  font-size: 1.1rem;
 }
 
-.portfolioInput .MuiOutlinedInput-root fieldset{
-    border-color: var(--border-color);
+.portfolioInput .MuiOutlinedInput-root fieldset {
+  border-color: var(--border-color);
 }
 
-.portfolioInput .MuiOutlinedInput-root:hover fieldset{
-    border-color: var(--color-dark);
-    opacity: .7;
+.portfolioInput .MuiOutlinedInput-root:hover fieldset {
+  border-color: var(--color-dark);
+  opacity: 0.7;
 }
 
 .portfolioInput .MuiOutlinedInput-root.Mui-focused fieldset {
-    border-color: var(--color-dark);
+  border-color: var(--color-dark);
+}
+
+.portfolioSelect {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  color: var(--label-color);
+  font-size: 1.1rem;
+}
+
+.portfolioSelect .MuiSvgIcon-root {
+  color: var(--label-color);
+}
+
+.portfolioSelect .MuiInputBase-input {
+  color: var(--label-color);
+}
+
+.labelRequired{
+  color: #d32f2f;
+  display: inline;
 }

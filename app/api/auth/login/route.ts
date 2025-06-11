@@ -11,10 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const hashPass = await hashedPassword(body.password);
-    console.log("hashPass : ", hashPass);
     const existingUser = await Users.findOne({ email: body.email });
-
-    console.log("existingUser : ", existingUser);
 
     if (!existingUser) {
       return new Response(

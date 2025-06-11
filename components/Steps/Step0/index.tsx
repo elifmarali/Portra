@@ -1,94 +1,83 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import {
-  Box,
-  Button,
   FormControl,
   Grid,
   TextField,
   Typography,
 } from "@mui/material";
 import { colorOptions } from "@/lists/color";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
-import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
-import {
-  createPortfolio,
-  updateForms,
-} from "@/lib/redux/features/createPortfolio/createPortfolioSlice";
-import * as motion from "motion/react-client";
 import { useFormikContext } from "formik";
-import { FaEye } from "react-icons/fa";
-import { RiDeleteBin2Line } from "react-icons/ri";
+import { ICreatePortfolio } from "@/app/createPortfolio/IProps";
+import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 
 function Step0() {
-  const formik = useFormikContext<any>();
-  const dispatch = useDispatch();
   const color = useSelector(selectColor);
-
-  const {
-    name,
-    surname,
-    title,
-    photo: photoState,
-    shortBiography,
-    email,
-  } = useSelector(createPortfolio);
+  const theme = useSelector(selectTheme);
+  const formik = useFormikContext<ICreatePortfolio>();
 
   return (
     <>
       <Grid size={{ xs: 12 }}>
-        <Typography sx={{ color: colorOptions[color].light }} variant="h4">
+        <Typography sx={{ color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}
+          variant="h4">
           Temel Bilgiler
         </Typography>
       </Grid>
 
       {/* Name */}
       <Grid size={{ xs: 12, md: 6 }} display="flex" alignItems="start">
-        <FormControl className="portfolioLabel">Ad</FormControl>
+        <FormControl className="portfolioLabel"
+        >Ad <span className="labelRequired">*</span></FormControl>
         <TextField
           name="name"
           id="name"
           className="portfolioInput"
-          value={name}
-          onChange={(e) => {
-            dispatch(updateForms({ name: e.target.value }));
-          }}
+          value={formik.values.name}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          helperText={formik.touched.name && formik.errors.name}
+          error={Boolean(formik.errors.name && formik.touched.name)}
+          required
         />
       </Grid>
 
       {/* Surname */}
       <Grid size={{ xs: 12, md: 6 }} display="flex" alignItems="start">
-        <FormControl className="portfolioLabel">Soyad</FormControl>
+        <FormControl className="portfolioLabel">Soyad <span className="labelRequired">*</span></FormControl>
         <TextField
           name="surname"
           id="surname"
           className="portfolioInput"
-          value={surname}
-          onChange={(e) => {
-            dispatch(updateForms({ surname: e.target.value }));
-          }}
+          value={formik.values.surname}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          helperText={formik.touched.surname && formik.errors.surname}
+          error={Boolean(formik.touched.surname && formik.errors.surname)}
         />
       </Grid>
 
       {/* Title */}
       <Grid size={{ xs: 12, md: 6 }} display="flex" alignItems="start">
-        <FormControl className="portfolioLabel">Başlık / Unvan</FormControl>
+        <FormControl className="portfolioLabel">Başlık / Unvan <span className="labelRequired">*</span></FormControl>
         <TextField
           name="title"
           id="title"
           className="portfolioInput"
-          value={title}
-          onChange={(e) => {
-            dispatch(updateForms({ title: e.target.value }));
-          }}
+          value={formik.values.title}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          helperText={formik.touched.title && formik.errors.title}
+          error={Boolean(formik.touched.title && formik.errors.title)}
         />
       </Grid>
 
       {/* Short Biography */}
       <Grid size={{ xs: 12, md: 6 }} display="flex" alignItems="start">
         <FormControl className="portfolioLabel">
-          Kısa Biyografi <br />
+          Kısa Biyografi <span className="labelRequired">*</span><br />
           <span style={{ fontSize: ".9rem" }}>(max:300 karakter)</span>
         </FormControl>
         <TextField
@@ -97,24 +86,30 @@ function Step0() {
           name="shortBiography"
           id="shortBiography"
           className="portfolioInput"
-          value={shortBiography}
-          onChange={(e) => {
-            dispatch(updateForms({ shortBiography: e.target.value }));
-          }}
+          value={formik.values.shortBiography}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          helperText={
+            formik.touched.shortBiography && formik.errors.shortBiography
+          }
+          error={Boolean(
+            formik.touched.shortBiography && formik.errors.shortBiography
+          )}
         />
       </Grid>
 
       {/* Email */}
       <Grid size={{ xs: 12, md: 6 }} display="flex" alignItems="start">
-        <FormControl className="portfolioLabel">Email</FormControl>
+        <FormControl className="portfolioLabel">Email <span className="labelRequired">*</span></FormControl>
         <TextField
           name="email"
           id="email"
           className="portfolioInput"
-          value={email}
-          onChange={(e) => {
-            dispatch(updateForms({ email: e.target.value }));
-          }}
+          value={formik.values.email}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          helperText={formik.touched.email && formik.errors.email}
+          error={Boolean(formik.touched.email && formik.errors.email)}
         />
       </Grid>
     </>

@@ -3,9 +3,7 @@ import CityList from "@/models/CityList";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const countryId = searchParams.get("country_id");
-  console.log("country id : ",countryId);
-  
+  const countryId = searchParams.get("country_id");  
   await initMongoose();
   try {
     const cities = await CityList.find({ country_id: countryId });

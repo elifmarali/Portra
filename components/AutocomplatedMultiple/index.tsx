@@ -19,6 +19,7 @@ interface CustomizedHookProps {
     list: IListMultiple[];
     selectedJobList?: IListMultiple[] | [];
     setSelectedJobList?: React.Dispatch<React.SetStateAction<IListMultiple[]>>;
+    errorText: string;
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -34,14 +35,15 @@ interface InputWrapperProps {
     mode: string;
     className?: string;
     color: string;
+    isError: boolean;
 }
 
-const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
+const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color, isError }) => {
     const isDark = mode === 'dark';
 
     return {
         width: '100%',
-        border: `1px solid var(--border-color)`,
+        border: `1px solid ${isError ? "#d32f2f" : "var(--border-color)"}`,
         backgroundColor: isDark ? '#000' : '#fff',
         borderRadius: '4px',
         display: 'flex',
@@ -64,7 +66,8 @@ const InputWrapper = styled('div')<InputWrapperProps>(({ mode, color }) => {
             margin: 0,
             outline: 0,
             height: "58.3px",
-            borderTop: `.1px  solid ${colorOptions[color].dark}`
+            backgroundColor: isDark ? "#222" : "lightGray"
+            // borderTop: `.1px  solid ${colorOptions[color].dark}`
         },
     };
 });
@@ -180,6 +183,7 @@ export default function CustomizedHookMultiple({
     list,
     selectedJobList,
     setSelectedJobList,
+    errorText
 }: CustomizedHookProps) {
     const theme = useSelector(selectTheme); // 'light' | 'dark'
     const color = useSelector(selectColor); // örn: 'blue'
@@ -222,6 +226,7 @@ export default function CustomizedHookMultiple({
                     color={color}
                     ref={setAnchorEl}
                     className={focused ? 'focused' : ''}
+                    isError={!!errorText}
                 >
                     {value.map((option: IListMultiple, index: number) => {
                         const { key, ...tagProps } = getTagProps({ index });
@@ -243,6 +248,14 @@ export default function CustomizedHookMultiple({
                     />
                 </InputWrapper>
             </div>
+
+            <p
+                className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                id="photo-helper-text"
+                style={{ color: "#d32f2f" }}
+            >
+                {errorText}
+            </p>
 
             {groupedOptions.length > 0 && (
                 <Listbox {...getListboxProps()}>

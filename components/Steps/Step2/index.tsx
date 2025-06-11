@@ -1,49 +1,60 @@
 "use client";
-import { IJob } from "@/app/createPortfolio/IProps";
+import { ICreatePortfolio, IJob } from "@/app/createPortfolio/IProps";
 import CustomizedHookMultiple, {
   IListMultiple,
 } from "@/components/AutocomplatedMultiple";
 import { IList } from "@/components/Autocompleted";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
-import {
-  createPortfolio,
-  updateForms,
-} from "@/lib/redux/features/createPortfolio/createPortfolioSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
 import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   Grid,
   InputAdornment,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
 import axios from "axios";
-import { useFormikContext } from "formik";
-import { color } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { RiDeleteBin2Line } from "react-icons/ri";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { ILanguage, ILanguageArray } from "./IProps";
+import { useFormikContext } from "formik";
 
 function Step2() {
-  const dispatch = useDispatch();
-  const formik = useFormikContext<any>();
+  const formik = useFormikContext<ICreatePortfolio>();
+  const [otherJobState, setOtherJobState] = useState(formik.values.otherJob);
   const [jobListState, setJobListState] = useState([]);
   const [selectedJobListState, setSelectedJobListState] = useState<
     IListMultiple[] | []
-  >([]);
+  >(formik.values.jobs);
   const [skillsState, setSkillsState] = useState("");
   const [skillsArrayState, setSkillsArrayState] = useState<String[] | []>([]);
   const [skillLengthAlertState, setSkillLengthAlertState] = useState(false);
+  const [languageList, setLanguageList] = useState([]);
+  const [selectLanguageArray, setSelectLanguageArray] = useState<ILanguageArray[]>(formik.values.languages);
+  const [languageCount, setLanguageCount] = useState(formik.values.languages.length);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
+  const errorText =
+    Array.isArray(formik.errors.jobs) && formik.touched.jobs && jobListState.length === 0
+      ? formik.errors.jobs.join(", ")
+      : typeof formik.errors.jobs === "string" && formik.touched.jobs
+        ? formik.errors.jobs
+        : "";
+
 
   const color = useSelector(selectColor);
   const theme = useSelector(selectTheme);
-  const { jobs, otherJob, skills } = useSelector(createPortfolio);
 
   useEffect(() => {
     getJobList();
+    getLanguageList();
   }, []);
 
   const getJobList = async () => {
@@ -57,7 +68,7 @@ function Step2() {
   };
 
   useEffect(() => {
-    dispatch(updateForms({ skills: skillsArrayState }));
+    formik.setFieldValue("skills", skillsArrayState);
   }, [skillsArrayState]);
 
   useEffect(() => {
@@ -69,24 +80,73 @@ function Step2() {
   }, [skillsState]);
 
   useEffect(() => {
-    dispatch(updateForms({ jobs: selectedJobListState }));
+    formik.setFieldValue("jobs", selectedJobListState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJobListState]);
 
   useEffect(() => {
-    const diğerMevcutMu = selectedJobListState.some(
-      (selectedJobItem: IList) => selectedJobItem.name === "Diğer"
-    );
-    if (!diğerMevcutMu) {
-      dispatch(updateForms({ otherJob: "" }));
+    if (selectedJobListState.length > 0) {
+      const diğerMevcutMu = selectedJobListState.some(
+        (selectedJobItem: IList) => selectedJobItem.name === "Diğer"
+      );
+      if (!diğerMevcutMu) {
+        formik.setFieldValue("otherJob", "");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJobListState]);
 
+  const getLanguageList = async () => {
+    const res = await axios.get("/api/languageList");
+    if (res.data.data.length > 0) {
+      setLanguageList(res.data.data);
+    }
+  }
+
+  useEffect(() => {
+    const isFilled = selectLanguageArray.some((item: ILanguageArray) => item.id !== -1 || item.name !== "" || item.level !== "");
+    const filteredLanguageList = selectLanguageArray.filter((item: ILanguageArray) => item.id !== -1 || item.name !== "" || item.level !== "");
+    if ((selectLanguageArray.length === 1 && isFilled) || selectLanguageArray.length > 1) {
+      setShowDeleteButton(true);
+      formik.setFieldValue("languages", filteredLanguageList);
+    } else {
+      setShowDeleteButton(false);
+    }
+  }, [selectLanguageArray]);
+
+  useEffect(() => {
+    if (formik.values.skills) {
+      setSkillsArrayState(formik.values.skills);
+    }
+    if (formik.values.jobs) {
+      setSelectedJobListState(formik.values.jobs);
+    }
+    if (formik.values.languages) {
+      setSelectLanguageArray(formik.values.languages);
+    }
+    if (formik.values.otherJob) {
+      setOtherJobState(formik.values.otherJob);
+    }
+  }, []);
+
+  useEffect(() => {
+    setOtherJobState(formik.values.otherJob);
+  }, [formik.values.otherJob]);
+
+  useEffect(() => {
+    if (selectLanguageArray.length >= 1) {
+      setLanguageCount(selectLanguageArray.length);
+    }
+    else {
+      setLanguageCount(1);
+    }
+  }, [selectLanguageArray]);
+
   return (
     <>
       <Grid size={12}>
-        <Typography sx={{ color: colorOptions[color].light }} variant="h4">
+        <Typography sx={{ color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}
+          variant="h4">
           Uzmanlık ve Yetenekler
         </Typography>
       </Grid>
@@ -97,16 +157,17 @@ function Step2() {
         alignItems="start"
         sx={{ marginTop: 4 }}
       >
-        <FormControl className="portfolioLabel">Meslek / Unvan</FormControl>
+        <FormControl className="portfolioLabel">Meslek / Unvan <span className="labelRequired">*</span></FormControl>
         <CustomizedHookMultiple
           type="job"
           list={jobListState}
           selectedJobList={selectedJobListState}
           setSelectedJobList={setSelectedJobListState}
+          errorText={errorText}
         />
       </Grid>
       {/* Diğer Meslek / Unvan */}
-      {jobs.find((jobItem: IList) => jobItem.name === "Diğer") && (
+      {formik.values.jobs.find((jobItem: IList) => jobItem.name === "Diğer") && (
         <Grid
           size={{ xs: 12, sm: 12, md: 6 }}
           display="flex"
@@ -115,16 +176,21 @@ function Step2() {
           sx={{ marginTop: 4 }}
         >
           <FormControl className="portfolioLabel">
-            Diğer Meslek / Unvan
+            Diğer Meslek / Unvan <span className="labelRequired">*</span>
           </FormControl>
           <TextField
             name="otherJob"
             id="otherJob"
             className="portfolioInput"
-            value={otherJob}
+            value={otherJobState}
             onChange={(e) => {
-              dispatch(updateForms({ otherJob: e.target.value }));
+              setOtherJobState(e.target.value);
+              formik.setFieldValue("otherJob", e.target.value);
             }}
+            onBlur={formik.handleBlur}
+            helperText={selectedJobListState.some((jobItem) => jobItem.id === 0) && otherJobState === "" && formik.touched.otherJob && formik.errors.otherJob}
+            error={Boolean(selectedJobListState.some((jobItem) => jobItem.id === 0) && otherJobState === "" && formik.touched.otherJob && formik.errors.otherJob)}
+            required
           />
         </Grid>
       )}
@@ -135,7 +201,7 @@ function Step2() {
         alignItems="start"
         sx={{ marginTop: 4 }}
       >
-        <FormControl className="portfolioLabel">Yetenekler</FormControl>
+        <FormControl className="portfolioLabel">Yetenekler <span className="labelRequired">*</span></FormControl>
         <Grid display="flex" flexDirection="column" width="100%">
           <TextField
             name="skills"
@@ -146,6 +212,8 @@ function Step2() {
             onChange={(e) => {
               setSkillsState(e.target.value);
             }}
+            error={Boolean(formik.touched.skills && formik.errors.skills)}
+            helperText={formik.touched.skills && formik.errors.skills}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -216,7 +284,6 @@ function Step2() {
                         const newSkillsArray = skillsArrayState.filter(
                           (item) => item !== skillItem
                         );
-                        console.log("newSkillsArray : ", newSkillsArray);
 
                         setSkillsArrayState(newSkillsArray);
                       }}
@@ -233,18 +300,167 @@ function Step2() {
         display="flex"
         alignItems="start"
         sx={{ marginTop: 4 }}
+        gap={4}
       >
-        <FormControl className="portfolioLabel">Dil Bilgisi</FormControl>
-        {/* <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={"abc"}
-                  label="Age"                  
+        <FormControl className="portfolioLabel">
+          Dil Bilgisi <span className="labelRequired">*</span>
+        </FormControl>
+
+        <Grid width="100%" display="flex" flexDirection="column" gap={2}>
+          {Array.from(selectLanguageArray).map((_, index) => {
+            return (
+              <Grid className='flex flex-col' key={index}>
+                <Grid
+                  key={index}
+                  display="flex"
+                  justifyContent="space-between"
+                  gap={2}
+                  width="100%"
                 >
-                  <MenuItem value={10}>abc</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
-                </Select> */}
+                  {/* Dil ve Seviye Seçimi */}
+                  <Grid display="flex" justifyContent="space-between" gap={2} width="74%">
+                    {/* Dil Seçimi */}
+                    <FormControl fullWidth error={!!formik.errors.languages}>
+                      <Select
+                        className="portfolioSelect"
+                        value={String(selectLanguageArray[index]?.id)}
+                        onChange={(e: SelectChangeEvent) => {
+                          const updatedArray = [...selectLanguageArray];
+                          const selectedLanguage: any = languageList.find(
+                            (lang: ILanguage) => lang.id === Number(e.target.value)
+                          );
+                          updatedArray[index] = {
+                            ...(updatedArray[index] || {}),
+                            id: selectedLanguage?.id ?? -1,
+                            name: selectedLanguage?.name ?? "",
+                          };
+                          setSelectLanguageArray(updatedArray);
+                          formik.setFieldTouched(`languages[${index}].id`, true);
+                          formik.setFieldValue(`languages[${index}].id`, selectedLanguage?.id ?? -1);
+                        }}
+                      >
+                        {languageList.map((languageItem: ILanguage) => (
+                          <MenuItem key={languageItem.id} value={languageItem.id}>
+                            {languageItem.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    {/* Seviye Seçimi */}
+                    <FormControl fullWidth error={!!formik.errors.languages}>
+                      <Select
+                        className="portfolioSelect"
+                        value={selectLanguageArray[index]?.level ?? ""}
+                        onChange={(e: SelectChangeEvent) => {
+                          const updatedArray = [...selectLanguageArray];
+                          updatedArray[index] = {
+                            ...(updatedArray[index] || {}),
+                            level: e.target.value,
+                          };
+                          setSelectLanguageArray(updatedArray);
+                        }}
+                      >
+                        {["A1", "A2", "B1", "B2", "C1", "C2"].map((level) => (
+                          <MenuItem key={level} value={level}>
+                            {level}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  {/* Butonlar */}
+                  <Grid display="flex" justifyContent="center" width="20%" gap={1}>
+                    {/* Silme Butonu */}
+                    {showDeleteButton && (
+                      <Button
+                        sx={{ height: "58px", fontSize: "3rem" }}
+                        onClick={() => {
+                          const updatedArray = [...selectLanguageArray];
+                          updatedArray.splice(index, 1);
+                          setSelectLanguageArray(updatedArray);
+
+                          if (languageCount >= 2) {
+                            setLanguageCount((prev) => prev - 1);
+                          }
+                        }}
+                      >
+                        🗑
+                      </Button>
+                    )}
+
+                    {/* Ekleme Butonu */}
+                    {((selectLanguageArray.length > 0 &&
+                      selectLanguageArray.length - 1 === index) ||
+                      languageCount === 1) && (
+                        <Button
+                          sx={{ height: "58px", fontSize: "3rem" }}
+                          onClick={() => {
+                            const isComplete = !selectLanguageArray.find(
+                              (item) =>
+                                item.id === -1 || item.name === "" || item.level === ""
+                            );
+
+                            if (isComplete) {
+                              setLanguageCount((prev) => prev + 1);
+                              setSelectLanguageArray((prev) => [
+                                ...prev,
+                                { id: -1, name: "", level: "" },
+                              ]);
+                            }
+                          }}
+                        >
+                          +
+                        </Button>
+                      )}
+                  </Grid>
+                </Grid>
+
+                <Grid>
+                  {Array.isArray(formik.errors.languages) && formik.touched.languages &&
+                    formik.errors.languages.map((error: any, idx: number) => (
+                      idx === index && (
+                        <div key={idx}>
+                          {error && typeof error === "object" ? (
+                            <>
+                              {/* name hatası varsa */}
+                              {error.name && (
+                                <p
+                                  className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                  style={{ color: "#d32f2f" }}
+                                >
+                                  {`${error.name}`}
+                                </p>
+                              )}
+                              {/* level hatası varsa */}
+                              {error.level && (
+                                <p
+                                  className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                  style={{ color: "#d32f2f" }}
+                                >
+                                  {`${error.level}`}
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            // Eğer error direkt string ise
+                            <p
+                              className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                              style={{ color: "#d32f2f" }}
+                            >
+                              {`${error}`}
+                            </p>
+                          )}
+                        </div>
+                      )
+                    ))}
+                </Grid>
+              </Grid>
+
+            );
+          })}
+        </Grid>
       </Grid>
     </>
   );

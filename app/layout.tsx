@@ -19,15 +19,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="vsc-initialized" >
-        <ReduxProvider>
-          <ClientWrapper>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="mainContainer">{children}</main>
-              <Footer />
-            </div>
-          </ClientWrapper>
-        </ReduxProvider>
+          <ReduxProvider>
+            <ClientWrapper>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="mainContainer">{children}</main>
+                <Footer />
+              </div>
+            </ClientWrapper>
+          </ReduxProvider>
       </body>
     </html>
   );
