@@ -77,7 +77,8 @@ export const createPortfolioValidation = yup.object({
     .min(1, "En az 1 meslek seçilmelidir")
     .required("Meslek alanı zorunludur"),
   otherJob: yup.string().when("jobs", (jobs, schema) => {
-    const hasOther = Array.isArray(jobs[0]) && jobs[0].some((job) => job.id === 0);
+    const hasOther =
+      Array.isArray(jobs[0]) && jobs[0].some((job) => job.id === 0);
     return hasOther
       ? schema.required("Diğer meslek alanı zorunludur")
       : schema.notRequired();
@@ -103,4 +104,24 @@ export const createPortfolioValidation = yup.object({
     )
     .min(1, "En az bir dil bilgisi eklenmelidir")
     .required("Dil bilgisi zorunludur"),
+  certificates: yup
+    .array()
+    .of(
+      yup.object({
+        id: yup.number(),
+        title: yup
+          .string()
+          .min(3, "Başlık minimum 3 karakter uzunlukta olmalıdır")
+          .max(30, "Başlık maximum 30 karakter uzunlukta olmalıdır")
+          .required("Başlık alanı zorunludur"),
+        companyName: yup
+          .string()
+          .min(3, "Kurum adı minimum 3 karakter uzunlukta olmalıdır")
+          .max(30, "Kurum adı maximum 30 karakter uzunlukta olmalıdır")
+          .required("Kurum adı alanı zorunludur"),
+        date: yup.date().required("Tarih alanı zorunludur"),
+      })
+    )
+    .min(1, "En az 1 sertifika eklenmelidir")
+    .required("En az 1 sertifika eklenmelidir"),
 });

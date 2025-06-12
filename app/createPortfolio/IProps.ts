@@ -39,6 +39,18 @@ export interface ICertificatesFiles {
   size: number;
 }
 
+export interface IWorkExperiences{
+  id:number;
+  position:string;
+  title:string;
+  country:string;
+  city:string;
+  startDate:Dayjs | null;
+  endDate:Dayjs | null;
+  description:string;
+  isWorking:boolean;
+}
+
 export interface ICreatePortfolio {
   name: string;
   surname: string;
@@ -54,4 +66,5 @@ export interface ICreatePortfolio {
   skills: [] | string[];
   languages: [] | ILanguageArray[];
   certificates: [] | ICertificates[];
+  workExperiences:[] | IWorkExperiences[];
 }

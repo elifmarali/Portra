@@ -20,6 +20,7 @@ import { convertToBase64 } from "@/functions/convertToBase64";
 import Step3 from "@/components/Steps/Step3";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import Step4 from "@/components/Steps/Step4";
 
 interface IExtendFile extends File {
   previewUrl: string;
@@ -40,7 +41,8 @@ function CreatePortfolio() {
     district: null,
     skills: [],
     languages: [{ id: -1, name: "", level: "" }],
-    certificates: []
+    certificates: [],
+    workExperiences:[]
   };
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
@@ -253,7 +255,7 @@ function CreatePortfolio() {
                     {step === 2 && <Step1 />}
                     {step === 3 && <Step2 />}
                     {step === 4 && <Step3 />}
-                    {step === 5 && <div style={{ color: "#fff" }}>Step 6</div>}
+                    {step === 5 && <Step4 />}
                     {step === 6 && <div style={{ color: "#fff" }}>Step 7</div>}
                   </Grid>
                   <Grid size={12} sx={{ margin: "30px 0" }}>

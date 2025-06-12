@@ -45,13 +45,13 @@ export async function POST(req: Request) {
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime("7200s")
+      .setExpirationTime("172800s")
       .sign(new TextEncoder().encode(secret));
 
     const cookiesStore = await cookies();
     cookiesStore.set("token", token, {
       path: "/",
-      maxAge: 7200,
+      maxAge: 172800,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });

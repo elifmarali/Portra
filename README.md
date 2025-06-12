@@ -24,7 +24,7 @@
 * **Yetenekler / Skills** (tag input – örn. JavaScript, Figma)  ✅
 * **Dil Bilgisi** (dil + seviye) ✅
 * **Sertifikalar / Kurslar** (başlık + kurum + tarih) ✅
-+Dosya ekleme alanı
++Dosya ekleme alanı ✅
 
 ---
 
@@ -40,6 +40,7 @@
   * Başlangıç ve Bitiş Tarihleri
   * Açıklama (kısa görev özeti)
   * Şu anda burada çalışıyorum (checkbox)
+  + yetenekler
 
 ---
 
