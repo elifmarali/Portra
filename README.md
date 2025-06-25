@@ -37,6 +37,7 @@
   * Pozisyon
   * Firma Adı
   * Lokasyon (şehir + ülke)
+  - Çalışma Şekli (Remote / Hibrit / Ofisten)
   * Başlangıç ve Bitiş Tarihleri
   * Açıklama (kısa görev özeti)
   * Şu anda burada çalışıyorum (checkbox)

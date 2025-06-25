@@ -50,7 +50,7 @@ function ClientWrapper({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--border-color", colorOptions[color].light);
     } else {
       root.style.setProperty("--color", colorOptions[color].dark);
-      root.style.setProperty("--label-color", "#342f2f");
+      root.style.setProperty("--label-color", "#403e3e");
       root.style.setProperty("--border-color", "#b4a8a8");
     }
   }, [color, theme]);

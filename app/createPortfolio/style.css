@@ -10,8 +10,10 @@
   width: 90%;
 }
 
-.portfolioInput .MuiInputBase-root {
-  color: var(--label-color);
+.portfolioInput .MuiInputBase-root,
+.portfolioRadio,
+.css-13lvt8g-MuiButtonBase-root-MuiRadio-root {
+  color: var(--label-color) !important;
   font-size: 1.1rem;
 }
 
@@ -46,4 +48,8 @@
 .labelRequired{
   color: #d32f2f;
   display: inline;
+}
+
+.portfolioRadio .MuiTypography-root{
+  font-size: 20px !important;
 }

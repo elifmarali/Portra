@@ -6,10 +6,24 @@ export interface ICountry {
   name: string;
 }
 
+export interface ICountryWorkExperience {
+  id: number;
+  name: string;
+  workExperienceId?: number;
+}
+
 export interface ICity {
+  _id?: string;
   id: number;
   name: string;
   country_id: number;
+}
+
+export interface ICityWorkExperience {
+  id: number;
+  name: string;
+  country_id: number;
+  workExperienceId?: number;
 }
 
 export interface IJob {
@@ -39,16 +53,17 @@ export interface ICertificatesFiles {
   size: number;
 }
 
-export interface IWorkExperiences{
-  id:number;
-  position:string;
-  title:string;
-  country:string;
-  city:string;
-  startDate:Dayjs | null;
-  endDate:Dayjs | null;
-  description:string;
-  isWorking:boolean;
+export interface IWorkExperiences {
+  id: number;
+  position: string;
+  title: string;
+  workingMethod: string;
+  country: string;
+  city: string;
+  startDate: Dayjs | null;
+  endDate: Dayjs | null;
+  description: string;
+  isWorking: boolean;
 }
 
 export interface ICreatePortfolio {
@@ -66,5 +81,5 @@ export interface ICreatePortfolio {
   skills: [] | string[];
   languages: [] | ILanguageArray[];
   certificates: [] | ICertificates[];
-  workExperiences:[] | IWorkExperiences[];
+  workExperiences: [] | IWorkExperiences[];
 }

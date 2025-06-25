@@ -10,7 +10,7 @@ import { colorOptions } from "@/lists/color";
 import { useSelector } from "react-redux";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
-import { ICity, ICountry, IDistrict } from "@/app/createPortfolio/IProps";
+import { ICity, ICityWorkExperience, ICountry, ICountryWorkExperience, IDistrict } from "@/app/createPortfolio/IProps";
 import "@/components/Autocompleted/style.css";
 
 export interface IList {
@@ -21,7 +21,7 @@ export interface IList {
 
 interface CustomizedHookProps {
   type: string;
-  list: IList[];
+  list: IList[] | any;
   selectedCountry?: ICountry | null;
   setSelectedCountry?: React.Dispatch<React.SetStateAction<ICountry | null>>;
   selectedCity?: ICity | null;
@@ -29,6 +29,11 @@ interface CustomizedHookProps {
   selectedDistrict?: IDistrict | null;
   setSelectedDistrict?: React.Dispatch<React.SetStateAction<IDistrict | null>>;
   errorText: any;
+  selectedCountryWorkExperience?: ICountryWorkExperience | null,
+  setSelectedCountryWorkExperience?: React.Dispatch<React.SetStateAction<any>>;
+  selectedCityWorkExperience?: ICityWorkExperience | null,
+  setSelectedCityWorkExperience?: React.Dispatch<React.SetStateAction<any>>;
+  workItemIndex?: number;
 }
 
 const Root = styled("div")(({ theme }) => ({
@@ -199,12 +204,21 @@ export default function CustomizedHook({
   setSelectedCity,
   selectedDistrict,
   setSelectedDistrict,
-  errorText
+  errorText,
+  selectedCountryWorkExperience,
+  setSelectedCountryWorkExperience,
+  selectedCityWorkExperience,
+  setSelectedCityWorkExperience,
+  workItemIndex
 }: CustomizedHookProps) {
   const theme = useSelector(selectTheme); // 'light' | 'dark'
   const color = useSelector(selectColor); // örn: 'blue'
   const [inputValue, setInputValue] = useState("");
   const [currentSelected, setCurrentSelected] = useState<IList | null>(null);
+
+  useEffect(() => {
+    console.log("selectedCityWorkExperience12345 : ", selectedCityWorkExperience);
+  }, [selectedCityWorkExperience])
 
   useEffect(() => {
     if (type === "district") {
@@ -245,14 +259,44 @@ export default function CustomizedHook({
   }, [selectedCountry]);
 
   useEffect(() => {
+    if (type === "countryWorkExperience") {
+      if (selectedCountryWorkExperience === null) {
+        setCurrentSelected(null);
+        setSelectedCountryWorkExperience?.(null);
+        setSelectedCityWorkExperience?.(null);
+      } else if (selectedCountryWorkExperience) {
+        setCurrentSelected(selectedCountryWorkExperience);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountryWorkExperience]);
+
+  useEffect(() => {
+    if (type === "cityWorkExperience") {
+      if (selectedCity === null) {
+        setCurrentSelected(null);
+        setSelectedCityWorkExperience?.([]);
+      } else if (selectedCityWorkExperience) {
+        setCurrentSelected(selectedCityWorkExperience);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCityWorkExperience]);
+
+
+  useEffect(() => {
     if (type === "country" && selectedCountry) {
       setCurrentSelected(selectedCountry);
     } else if (type === "city" && selectedCity) {
       setCurrentSelected(selectedCity);
     } else if (type === "district" && selectedDistrict) {
       setCurrentSelected(selectedDistrict);
+    } else if (type === "countryWorkExperience" && selectedCountryWorkExperience) {
+      setCurrentSelected(selectedCountryWorkExperience);
+    } else if (type === "cityWorkExperience" && selectedCityWorkExperience) {
+      setCurrentSelected(selectedCityWorkExperience);
     }
-  }, [type, selectedCountry, selectedCity, selectedDistrict]);
+  }, [type, selectedCountry, selectedCity, selectedDistrict, selectedCountryWorkExperience, selectedCityWorkExperience]);
 
   useEffect(() => {
     setInputValue("");
@@ -272,7 +316,7 @@ export default function CustomizedHook({
     id: "customized-hook-demo",
     options: list,
     value: currentSelected,
-    getOptionLabel: (option) => option.name,
+    getOptionLabel: (option) => option?.name,
     inputValue: inputValue,
     onInputChange: (event, newInputValue) => {
       setInputValue(newInputValue);
@@ -287,6 +331,10 @@ export default function CustomizedHook({
         setSelectedDistrict?.(null);
       } else if (type === "district") {
         setSelectedDistrict?.((value as IDistrict) ?? null);
+      } else if (type === "countryWorkExperience") {
+        setSelectedCountryWorkExperience?.((value));
+      } else if (type === "cityWorkExperience") {
+        setSelectedCityWorkExperience?.((value as ICityWorkExperience))
       }
       setCurrentSelected(value ?? null);
       setInputValue("");
@@ -326,7 +374,33 @@ export default function CustomizedHook({
                         setSelectedCity?.(null);
                         setSelectedDistrict?.(null);
                         setCurrentSelected(null);
+                      } if (type === "countryWorkExperience" && typeof workItemIndex === "number") {
+                        console.log("ÇALIŞTIMMMMMMMMMMMMMMM");
+
+                        // Ülkeyi seçilenlerden kaldır
+                        setSelectedCountryWorkExperience?.((prev: any) => {
+                          const safePrev = Array.isArray(prev) ? prev : [];
+                          const newArr = [...safePrev];
+                          const idx = newArr.findIndex(item => item.workExperienceId === workItemIndex);
+                          if (idx !== -1) newArr.splice(idx, 1);
+
+                          return newArr.length === 0 ? null : newArr;
+                        });
+
+                        setSelectedCityWorkExperience?.((prev: any) => {
+                          const safePrev = Array.isArray(prev) ? prev : [];
+                          const newArr = [...safePrev];
+                          if (workItemIndex >= 0 && workItemIndex < newArr.length) {
+                            newArr.splice(workItemIndex, 1);
+                          }
+
+                          return newArr.length === 0 ? null : newArr;
+                        });
+
+                        setCurrentSelected(null);
+                        setInputValue("");
                       }
+
                     }}
                   />
                 );
