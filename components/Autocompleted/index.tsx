@@ -217,10 +217,6 @@ export default function CustomizedHook({
   const [currentSelected, setCurrentSelected] = useState<IList | null>(null);
 
   useEffect(() => {
-    console.log("selectedCityWorkExperience12345 : ", selectedCityWorkExperience);
-  }, [selectedCityWorkExperience])
-
-  useEffect(() => {
     if (type === "district") {
       if (selectedDistrict === null) {
         setCurrentSelected(null); // İlçe dışarıdan null geldiyse içerideki state'i de sıfırla
@@ -260,8 +256,8 @@ export default function CustomizedHook({
 
   useEffect(() => {
     if (type === "countryWorkExperience") {
-      if (selectedCountryWorkExperience === null) {
-        setCurrentSelected(null);
+      if (selectedCountryWorkExperience?.id === undefined) {
+        setCurrentSelected?.(null);
         setSelectedCountryWorkExperience?.(null);
         setSelectedCityWorkExperience?.(null);
       } else if (selectedCountryWorkExperience) {
@@ -374,32 +370,21 @@ export default function CustomizedHook({
                         setSelectedCity?.(null);
                         setSelectedDistrict?.(null);
                         setCurrentSelected(null);
-                      } if (type === "countryWorkExperience" && typeof workItemIndex === "number") {
-                        console.log("ÇALIŞTIMMMMMMMMMMMMMMM");
-
-                        // Ülkeyi seçilenlerden kaldır
-                        setSelectedCountryWorkExperience?.((prev: any) => {
+                      } else if (type === "countryWorkExperience" && typeof workItemIndex === "number") {
+                        setSelectedCountryWorkExperience?.((prev: ICountryWorkExperience[] | null) => {
                           const safePrev = Array.isArray(prev) ? prev : [];
-                          const newArr = [...safePrev];
-                          const idx = newArr.findIndex(item => item.workExperienceId === workItemIndex);
-                          if (idx !== -1) newArr.splice(idx, 1);
-
-                          return newArr.length === 0 ? null : newArr;
+                          const filtered = safePrev.filter(item => item.workExperienceId !== workItemIndex);
+                          return filtered.length === 0 ? null : filtered;
                         });
-
-                        setSelectedCityWorkExperience?.((prev: any) => {
+                        setSelectedCityWorkExperience?.((prev: ICityWorkExperience[] | null) => {
                           const safePrev = Array.isArray(prev) ? prev : [];
-                          const newArr = [...safePrev];
-                          if (workItemIndex >= 0 && workItemIndex < newArr.length) {
-                            newArr.splice(workItemIndex, 1);
-                          }
-
-                          return newArr.length === 0 ? null : newArr;
+                          const filtered = safePrev.filter((_, idx) => idx !== workItemIndex);
+                          return filtered.length === 0 ? null : filtered;
                         });
-
                         setCurrentSelected(null);
                         setInputValue("");
                       }
+
 
                     }}
                   />
