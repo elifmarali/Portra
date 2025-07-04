@@ -7,7 +7,7 @@
 }
 
 .portfolioInput {
-  width: 90%;
+  width: 100%;
 }
 
 .portfolioInput .MuiInputBase-root,
@@ -45,11 +45,11 @@
   color: var(--label-color);
 }
 
-.labelRequired{
+.labelRequired {
   color: #d32f2f;
   display: inline;
 }
 
-.portfolioRadio .MuiTypography-root{
+.portfolioRadio .MuiTypography-root {
   font-size: 20px !important;
 }

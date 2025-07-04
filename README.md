@@ -47,9 +47,9 @@
 
 > Dördüncü adım: Nerede okudun?
 
-* Okul adı
-* Bölüm
-* Derece (Lisans, Yüksek Lisans vs.)
+* Okul adı ✅
+* Bölüm ✅
+* Derece (Lisans, Yüksek Lisans vs.) ✅
 * Başlangıç/Bitiş tarihleri
 
 ---

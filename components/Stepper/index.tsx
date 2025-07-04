@@ -17,7 +17,6 @@ interface IStep {
 
 function Stepper({ step }: IStep) {
   const router = useRouter();
-  const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
 

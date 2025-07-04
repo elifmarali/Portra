@@ -66,7 +66,17 @@ export interface IWorkExperiences {
   isWorking: boolean;
 }
 
+export interface IEducations {
+  id: number;
+  schoolName:string;
+  department:IJob | null;
+  degreee:string;
+  startDate: Dayjs | null;
+  endDate: Dayjs | null;
+}
+
 export interface ICreatePortfolio {
+  id:number;
   name: string;
   surname: string;
   title: string;
@@ -82,4 +92,5 @@ export interface ICreatePortfolio {
   languages: [] | ILanguageArray[];
   certificates: [] | ICertificates[];
   workExperiences: [] | IWorkExperiences[];
+  educations: [] | IEducations[];
 }

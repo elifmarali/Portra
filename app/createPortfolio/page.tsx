@@ -1,4 +1,5 @@
 "use client";
+
 import "./style.css";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
@@ -6,7 +7,7 @@ import { colorOptions } from "@/lists/color";
 import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import * as motion from "motion/react-client";
 import { RiDeleteBin2Line } from "react-icons/ri";
@@ -14,13 +15,13 @@ import Stepper from "@/components/Stepper";
 import Step0 from "@/components/Steps/Step0";
 import Step1 from "@/components/Steps/Step1";
 import Step2 from "@/components/Steps/Step2";
-import { FaEye } from "react-icons/fa6";
-import { convertToBase64 } from "@/functions/convertToBase64";
 import Step3 from "@/components/Steps/Step3";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Step4 from "@/components/Steps/Step4";
 import Step5 from "@/components/Steps/Step5";
+import { FaEye } from "react-icons/fa6";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { convertToBase64 } from "@/functions/convertToBase64";
 import { useRouter } from "next/navigation";
 
 interface IExtendFile extends File {
@@ -32,11 +33,26 @@ interface Props {
 }
 
 function CreatePortfolio({ stepParam }: Props) {
-  const router = useRouter();
   const step = parseInt(stepParam || "0", 10);
-  const nextStep = () => router.push(`/createPortfolio/${step + 1}`);
-  const prevStep = () => step > 1 && router.push(`/createPortfolio/${step - 1}`);
-  const initialValues = {
+  const [formId, setFormId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("portfolioFormId");
+      if (saved) return saved;
+
+      const newId = Math.floor(Math.random() * 7449741984988489).toString();
+      localStorage.setItem("portfolioFormId", newId);
+      return newId;
+    }
+    return "";
+  });
+
+  // Sadece formId değişirse bu obje baştan hesaplanır.
+  // formId sabit olduğu sürece initialValues sabit kalır.
+  // durduk yere formu sıfırlamaz ( her next veya back de sıfırlaması gibi)
+  //  useMemo = “Render başına değil, bağımlılık değişince çalış!” garantisi.
+  // useMemo = “Gereksiz sıfırlama yok, performans stabil!”
+  const initialValues = useMemo(() => ({
+    id: formId,
     name: "",
     surname: "",
     title: "",
@@ -51,8 +67,24 @@ function CreatePortfolio({ stepParam }: Props) {
     skills: [],
     languages: [{ id: -1, name: "", level: "" }],
     certificates: [],
-    workExperiences: []
-  };
+    workExperiences: [],
+    educations: [],
+  }), [formId]);
+
+
+  // Form datasını localStorage ile koru
+  const [formData, setFormData] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(`portfolioForm-${formId}`);
+      return saved ? JSON.parse(saved) : initialValues;
+    }
+    return initialValues;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`portfolioForm-${formId}`, JSON.stringify(formData));
+  }, [formData, formId]);
+
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
   const [photo, setPhoto] = useState<IExtendFile | null>(null);
@@ -61,7 +93,6 @@ function CreatePortfolio({ stepParam }: Props) {
   return (
     <Grid
       container
-      display="flex"
       justifyContent="center"
       sx={{
         backgroundColor: theme === "dark" ? "#000" : "#fff",
@@ -69,12 +100,11 @@ function CreatePortfolio({ stepParam }: Props) {
       }}
     >
       <Grid sx={{ width: "90%", marginTop: { xs: 4, sm: 4, md: 4, lg: 2 } }}>
-        <Grid size={{ xs: 12 }}>
+        <Grid size={12}>
           <Typography
             variant="h3"
             sx={{
               fontWeight: "600",
-              fontFamily: "inherit",
               textAlign: "center",
               color:
                 theme === "dark"
@@ -85,44 +115,54 @@ function CreatePortfolio({ stepParam }: Props) {
             Portfolyo Oluştur
           </Typography>
         </Grid>
+
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Formik
-            initialValues={initialValues}
-            enableReinitialize
+            initialValues={formData}
+            enableReinitialize={false}
             validationSchema={createPortfolioValidation}
             validateOnBlur={false}
             onSubmit={(values) => {
-              console.log(JSON.stringify(values, null, 2));
+              console.log("Form Submit:", JSON.stringify(values, null, 2));
+              localStorage.removeItem(`portfolioForm-${formId}`);
+              localStorage.removeItem("portfolioFormId");
             }}
           >
-            {
-              ({ errors, setFieldValue }) => (
+            {({ values, errors, setFieldValue }) => {
+              useEffect(() => {
+                setFormData(values);
+              }, [values]);
+
+              return (
                 <Form>
                   <Grid container spacing={{ xs: 2, sm: 2, md: 6 }}>
-                    {/* Photo */}
                     {step === 0 && (
                       <>
                         <Grid size={12}>
                           <Typography
-                            sx={{ color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}
                             variant="h4"
+                            sx={{
+                              color:
+                                theme === "dark"
+                                  ? colorOptions[color].light
+                                  : colorOptions[color].dark,
+                            }}
                           >
-                            Profil Fotoğrafı <span className="labelRequired">*</span>
+                            Profil Fotoğrafı{" "}
+                            <span className="labelRequired">*</span>
                           </Typography>
                         </Grid>
+
                         <Grid size={12}>
                           <Box
                             sx={{
                               width: "100%",
                               display: "flex",
                               flexDirection: "column",
-                              justifyContent: "center",
                               alignItems: "center",
-                              height: "100%",
                               minHeight: "calc(100vh - 400px)",
                             }}
                           >
-                            {/* File Upload Circle */}
                             <Box
                               sx={{
                                 width: 300,
@@ -138,76 +178,41 @@ function CreatePortfolio({ stepParam }: Props) {
                               }}
                               onClick={() => inputRef.current?.click()}
                             >
-                              {/* Görsel olarak bir + işareti veya açıklama */}
                               <Typography sx={{ color: "#aaa", textAlign: "center" }}>
                                 Fotoğraf yükle
                               </Typography>
-
-                              {/* Gerçek input */}
                               <input
                                 ref={inputRef}
                                 type="file"
                                 name="photo"
-                                id="photo"
                                 accept="image/*"
-                                onChange={async (
-                                  e: React.ChangeEvent<HTMLInputElement>
-                                ) => {
+                                onChange={async (e) => {
                                   setPhoto(null);
                                   const file = e.currentTarget.files?.[0];
                                   if (file) {
                                     const extendedFile: IExtendFile = Object.assign(
                                       file,
-                                      {
-                                        previewUrl: URL.createObjectURL(file),
-                                      }
+                                      { previewUrl: URL.createObjectURL(file) }
                                     );
                                     const base64File = await convertToBase64(extendedFile);
                                     setFieldValue("photo", base64File);
                                     setPhoto(extendedFile);
                                   }
                                 }}
-                                style={{
-                                  opacity: 0,
-                                  position: "absolute",
-                                  top: 0,
-                                  left: 0,
-                                  cursor: "pointer",
-                                }}
+                                style={{ opacity: 0, position: "absolute", cursor: "pointer" }}
                               />
                             </Box>
-                            {
-                              errors.photo && typeof errors.photo === "string" && (
-                                <Box
-                                  sx={{
-                                    mt: 1,
-                                    width: "90%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <p
-                                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                                    id="photo-helper-text"
-                                    style={{ color: "#d32f2f" }}
-                                  >
-                                    {errors.photo}
-                                  </p>
-                                </Box>
-                              )
-                            }
-                            {/* Photo Preview & Actions */}
+
+                            {typeof errors?.photo === "string" && (
+                              <Box sx={{ mt: 1 }}>
+                                <Typography sx={{ color: "#d32f2f" }}>
+                                  {errors?.photo}
+                                </Typography>
+                              </Box>
+                            )}
+
                             {photo && (
-                              <Box
-                                sx={{
-                                  mt: 1,
-                                  width: "30%",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                }}
-                              >
+                              <Box sx={{ mt: 1, display: "flex", alignItems: "center" }}>
                                 <Typography
                                   sx={{
                                     color:
@@ -218,34 +223,23 @@ function CreatePortfolio({ stepParam }: Props) {
                                 >
                                   {photo.name}
                                 </Typography>
-                                <Box className="flex gap-4">
-                                  <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.8 }}
-                                  >
+                                <Box className="flex gap-4" sx={{ ml: 2 }}>
+                                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
                                     <Button
                                       variant="contained"
-                                      sx={{
-                                        backgroundColor: colorOptions[color].dark,
-                                      }}
+                                      sx={{ backgroundColor: colorOptions[color].dark }}
                                       onClick={() => window.open(photo.previewUrl)}
                                     >
                                       <FaEye size={20} />
                                     </Button>
                                   </motion.div>
-                                  <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.8 }}
-                                  >
+                                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
                                     <Button
                                       variant="contained"
-                                      sx={{
-                                        backgroundColor: colorOptions["red"].dark,
-                                      }}
+                                      sx={{ backgroundColor: colorOptions["red"].dark }}
                                       onClick={() => {
                                         setPhoto(null);
-                                        if (inputRef.current)
-                                          inputRef.current.value = "";
+                                        if (inputRef.current) inputRef.current.value = "";
                                       }}
                                     >
                                       <RiDeleteBin2Line size={20} />
@@ -265,37 +259,33 @@ function CreatePortfolio({ stepParam }: Props) {
                     {step === 4 && <Step3 />}
                     {step === 5 && <Step4 />}
                     {step === 6 && <Step5 />}
-                    {step === 7 && <div style={{ color: "#fff" }}>Step 7</div>}
-                    {step === 8 && <div style={{ color: "#fff" }}>Step 8</div>}
-                    {step === 9 && <div style={{ color: "#fff" }}>Step 9</div>}
+                    {step >= 7 && step <= 9 && (
+                      <Typography sx={{ color: "#fff" }}>Step {step}</Typography>
+                    )}
                   </Grid>
-                  <Grid size={12} sx={{ margin: "30px 0" }}>
-                    <Stepper step={step}/>
+
+                  <Grid size={12} sx={{ my: 4 }}>
+                    <Stepper step={step} />
                   </Grid>
-                  {/* Buton */}
-                  <Grid
-                    size={12}
-                    display="flex"
-                    justifyContent="center"
-                    sx={{ marginBottom: "10px" }}
-                  >
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.8 }}>
+
+                  <Grid size={12} display="flex" justifyContent="center">
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
                       <Button
                         variant="contained"
+                        type="submit"
                         sx={{
                           backgroundColor: colorOptions[color].dark,
-                          padding: "12px",
+                          padding: "12px 24px",
                           fontSize: "16px",
                         }}
-                        type="submit"
                       >
                         Portfolyo Oluştur
                       </Button>
                     </motion.div>
                   </Grid>
                 </Form>
-              )
-            }
+              );
+            }}
           </Formik>
         </LocalizationProvider>
       </Grid>
