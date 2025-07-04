@@ -2,7 +2,7 @@
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { colorOptions } from '@/lists/color';
-import { Box, Button, FormControl, Grid, TextField, Typography } from '@mui/material'
+import { Button, FormControl, Grid, TextField, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { IoMdAdd } from "react-icons/io";
@@ -45,7 +45,7 @@ function Step3() {
     const certificatesTouched = formik.touched.certificates as Array<FormikTouched<ICertificates>> | undefined;
 
     useEffect(() => {
-        if (certificatesTouched?.some((certificatesTouchedItem: any) => certificatesTouchedItem === true)) {
+        if (certificatesTouched?.some((certificatesTouchedItem: any) => certificatesTouchedItem === true)) { // eslint-disable-line @typescript-eslint/no-explicit-any
             setFileError((prev) => {
                 const updatedErrors = [...prev];
                 formik.values.certificates.map((certificateItem: ICertificates) => {
@@ -175,7 +175,7 @@ function Step3() {
                                     Dosya Yükle (Max 3 dosya yüklenmelidir)
                                     <VisuallyHiddenInput
                                         type="file"
-                                        onChange={async (e: any) => {
+                                        onChange={async (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
                                             const filesFormik = formik.values.certificates[i].files ?? [];
                                             const files: FileList = e.target.files;
                                             const filesArray = Array.from(files);
@@ -321,9 +321,9 @@ function Step3() {
                     )
                 })
             }
-            <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
+            <Grid size={12} sx={{ display: "flex",flexDirection:"column" ,alignItems:"center",justifyContent: "center" }}>
                 <Button variant="outlined"
-                    sx={{ fontSize: "30px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}
+                    sx={{ fontSize: "30px",width:"30%" ,display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}
                     onClick={() => {
                         const current = formik.values.certificates || [];
                         const lastId = current.length > 0 ? current[current.length - 1].id + 1 : 1;
@@ -336,7 +336,18 @@ function Step3() {
                         };
                         formik.setFieldValue("certificates", [...current, newItem]);
                     }}> {formik.values.certificates.length === 0 ? "Yeni Ekle" : "Ekle"} <IoMdAdd fontSize={30} /></Button>
-            </Grid>           
+                {
+                    (Boolean(formik.errors.certificates && formik.touched.certificates) && typeof formik.errors.certificates === "string" ) &&(
+                        <p
+                            className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                            style={{ color: "#d32f2f", marginTop: "10px", marginLeft: "14px" }}
+                        >
+                            {formik.errors.certificates}
+                        </p>
+                    )
+                }
+            </Grid>
+
         </>
     )
 }

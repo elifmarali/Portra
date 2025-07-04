@@ -1,21 +1,22 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
-import {
-  changeCurrentPage,
-  currentStep,
-} from "@/lib/redux/features/portfolioCurrentPage/portfolioCurrentPageSlice";
 import { useDispatch, useSelector } from "react-redux";
 import MobileStepper from "@mui/material/MobileStepper";
 import Button from "@mui/material/Button";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import { darken } from "@mui/material";
+import { useRouter } from "next/navigation";
 
-function Stepper() {
-  const step: number = useSelector(currentStep);
+interface IStep {
+  step: number;
+}
+
+function Stepper({ step }: IStep) {
+  const router = useRouter();
   const dispatch = useDispatch();
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
@@ -23,7 +24,7 @@ function Stepper() {
   return (
     <MobileStepper
       variant="progress"
-      steps={8}
+      steps={10}
       position="static"
       activeStep={step}
       sx={{
@@ -43,8 +44,8 @@ function Stepper() {
             ":disabled": { color: "#999 !important" },
             fontSize: "16px",
           }}
-          onClick={() => dispatch(changeCurrentPage(step + 1))}
-          disabled={step === 7}
+          onClick={() => router.push(`/createPortfolio/${step + 1}`)}
+          disabled={step === 9}
           type="button"
         >
           Next
@@ -58,7 +59,7 @@ function Stepper() {
             ":disabled": { color: "#999 !important" },
             fontSize: "16px",
           }}
-          onClick={() => dispatch(changeCurrentPage(step - 1))}
+          onClick={() => router.push(`/createPortfolio/${step - 1}`)}
           disabled={step === 0}
           type="button"
         >

@@ -15,7 +15,7 @@ import {
 import axios, { AxiosError } from "axios";
 import { useFormik } from "formik";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BiSolidHide, BiSolidShow } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
@@ -24,7 +24,6 @@ import Link from "next/link";
 import {
   changeLoading,
   currentAuth,
-  IAuth,
 } from "@/lib/redux/features/auth/authSlice";
 import Loading from "@/components/Loading";
 

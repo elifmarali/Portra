@@ -124,4 +124,39 @@ export const createPortfolioValidation = yup.object({
     )
     .min(1, "En az 1 sertifika eklenmelidir")
     .required("En az 1 sertifika eklenmelidir"),
+  workExperiences: yup.array().of(
+    yup.object({
+      id: yup.number(),
+      position: yup
+        .string()
+        .min(3, "Pozisyon minimum 3 karakter uzunluğunda olmalıdır")
+        .max(50, "Pozisyon maximum 50 karakter uzunlukta olmalıdır")
+        .required("Pozisyon alanı zorunludur"),
+      title: yup
+        .string()
+        .min(3, "Firma adı minimum 3 karakter uzunluğunda olmalıdır")
+        .max(50, "Firma adı maximum 50 karakter uzunlukta olmalıdır")
+        .required("Firma adı alanı zorunludur"),
+      workingMethod: yup.string().required("Çalışma şekli seçmek zorunludur"),
+      country: yup.string().when("workingMethod", {
+        is: (val: string) => val === "hibrit" || val === "ofisten",
+        //Eğer is durumu TRUE olursa, country alanı zorunlu hale gelir.
+        then: (schema) => schema.required("Ülke seçimi zorunludur"),
+        // Eğer workingMethod "remote" ise (hibrit veya ofisten değilse)
+        //country zorunlu olmaz, boş bırakılabilir.
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      city: yup.string().when("workingMethod", {
+        is: (val: string) => val === "hibrit" || val === "ofisten",
+        then: (schema) => schema.required("İl seçimi zorunludur"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      startDate: yup.date().required("Başlangıç tarih alanı zorunludur"),
+      endDate: yup.date().when("isWorking", {
+        is: (val: boolean) => val === false,
+        then: (schema) => schema.required("Bitiş Tarihi zorunludur"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    })
+  ),
 });

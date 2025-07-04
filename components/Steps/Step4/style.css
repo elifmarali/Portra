@@ -1,0 +1,26 @@
+.labelRequiredEndDate {
+  position: relative;
+  margin-left: 8px;
+}
+
+.tooltipEndDate {
+  position: absolute;
+  visibility: hidden;
+  width: max-content;
+  opacity: 0;
+  color: var(--color-dark);
+  border: 1px solid var(--color-dark);
+  background-color: var(--color-light);
+  padding: 20px;
+  border-radius: 10px;
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+  font-size: 12px;
+  bottom: 120%; /* Kutunun yukarısına */
+  left: 50%;
+}
+
+.labelRequiredEndDate:hover .tooltipEndDate {
+  visibility: visible;
+  opacity: 1;
+}

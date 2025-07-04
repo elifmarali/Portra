@@ -1,12 +1,12 @@
 "use client";
-
+import "./style.css";
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice';
 import { colorOptions } from '@/lists/color';
 import { Button, Checkbox, FormControl, FormControlLabel, Grid, Radio, RadioGroup, TextField, Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { FormikErrors, useFormikContext } from 'formik';
-import { ICity, ICityWorkExperience, ICountry, ICountryWorkExperience, ICreatePortfolio, IWorkExperiences } from '@/app/createPortfolio/IProps';
+import { FormikErrors, FormikTouched, useFormikContext } from 'formik';
+import { ICityWorkExperience, ICountry, ICountryWorkExperience, ICreatePortfolio, IWorkExperiences } from '@/app/createPortfolio/IProps';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
 import { useEffect, useState } from 'react';
 import CustomizedHook from '@/components/Autocompleted';
@@ -18,15 +18,13 @@ function Step4() {
   const formik = useFormikContext<ICreatePortfolio>();
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
+  const workExperienceErrors = formik.errors.workExperiences as FormikErrors<IWorkExperiences>[] | undefined;
+  const workExperienceTouched = formik.touched.workExperiences as Array<FormikTouched<IWorkExperiences> | undefined>;
 
   const [countryListState, setCountryListState] = useState<ICountry[]>([]);
-  const [cityListState, setCityListState] = useState<any[]>([]);
+  const [cityListState, setCityListState] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [selectedCountryWorkExperience, setSelectedCountryWorkExperience] = useState<ICountryWorkExperience[]>([]);
   const [selectedCityWorkExperience, setSelectedCityWorkExperience] = useState<ICityWorkExperience[]>([]);
-
-  useEffect(() => {
-    console.log("workExperience : ", formik.values.workExperiences);
-  }, [formik.values.workExperiences]);
 
   useEffect(() => {
     getCountryList();
@@ -102,7 +100,7 @@ function Step4() {
     }
 
     setSelectedCountryWorkExperience(updatedCountry);
-    setSelectedCityWorkExperience((prev: any) => {
+    setSelectedCityWorkExperience((prev: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       if (!Array.isArray(prev)) return [];
       const newArr = [...prev];
       newArr[workItemIndex] = null;
@@ -114,7 +112,7 @@ function Step4() {
   };
 
   const handleCityChange = (city: ICityWorkExperience | null, workItemIndex: number) => {
-    setSelectedCityWorkExperience((prev: any) => {
+    setSelectedCityWorkExperience((prev: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       if (!Array.isArray(prev)) return [];
       const newArr = [...prev];
       newArr[workItemIndex] = city;
@@ -124,21 +122,11 @@ function Step4() {
     formik.setFieldValue(`workExperiences[${workItemIndex}].city`, city?.name || "");
   };
 
+
   useEffect(() => {
-    console.log("formik : ", formik.values);
-  }, [formik])
+    console.log("errors : ", formik.errors);
 
-  /*     id: number;+
-      position: string;+
-      title: string;+
-      workingMethod: string; + 
-      country: string;+
-      city: string;+
-      startDate: Dayjs | null;
-      endDate: Dayjs | null;
-      description: string;
-      isWorking: boolean; */
-
+  }, [formik.errors])
   return (
     <>
       <Grid size={12}>
@@ -146,7 +134,6 @@ function Step4() {
           İş Deneyimi
         </Typography>
       </Grid>
-
       {formik.values.workExperiences.map((workItem: IWorkExperiences, workItemIndex) => (
         <Grid
           key={workItemIndex}
@@ -161,33 +148,36 @@ function Step4() {
           }}
         >
           <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-            <FormControl className="portfolioLabel">Pozisyon</FormControl>
+            <FormControl className="portfolioLabel">Pozisyon <span className="labelRequired">*</span></FormControl>
             <TextField
               name={`workExperiences[${workItemIndex}].position`}
               id={`position-${workItemIndex}`}
               value={formik.values.workExperiences[workItemIndex].position}
               onChange={formik.handleChange}
               className="portfolioInput"
+              helperText={workExperienceTouched?.[workItemIndex]?.position && workExperienceErrors?.[workItemIndex]?.position}
+              error={Boolean(workExperienceTouched?.[workItemIndex]?.position && workExperienceErrors?.[workItemIndex]?.position)}
             />
           </Grid>
-
           <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-            <FormControl className="portfolioLabel">Firma Adı</FormControl>
+            <FormControl className="portfolioLabel">Firma Adı <span className="labelRequired">*</span></FormControl>
             <TextField
               name={`workExperiences[${workItemIndex}].title`}
               id={`title-${workItemIndex}`}
               value={formik.values.workExperiences[workItemIndex].title}
               onChange={formik.handleChange}
               className="portfolioInput"
+              helperText={workExperienceTouched?.[workItemIndex]?.title && workExperienceErrors?.[workItemIndex]?.title}
+              error={Boolean(workExperienceTouched?.[workItemIndex]?.title && workExperienceErrors?.[workItemIndex]?.title)}
             />
           </Grid>
-
-          <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-            <FormControl className="portfolioLabel">Çalışma Şekli </FormControl>
+          {/* Çalışma Şekli */}
+          <Grid size={{ xs: 12, sm: 12, md: 12 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4, width: "98% !important" }}>
+            <FormControl className="portfolioLabel" sx={{ width: { xs: "89% !important", sm: "89% !important", md: "220% !important" } }}>Çalışma Şekli <span className="labelRequired">*</span></FormControl>
             <RadioGroup
               row
               className="portfolioRadio"
-              sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
+              sx={{ display: "flex", justifyContent: "space-evenly", width: { xs: "220% !important", sm: "220% !important", md: "2000% !important" } }}
               name={`workExperiences[${workItemIndex}].workingMethod`}
               value={formik.values.workExperiences[workItemIndex].workingMethod}
               onChange={formik.handleChange}
@@ -197,7 +187,7 @@ function Step4() {
               <FormControlLabel value="ofisten" control={<Radio />} label="Ofisten" />
             </RadioGroup>
           </Grid>
-
+          {/* Ülke - İl */}
           {(formik.values.workExperiences[workItemIndex].workingMethod === "hibrit" || formik.values.workExperiences[workItemIndex].workingMethod === "ofisten") &&
             (
               <>
@@ -239,10 +229,9 @@ function Step4() {
               </>
             )
           }
-
           {/* Başlangıç Tarihi */}
           <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-            <FormControl className="portfolioLabel">Başlangıç Tarihi</FormControl>
+            <FormControl className="portfolioLabel">Başlangıç Tarihi <span className="labelRequired">*</span></FormControl>
             <Grid width="90%" display="flex" flexDirection="column">
               <DatePicker
                 sx={{
@@ -271,25 +260,24 @@ function Step4() {
                 }}
               />
               {
-                typeof formik.errors.workExperiences?.[workItemIndex] === "object" &&
-                (formik.errors.workExperiences?.[workItemIndex] as FormikErrors<IWorkExperiences>)?.startDate &&
-                formik.touched.workExperiences?.[workItemIndex].startDate && (
+                workExperienceErrors?.[workItemIndex].startDate && workExperienceTouched?.[workItemIndex]?.startDate && (
                   <p
                     className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                    style={{ color: "#d32f2f", marginTop: "10px", marginLeft: "14px" }}
+                    style={{ color: "#d32f2f", marginTop: "4px", marginLeft: "14px" }}
                   >
-                    {typeof formik.errors.workExperiences?.[workItemIndex] === "object" &&
-                      (formik.errors.workExperiences?.[workItemIndex] as FormikErrors<IWorkExperiences>)?.startDate &&
-                      formik.touched.workExperiences?.[workItemIndex].startDate}
+                    {workExperienceErrors?.[workItemIndex].startDate}
                   </p>
                 )
               }
             </Grid>
           </Grid>
-
           {/* Bitiş Tarihi */}
           <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-            <FormControl className="portfolioLabel">Bitiş Tarihi</FormControl>
+            <FormControl className="portfolioLabel">Bitiş Tarihi
+              <span className="labelRequired labelRequiredEndDate" >
+                ?*
+                <span className='tooltipEndDate'>Şu anda burada çalışmıyorsanız bitiş tarihi alanı doldurulmalıdır!</span>
+              </span></FormControl>
             <Grid width="90%" display="flex" flexDirection="column">
               <DatePicker
                 sx={{
@@ -323,25 +311,33 @@ function Step4() {
                     : undefined
                 } />
               {
-                typeof formik.errors.workExperiences?.[workItemIndex] === "object" &&
-                (formik.errors.workExperiences?.[workItemIndex] as FormikErrors<IWorkExperiences>)?.endDate &&
-                formik.touched.workExperiences?.[workItemIndex].endDate && (
+                workExperienceErrors?.[workItemIndex].endDate && workExperienceTouched?.[workItemIndex]?.endDate && (
                   <p
                     className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                    style={{ color: "#d32f2f", marginTop: "10px", marginLeft: "14px" }}
+                    style={{ color: "#d32f2f", marginTop: "4px", marginLeft: "14px" }}
                   >
-                    {typeof formik.errors.workExperiences?.[workItemIndex] === "object" &&
-                      (formik.errors.workExperiences?.[workItemIndex] as FormikErrors<IWorkExperiences>)?.endDate &&
-                      formik.touched.workExperiences?.[workItemIndex].endDate}
+                    {workExperienceErrors?.[workItemIndex].endDate}
                   </p>
                 )
               }
             </Grid>
           </Grid>
-
+          {/* Açıklama */}
+          <Grid size={{ xs: 12, sm: 12, md: 12 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4, width: "98% !important" }}>
+            <FormControl className="portfolioLabel">Açıklama</FormControl>
+            <TextField className='portfolioInput'
+              onChange={formik.handleChange}
+              value={workItem.description}
+              name={`workExperiences[${workItemIndex}].description`}
+              id={`description-${workItemIndex}`}
+              rows={4}
+              multiline
+              sx={{ width: { xs: "89% !important", sm: "89% !important", md: "220% !important" } }}
+            />
+          </Grid>
           {/* Şu anda burada çalışıyorum */}
-          <Grid size={{ xs: 12, sm: 12, md: 6 }} display="flex" alignItems="start" sx={{ marginTop: 4 }}>
-            <FormControl className="portfolioLabel">Şu anda burada çalışıyorum</FormControl>
+          <Grid size={{ xs: 12, sm: 12, md: 12 }} display="flex" alignItems="start" justifyContent="space-between" sx={{ marginTop: 4, width: "98% !important" }}>
+            <FormControl className="portfolioLabel" sx={{ width: "100% !important" }}>Şu anda burada çalışıyorum</FormControl>
             <Checkbox
               onChange={formik.handleChange}
               value={workItem.isWorking}
@@ -349,8 +345,9 @@ function Step4() {
               id={`isWorking-${workItemIndex}`}
               sx={{
                 color: "var(--label-color)",
-                display:"flex",
-                justifyContent:"flex-start",                
+                display: "flex",
+                justifyContent: "flex-end",
+                padding: "0px"
               }}
               size="large"
             />
@@ -361,7 +358,6 @@ function Step4() {
               const newList = [...formik.values.workExperiences];
               newList.splice(workItemIndex, 1);
               formik.setFieldValue("workExperiences", newList);
-
               // Seçimleri de temizle
               setSelectedCountryWorkExperience(prev => {
                 if (!Array.isArray(prev)) return [];
@@ -406,11 +402,10 @@ function Step4() {
           </Button>
         </Grid>
       ))}
-
       <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
         <Button
           variant="outlined"
-          sx={{ fontSize: "30px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}
+          sx={{ fontSize: "30px", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}
           onClick={() => {
             const current = formik.values.workExperiences || [];
             const lastId = current.length > 0 ? current[current.length - 1].id + 1 : 1;

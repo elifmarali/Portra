@@ -21,18 +21,18 @@ export interface IList {
 
 interface CustomizedHookProps {
   type: string;
-  list: IList[] | any;
+  list: IList[] | any; // eslint-disable-line @typescript-eslint/no-explicit-any
   selectedCountry?: ICountry | null;
   setSelectedCountry?: React.Dispatch<React.SetStateAction<ICountry | null>>;
   selectedCity?: ICity | null;
   setSelectedCity?: React.Dispatch<React.SetStateAction<ICity | null>>;
   selectedDistrict?: IDistrict | null;
   setSelectedDistrict?: React.Dispatch<React.SetStateAction<IDistrict | null>>;
-  errorText: any;
+  errorText?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   selectedCountryWorkExperience?: ICountryWorkExperience | null,
-  setSelectedCountryWorkExperience?: React.Dispatch<React.SetStateAction<any>>;
+  setSelectedCountryWorkExperience?: React.Dispatch<React.SetStateAction<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
   selectedCityWorkExperience?: ICityWorkExperience | null,
-  setSelectedCityWorkExperience?: React.Dispatch<React.SetStateAction<any>>;
+  setSelectedCityWorkExperience?: React.Dispatch<React.SetStateAction<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
   workItemIndex?: number;
 }
 

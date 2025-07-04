@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       surname: existingUser.surname,
       username: existingUser.username,
       email: existingUser.email,
-      password: existingUser.password,
+      password: hashPass, //existingUser.password
       role: existingUser.role,
     })
       .setProtectedHeader({ alg: "HS256" })

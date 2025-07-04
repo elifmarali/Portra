@@ -11,7 +11,6 @@ import { useSelector } from "react-redux";
 import * as motion from "motion/react-client";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import Stepper from "@/components/Stepper";
-import { currentStep } from "@/lib/redux/features/portfolioCurrentPage/portfolioCurrentPageSlice";
 import Step0 from "@/components/Steps/Step0";
 import Step1 from "@/components/Steps/Step1";
 import Step2 from "@/components/Steps/Step2";
@@ -21,12 +20,22 @@ import Step3 from "@/components/Steps/Step3";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Step4 from "@/components/Steps/Step4";
+import Step5 from "@/components/Steps/Step5";
+import { useRouter } from "next/navigation";
 
 interface IExtendFile extends File {
   previewUrl: string;
 }
 
-function CreatePortfolio() {
+interface Props {
+  stepParam: string;
+}
+
+function CreatePortfolio({ stepParam }: Props) {
+  const router = useRouter();
+  const step = parseInt(stepParam || "0", 10);
+  const nextStep = () => router.push(`/createPortfolio/${step + 1}`);
+  const prevStep = () => step > 1 && router.push(`/createPortfolio/${step - 1}`);
   const initialValues = {
     name: "",
     surname: "",
@@ -42,11 +51,10 @@ function CreatePortfolio() {
     skills: [],
     languages: [{ id: -1, name: "", level: "" }],
     certificates: [],
-    workExperiences:[]
+    workExperiences: []
   };
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
-  const step = useSelector(currentStep);
   const [photo, setPhoto] = useState<IExtendFile | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -256,10 +264,13 @@ function CreatePortfolio() {
                     {step === 3 && <Step2 />}
                     {step === 4 && <Step3 />}
                     {step === 5 && <Step4 />}
-                    {step === 6 && <div style={{ color: "#fff" }}>Step 7</div>}
+                    {step === 6 && <Step5 />}
+                    {step === 7 && <div style={{ color: "#fff" }}>Step 7</div>}
+                    {step === 8 && <div style={{ color: "#fff" }}>Step 8</div>}
+                    {step === 9 && <div style={{ color: "#fff" }}>Step 9</div>}
                   </Grid>
                   <Grid size={12} sx={{ margin: "30px 0" }}>
-                    <Stepper />
+                    <Stepper step={step}/>
                   </Grid>
                   {/* Buton */}
                   <Grid

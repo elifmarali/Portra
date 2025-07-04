@@ -1,6 +1,6 @@
 "use client";
-import { ICity, ICountry, ICreatePortfolio, IDistrict, IJob } from "@/app/createPortfolio/IProps";
-import CustomizedHook, { IList } from "@/components/Autocompleted";
+import { ICity, ICountry, ICreatePortfolio, IDistrict } from "@/app/createPortfolio/IProps";
+import CustomizedHook from "@/components/Autocompleted";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
@@ -26,21 +26,6 @@ function Step1() {
   );
   const [selectedDistrictState, setSelectedDistrictState] =
     useState<IDistrict | null>(null);
-
-  const initialValues = {
-    name: "",
-    surname: "",
-    title: "",
-    photo: null,
-    shortBiography: "",
-    email: "",
-    jobs: [],
-    otherJob: "",
-    country: null,
-    city: null,
-    district: null,
-    skills: [],
-  };
 
   useEffect(() => {
     getCountryList();
@@ -116,6 +101,7 @@ function Step1() {
     if (formik.values.district) {
       setSelectedDistrictState(formik.values.district);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

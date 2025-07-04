@@ -1,16 +1,10 @@
 "use client";
-import { IAuth } from "@/lib/redux/features/auth/authSlice";
 import { loadTokenFromCookies } from "@/lib/redux/features/auth/loadTokenFromCookies";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
-import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-interface IAuthState {
-  auth: IAuth;
-}
 
 function ClientWrapper({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();

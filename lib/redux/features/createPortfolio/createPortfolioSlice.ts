@@ -20,13 +20,13 @@ export const createPortfolioSlice = createSlice({
   name: "createPortfolio",
   initialState,
   reducers: {
-    updateForms: (state: any, action) => {
+    updateForms: (state: any, action) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       const payload = action.payload;
       if ("key" in payload && "value" in payload) {
         state[payload.key] = payload.value;
       } else {
         Object.entries(payload).forEach(([key, value]) => {
-          (state as any)[key] = value;
+          (state as any)[key] = value; // eslint-disable-line @typescript-eslint/no-explicit-any
         });
       }
     },

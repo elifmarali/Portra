@@ -11,7 +11,6 @@ import {
   Box,
   Button,
   FormControl,
-  FormHelperText,
   Grid,
   InputAdornment,
   MenuItem,
@@ -35,7 +34,7 @@ function Step2() {
     IListMultiple[] | []
   >(formik.values.jobs);
   const [skillsState, setSkillsState] = useState("");
-  const [skillsArrayState, setSkillsArrayState] = useState<String[] | []>([]);
+  const [skillsArrayState, setSkillsArrayState] = useState<string[] | []>([]);
   const [skillLengthAlertState, setSkillLengthAlertState] = useState(false);
   const [languageList, setLanguageList] = useState([]);
   const [selectLanguageArray, setSelectLanguageArray] = useState<ILanguageArray[]>(formik.values.languages);
@@ -127,6 +126,7 @@ function Step2() {
     if (formik.values.otherJob) {
       setOtherJobState(formik.values.otherJob);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -223,7 +223,7 @@ function Step2() {
                         skillsState?.trim() !== "" &&
                         !skillLengthAlertState
                       ) {
-                        setSkillsArrayState((prev: any) => [
+                        setSkillsArrayState((prev: any) => [ // eslint-disable-line @typescript-eslint/no-explicit-any
                           ...prev,
                           skillsState,
                         ]);
@@ -280,7 +280,7 @@ function Step2() {
                         color: colorOptions[color].dark,
                         minWidth: "9%",
                       }}
-                      onClick={(e: any) => {
+                      onClick={() => {
                         const newSkillsArray = skillsArrayState.filter(
                           (item) => item !== skillItem
                         );
@@ -326,7 +326,7 @@ function Step2() {
                         value={String(selectLanguageArray[index]?.id)}
                         onChange={(e: SelectChangeEvent) => {
                           const updatedArray = [...selectLanguageArray];
-                          const selectedLanguage: any = languageList.find(
+                          const selectedLanguage: any = languageList.find( // eslint-disable-line @typescript-eslint/no-explicit-any
                             (lang: ILanguage) => lang.id === Number(e.target.value)
                           );
                           updatedArray[index] = {
@@ -419,7 +419,7 @@ function Step2() {
 
                 <Grid>
                   {Array.isArray(formik.errors.languages) && formik.touched.languages &&
-                    formik.errors.languages.map((error: any, idx: number) => (
+                    formik.errors.languages.map((error: any, idx: number) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
                       idx === index && (
                         <div key={idx}>
                           {error && typeof error === "object" ? (

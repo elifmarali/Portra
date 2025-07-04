@@ -16,7 +16,6 @@ import * as motion from "motion/react-client";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { currentAuth } from "@/lib/redux/features/auth/authSlice";
-import { useEffect } from "react";
 import { navbarShortcut } from "@/lists/Navbar/navbarShortcut";
 import { deleteToken } from "@/lib/redux/features/auth/loadTokenFromCookies";
 import { useRouter } from "next/navigation";
