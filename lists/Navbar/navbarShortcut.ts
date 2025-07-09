@@ -1,7 +1,7 @@
 export const navbarShortcut = [
   {
     name: "Portfolyo Oluştur",
-    path: "/createPortfolio",
+    path: "/createPortfolio/0",
   },
   {
     name: "Portfolyolar",

@@ -70,9 +70,10 @@ export interface IEducations {
   id: number;
   schoolName:string;
   department:IJob | null;
-  degreee:string;
+  degree:IJob | null;
   startDate: Dayjs | null;
   endDate: Dayjs | null;
+  isSchooling:boolean;
 }
 
 export interface ICreatePortfolio {

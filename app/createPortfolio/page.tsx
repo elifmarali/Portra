@@ -22,7 +22,6 @@ import { FaEye } from "react-icons/fa6";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { convertToBase64 } from "@/functions/convertToBase64";
-import { useRouter } from "next/navigation";
 
 interface IExtendFile extends File {
   previewUrl: string;
@@ -36,11 +35,11 @@ function CreatePortfolio({ stepParam }: Props) {
   const step = parseInt(stepParam || "0", 10);
   const [formId, setFormId] = useState<string>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("portfolioFormId");
+      const saved = sessionStorage.getItem("portfolioFormId");
       if (saved) return saved;
 
       const newId = Math.floor(Math.random() * 7449741984988489).toString();
-      localStorage.setItem("portfolioFormId", newId);
+      sessionStorage.setItem("portfolioFormId", newId);
       return newId;
     }
     return "";
@@ -71,18 +70,18 @@ function CreatePortfolio({ stepParam }: Props) {
     educations: [],
   }), [formId]);
 
-
-  // Form datasını localStorage ile koru
   const [formData, setFormData] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(`portfolioForm-${formId}`);
+      const saved = sessionStorage.getItem(`portfolioForm-${formId}`);
       return saved ? JSON.parse(saved) : initialValues;
     }
     return initialValues;
   });
 
   useEffect(() => {
-    localStorage.setItem(`portfolioForm-${formId}`, JSON.stringify(formData));
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(`portfolioForm-${formId}`, JSON.stringify(formData));
+    }
   }, [formData, formId]);
 
   const theme = useSelector(selectTheme);
@@ -124,8 +123,8 @@ function CreatePortfolio({ stepParam }: Props) {
             validateOnBlur={false}
             onSubmit={(values) => {
               console.log("Form Submit:", JSON.stringify(values, null, 2));
-              localStorage.removeItem(`portfolioForm-${formId}`);
-              localStorage.removeItem("portfolioFormId");
+              sessionStorage.removeItem(`portfolioForm-${formId}`);
+              sessionStorage.removeItem("portfolioFormId");
             }}
           >
             {({ values, errors, setFieldValue }) => {
