@@ -76,6 +76,20 @@ export interface IEducations {
   isSchooling:boolean;
 }
 
+export interface IProjectLinks{
+  id:number;
+  socialMedia:string;
+  linkUrl:string;
+}
+
+export interface IProjects{
+  id:number;
+  title:string;
+  description:string;
+  attachment: null | File;
+  links: [] | IProjectLinks[];
+}
+
 export interface ICreatePortfolio {
   id:number;
   name: string;
@@ -94,4 +108,5 @@ export interface ICreatePortfolio {
   certificates: [] | ICertificates[];
   workExperiences: [] | IWorkExperiences[];
   educations: [] | IEducations[];
+  projects : [] | IProjects[];
 }

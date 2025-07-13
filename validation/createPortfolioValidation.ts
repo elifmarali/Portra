@@ -163,30 +163,49 @@ export const createPortfolioValidation = yup.object({
   ),
 
   // Step 5
-  educations : yup.array().of(
+  educations: yup.array().of(
     yup.object({
-        id: yup.number(),
-        schoolName:yup.string()
-        .min(3,"Okul adı minimum 3 karakter olmalıdır")
+      id: yup.number(),
+      schoolName: yup
+        .string()
+        .min(3, "Okul adı minimum 3 karakter olmalıdır")
         .max(30, "Okul adı maximum 30 karakter olmalıdır")
         .required("Okul adı zorunludur"),
-        department:yup.object({
-          id:yup.number(),
-          name:yup.string()
+      department: yup
+        .object({
+          id: yup.number(),
+          name: yup.string(),
         })
         .required("Bölüm seçimi zorunludur"),
-        degree:yup.object({
-          id:yup.number(),
-          name:yup.string()
+      degree: yup
+        .object({
+          id: yup.number(),
+          name: yup.string(),
         })
         .required("Derece seçimi zorunludur"),
-        startDate: yup.date().required("Başlangıç tarihi zorunludur"),
-        endDate: yup.date().when("isSchooling",{
-          is:(val:boolean) => val===false,
-          then: (schema) => schema.required("Bitiş tarihi zorunludur"),
-          otherwise: (schema) => schema.notRequired()
-        }),
-        isSchooling:yup.boolean(),
+      startDate: yup.date().required("Başlangıç tarihi zorunludur"),
+      endDate: yup.date().when("isSchooling", {
+        is: (val: boolean) => val === false,
+        then: (schema) => schema.required("Bitiş tarihi zorunludur"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      isSchooling: yup.boolean(),
     })
-  )
+  ),
+
+  // Step 6
+  projects: yup.array().of(
+    yup.object({
+      title: yup
+        .string()
+        .min(3, "Proje başlığı alanı minimum 3 karakter olmalıdır")
+        .max(30, "Proje başlığı alanı maximum 30 karakter olmalıdır")
+        .required("Proje başlığı alanı zorunludur"),
+      description: yup
+        .string()
+        .min(10, "Açıklama alanı minimum 10 karakter olmalıdır")
+        .max(200, "Açıklama alanı maximum 200 karakter olmalıdır")
+        .required("Açıklama alanı zorunludur"),
+    })
+  ),
 });

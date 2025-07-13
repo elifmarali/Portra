@@ -22,6 +22,7 @@ import { FaEye } from "react-icons/fa6";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { convertToBase64 } from "@/functions/convertToBase64";
+import Step6 from "@/components/Steps/Step6";
 
 interface IExtendFile extends File {
   previewUrl: string;
@@ -68,6 +69,7 @@ function CreatePortfolio({ stepParam }: Props) {
     certificates: [],
     workExperiences: [],
     educations: [],
+    projects:[]
   }), [formId]);
 
   const [formData, setFormData] = useState(() => {
@@ -258,7 +260,8 @@ function CreatePortfolio({ stepParam }: Props) {
                     {step === 4 && <Step3 />}
                     {step === 5 && <Step4 />}
                     {step === 6 && <Step5 />}
-                    {step >= 7 && step <= 9 && (
+                    {step === 7 && <Step6 />}
+                    {step >= 8 && step <= 9 && (
                       <Typography sx={{ color: "#fff" }}>Step {step}</Typography>
                     )}
                   </Grid>

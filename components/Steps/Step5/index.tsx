@@ -103,7 +103,7 @@ function Step5() {
                                                     }
                                                 }
                                             }}
-                                            className="portfolioLabel">Okul Adı</FormControl>
+                                            className="portfolioLabel">Okul Adı <span className="labelRequired">*</span></FormControl>
                                         <TextField
                                             className="portfolioInput"
                                             name={`educations[${educationIndex}].schoolName`}
@@ -111,16 +111,16 @@ function Step5() {
                                             onChange={formik.handleChange}
                                             value={formik.values.educations[educationIndex].schoolName}
                                             sx={{ width: "100%" }}
-                                            error={Boolean(educationsErrors?.[educationIndex].schoolName && educationsTouched[educationIndex]?.schoolName)}
-                                            helperText={educationsErrors?.[educationIndex].schoolName && educationsTouched[educationIndex]?.schoolName}
+                                            error={Boolean(educationsErrors?.[educationIndex]?.schoolName && educationsTouched?.[educationIndex]?.schoolName)}
+                                            helperText={educationsErrors?.[educationIndex]?.schoolName && educationsTouched?.[educationIndex]?.schoolName}
                                         />
                                     </Grid>
                                     {/* Bölüm */}
                                     <Grid size={{ xs: 12, sm: 12, md: 6 }} display="column">
                                         <Grid size={12} sx={{ display: "flex" }}>
-                                            <FormControl className="portfolioLabel">Bölüm</FormControl>
+                                            <FormControl className="portfolioLabel">Bölüm <span className="labelRequired">*</span></FormControl>
                                             <Select
-                                                error={Boolean(educationsErrors?.[educationIndex].department && educationsTouched[educationIndex]?.department)}
+                                                error={Boolean(educationsErrors?.[educationIndex]?.department && educationsTouched?.[educationIndex]?.department)}
                                                 className="portfolioSelect"
                                                 name={`educations[${educationIndex}].department`}
                                                 id={`department-${educationIndex}`}
@@ -157,9 +157,9 @@ function Step5() {
                                     {/* Derece */}
                                     <Grid size={{ xs: 12, sm: 12, md: 6 }} display="column">
                                         <Grid size={12} sx={{ display: "flex" }}>
-                                            <FormControl className="portfolioLabel">Derece</FormControl>
+                                            <FormControl className="portfolioLabel">Derece <span className="labelRequired">*</span></FormControl>
                                             <Select
-                                                error={Boolean(educationsErrors?.[educationIndex].degree && educationsTouched[educationIndex]?.degree)}
+                                                error={Boolean(educationsErrors?.[educationIndex]?.degree && educationsTouched?.[educationIndex]?.degree)}
                                                 className="portfolioSelect"
                                                 name={`educations[${educationIndex}].degree`}
                                                 id={`degree-${educationIndex}`}

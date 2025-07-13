@@ -6,6 +6,7 @@ interface PageProps {
   };
 }
 
-export default function CreatePortfolioStepPage({ params }: PageProps) {
-  return <CreatePortfolio stepParam={params.step} />;
+export default async function CreatePortfolioStepPage({ params }: PageProps) {
+  const {step} = await params;
+  return <CreatePortfolio stepParam={step}/>;
 }
