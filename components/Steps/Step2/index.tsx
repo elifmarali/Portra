@@ -21,10 +21,10 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { RiDeleteBin2Line } from "react-icons/ri";
 import { useSelector } from "react-redux";
 import { ILanguage, ILanguageArray } from "./IProps";
 import { useFormikContext } from "formik";
+import { RiDeleteBin2Line } from "react-icons/ri";
 
 function Step2() {
   const formik = useFormikContext<ICreatePortfolio>();
@@ -37,16 +37,21 @@ function Step2() {
   const [skillsArrayState, setSkillsArrayState] = useState<string[] | []>([]);
   const [skillLengthAlertState, setSkillLengthAlertState] = useState(false);
   const [languageList, setLanguageList] = useState([]);
-  const [selectLanguageArray, setSelectLanguageArray] = useState<ILanguageArray[]>(formik.values.languages);
-  const [languageCount, setLanguageCount] = useState(formik.values.languages.length);
+  const [selectLanguageArray, setSelectLanguageArray] = useState<
+    ILanguageArray[]
+  >(formik.values.languages);
+  const [languageCount, setLanguageCount] = useState(
+    formik.values.languages.length
+  );
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const errorText =
-    Array.isArray(formik.errors.jobs) && formik.touched.jobs && jobListState.length === 0
+    Array.isArray(formik.errors.jobs) &&
+    formik.touched.jobs &&
+    jobListState.length === 0
       ? formik.errors.jobs.join(", ")
       : typeof formik.errors.jobs === "string" && formik.touched.jobs
         ? formik.errors.jobs
         : "";
-
 
   const color = useSelector(selectColor);
   const theme = useSelector(selectTheme);
@@ -100,12 +105,21 @@ function Step2() {
     if (res.data.data.length > 0) {
       setLanguageList(res.data.data);
     }
-  }
+  };
 
   useEffect(() => {
-    const isFilled = selectLanguageArray.some((item: ILanguageArray) => item.id !== -1 || item.name !== "" || item.level !== "");
-    const filteredLanguageList = selectLanguageArray.filter((item: ILanguageArray) => item.id !== -1 || item.name !== "" || item.level !== "");
-    if ((selectLanguageArray.length === 1 && isFilled) || selectLanguageArray.length > 1) {
+    const isFilled = selectLanguageArray.some(
+      (item: ILanguageArray) =>
+        item.id !== -1 || item.name !== "" || item.level !== ""
+    );
+    const filteredLanguageList = selectLanguageArray.filter(
+      (item: ILanguageArray) =>
+        item.id !== -1 || item.name !== "" || item.level !== ""
+    );
+    if (
+      (selectLanguageArray.length === 1 && isFilled) ||
+      selectLanguageArray.length > 1
+    ) {
       setShowDeleteButton(true);
       formik.setFieldValue("languages", filteredLanguageList);
     } else {
@@ -136,8 +150,7 @@ function Step2() {
   useEffect(() => {
     if (selectLanguageArray.length >= 1) {
       setLanguageCount(selectLanguageArray.length);
-    }
-    else {
+    } else {
       setLanguageCount(1);
     }
   }, [selectLanguageArray]);
@@ -145,8 +158,15 @@ function Step2() {
   return (
     <>
       <Grid size={12}>
-        <Typography sx={{ color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark }}
-          variant="h4">
+        <Typography
+          sx={{
+            color:
+              theme === "dark"
+                ? colorOptions[color].light
+                : colorOptions[color].dark,
+          }}
+          variant="h4"
+        >
           Uzmanlık ve Yetenekler
         </Typography>
       </Grid>
@@ -157,7 +177,9 @@ function Step2() {
         alignItems="start"
         sx={{ marginTop: 4 }}
       >
-        <FormControl className="portfolioLabel">Meslek / Unvan <span className="labelRequired">*</span></FormControl>
+        <FormControl className="portfolioLabel">
+          Meslek / Unvan <span className="labelRequired">*</span>
+        </FormControl>
         <CustomizedHookMultiple
           type="job"
           list={jobListState}
@@ -167,7 +189,9 @@ function Step2() {
         />
       </Grid>
       {/* Diğer Meslek / Unvan */}
-      {formik.values.jobs.find((jobItem: IList) => jobItem.name === "Diğer") && (
+      {formik.values.jobs.find(
+        (jobItem: IList) => jobItem.name === "Diğer"
+      ) && (
         <Grid
           size={{ xs: 12, sm: 12, md: 6 }}
           display="flex"
@@ -188,8 +212,18 @@ function Step2() {
               formik.setFieldValue("otherJob", e.target.value);
             }}
             onBlur={formik.handleBlur}
-            helperText={selectedJobListState.some((jobItem) => jobItem.id === 0) && otherJobState === "" && formik.touched.otherJob && formik.errors.otherJob}
-            error={Boolean(selectedJobListState.some((jobItem) => jobItem.id === 0) && otherJobState === "" && formik.touched.otherJob && formik.errors.otherJob)}
+            helperText={
+              selectedJobListState.some((jobItem) => jobItem.id === 0) &&
+              otherJobState === "" &&
+              formik.touched.otherJob &&
+              formik.errors.otherJob
+            }
+            error={Boolean(
+              selectedJobListState.some((jobItem) => jobItem.id === 0) &&
+                otherJobState === "" &&
+                formik.touched.otherJob &&
+                formik.errors.otherJob
+            )}
             required
           />
         </Grid>
@@ -201,7 +235,9 @@ function Step2() {
         alignItems="start"
         sx={{ marginTop: 4 }}
       >
-        <FormControl className="portfolioLabel">Yetenekler <span className="labelRequired">*</span></FormControl>
+        <FormControl className="portfolioLabel">
+          Yetenekler <span className="labelRequired">*</span>
+        </FormControl>
         <Grid display="flex" flexDirection="column" width="100%">
           <TextField
             name="skills"
@@ -223,7 +259,8 @@ function Step2() {
                         skillsState?.trim() !== "" &&
                         !skillLengthAlertState
                       ) {
-                        setSkillsArrayState((prev: any) => [ // eslint-disable-line @typescript-eslint/no-explicit-any
+                        setSkillsArrayState((prev: any) => [
+                          // eslint-disable-line @typescript-eslint/no-explicit-any
                           ...prev,
                           skillsState,
                         ]);
@@ -309,7 +346,7 @@ function Step2() {
         <Grid width="100%" display="flex" flexDirection="column" gap={2}>
           {Array.from(selectLanguageArray).map((_, index) => {
             return (
-              <Grid className='flex flex-col' key={index}>
+              <Grid className="flex flex-col" key={index}>
                 <Grid
                   key={index}
                   display="flex"
@@ -318,7 +355,12 @@ function Step2() {
                   width="100%"
                 >
                   {/* Dil ve Seviye Seçimi */}
-                  <Grid display="flex" justifyContent="space-between" gap={2} width="74%">
+                  <Grid
+                    display="flex"
+                    justifyContent="space-between"
+                    gap={2}
+                    width="74%"
+                  >
                     {/* Dil Seçimi */}
                     <FormControl fullWidth error={!!formik.errors.languages}>
                       <Select
@@ -326,8 +368,10 @@ function Step2() {
                         value={String(selectLanguageArray[index]?.id)}
                         onChange={(e: SelectChangeEvent) => {
                           const updatedArray = [...selectLanguageArray];
-                          const selectedLanguage: any = languageList.find( // eslint-disable-line @typescript-eslint/no-explicit-any
-                            (lang: ILanguage) => lang.id === Number(e.target.value)
+                          const selectedLanguage: any = languageList.find(
+                            // eslint-disable-line @typescript-eslint/no-explicit-any
+                            (lang: ILanguage) =>
+                              lang.id === Number(e.target.value)
                           );
                           updatedArray[index] = {
                             ...(updatedArray[index] || {}),
@@ -335,12 +379,21 @@ function Step2() {
                             name: selectedLanguage?.name ?? "",
                           };
                           setSelectLanguageArray(updatedArray);
-                          formik.setFieldTouched(`languages[${index}].id`, true);
-                          formik.setFieldValue(`languages[${index}].id`, selectedLanguage?.id ?? -1);
+                          formik.setFieldTouched(
+                            `languages[${index}].id`,
+                            true
+                          );
+                          formik.setFieldValue(
+                            `languages[${index}].id`,
+                            selectedLanguage?.id ?? -1
+                          );
                         }}
                       >
                         {languageList.map((languageItem: ILanguage) => (
-                          <MenuItem key={languageItem.id} value={languageItem.id}>
+                          <MenuItem
+                            key={languageItem.id}
+                            value={languageItem.id}
+                          >
                             {languageItem.name}
                           </MenuItem>
                         ))}
@@ -371,7 +424,12 @@ function Step2() {
                   </Grid>
 
                   {/* Butonlar */}
-                  <Grid display="flex" justifyContent="center" width="20%" gap={1}>
+                  <Grid
+                    display="flex"
+                    justifyContent="center"
+                    width="20%"
+                    gap={1}
+                  >
                     {/* Silme Butonu */}
                     {showDeleteButton && (
                       <Button
@@ -394,70 +452,76 @@ function Step2() {
                     {((selectLanguageArray.length > 0 &&
                       selectLanguageArray.length - 1 === index) ||
                       languageCount === 1) && (
-                        <Button
-                          sx={{ height: "58px", fontSize: "3rem" }}
-                          onClick={() => {
-                            const isComplete = !selectLanguageArray.find(
-                              (item) =>
-                                item.id === -1 || item.name === "" || item.level === ""
-                            );
+                      <Button
+                        sx={{ height: "58px", fontSize: "3rem" }}
+                        onClick={() => {
+                          const isComplete = !selectLanguageArray.find(
+                            (item) =>
+                              item.id === -1 ||
+                              item.name === "" ||
+                              item.level === ""
+                          );
 
-                            if (isComplete) {
-                              setLanguageCount((prev) => prev + 1);
-                              setSelectLanguageArray((prev) => [
-                                ...prev,
-                                { id: -1, name: "", level: "" },
-                              ]);
-                            }
-                          }}
-                        >
-                          +
-                        </Button>
-                      )}
+                          if (isComplete) {
+                            setLanguageCount((prev) => prev + 1);
+                            setSelectLanguageArray((prev) => [
+                              ...prev,
+                              { id: -1, name: "", level: "" },
+                            ]);
+                          }
+                        }}
+                      >
+                        +
+                      </Button>
+                    )}
                   </Grid>
                 </Grid>
 
                 <Grid>
-                  {Array.isArray(formik.errors.languages) && formik.touched.languages &&
-                    formik.errors.languages.map((error: any, idx: number) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
-                      idx === index && (
-                        <div key={idx}>
-                          {error && typeof error === "object" ? (
-                            <>
-                              {/* name hatası varsa */}
-                              {error.name && (
-                                <p
-                                  className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                                  style={{ color: "#d32f2f" }}
-                                >
-                                  {`${error.name}`}
-                                </p>
-                              )}
-                              {/* level hatası varsa */}
-                              {error.level && (
-                                <p
-                                  className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                                  style={{ color: "#d32f2f" }}
-                                >
-                                  {`${error.level}`}
-                                </p>
-                              )}
-                            </>
-                          ) : (
-                            // Eğer error direkt string ise
-                            <p
-                              className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                              style={{ color: "#d32f2f" }}
-                            >
-                              {`${error}`}
-                            </p>
-                          )}
-                        </div>
-                      )
-                    ))}
+                  {Array.isArray(formik.errors.languages) &&
+                    formik.touched.languages &&
+                    formik.errors.languages.map(
+                      (
+                        error: any,
+                        idx: number // eslint-disable-line @typescript-eslint/no-explicit-any
+                      ) =>
+                        idx === index && (
+                          <div key={idx}>
+                            {error && typeof error === "object" ? (
+                              <>
+                                {/* name hatası varsa */}
+                                {error.name && (
+                                  <p
+                                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                    style={{ color: "#d32f2f" }}
+                                  >
+                                    {`${error.name}`}
+                                  </p>
+                                )}
+                                {/* level hatası varsa */}
+                                {error.level && (
+                                  <p
+                                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                    style={{ color: "#d32f2f" }}
+                                  >
+                                    {`${error.level}`}
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              // Eğer error direkt string ise
+                              <p
+                                className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                style={{ color: "#d32f2f" }}
+                              >
+                                {`${error}`}
+                              </p>
+                            )}
+                          </div>
+                        )
+                    )}
                 </Grid>
               </Grid>
-
             );
           })}
         </Grid>

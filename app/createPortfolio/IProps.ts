@@ -1,4 +1,5 @@
 import { ILanguageArray } from "@/components/Steps/Step2/IProps";
+import { ISocialMediaProjectsItem } from "@/lists/SocialMedia/ProjectsSocialMediaList";
 import { Dayjs } from "dayjs";
 
 export interface ICountry {
@@ -68,30 +69,30 @@ export interface IWorkExperiences {
 
 export interface IEducations {
   id: number;
-  schoolName:string;
-  department:IJob | null;
-  degree:IJob | null;
+  schoolName: string;
+  department: IJob | null;
+  degree: IJob | null;
   startDate: Dayjs | null;
   endDate: Dayjs | null;
-  isSchooling:boolean;
+  isSchooling: boolean;
 }
 
-export interface IProjectLinks{
-  id:number;
-  socialMedia:string;
-  linkUrl:string;
+export interface IProjectLinks {
+  id: number;
+  socialMedia: ISocialMediaProjectsItem | null;
+  linkUrl: string;
 }
 
-export interface IProjects{
-  id:number;
-  title:string;
-  description:string;
-  attachment: null | File;
+export interface IProjects {
+  id: number;
+  title: string;
+  description: string;
+  attachment: null | ICertificatesFiles;
   links: [] | IProjectLinks[];
 }
 
 export interface ICreatePortfolio {
-  id:number;
+  id: number;
   name: string;
   surname: string;
   title: string;
@@ -108,5 +109,5 @@ export interface ICreatePortfolio {
   certificates: [] | ICertificates[];
   workExperiences: [] | IWorkExperiences[];
   educations: [] | IEducations[];
-  projects : [] | IProjects[];
+  projects: [] | IProjects[];
 }
