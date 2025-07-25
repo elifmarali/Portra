@@ -17,25 +17,28 @@ export const createPortfolioValidation = yup.object({
     .min(3, "Başlık / Unvan  minimum 3 karakter uzunlukta olmalıdır")
     .max(30, "Başlık / Unvan maximum 30 karakter uzunlukta olmalıdır")
     .required("Başlık / Unvan zorunludur"),
-  photo: yup
-    .string()
-    .required("Profil fotoğrafı zorunludur")
-    .test("is-valid-base64", "Geçersiz görsel formatı", (value) => {
-      if (!value) return false;
+  photo: yup.object({
+    name: yup.string(),
+    base64File: yup
+      .string()
+      .required("Profil fotoğrafı zorunludur")
+      .test("is-valid-base64", "Geçersiz görsel formatı", (value) => {
+        if (!value) return false;
 
-      const isBase64 =
-        value.startsWith("data:image/jpeg;base64,") ||
-        value.startsWith("data:image/png;base64,");
-      return isBase64;
-    })
-    .test("base64-size", "Dosya boyutu en fazla 2MB olmalıdır", (value) => {
-      if (!value) return false;
+        const isBase64 =
+          value.startsWith("data:image/jpeg;base64,") ||
+          value.startsWith("data:image/png;base64,");
+        return isBase64;
+      })
+      .test("base64-size", "Dosya boyutu en fazla 2MB olmalıdır", (value) => {
+        if (!value) return false;
 
-      const sizeInBytes =
-        Math.ceil((value.length * 3) / 4) -
-        (value.endsWith("==") ? 2 : value.endsWith("=") ? 1 : 0);
-      return sizeInBytes <= 2 * 1024 * 1024;
-    }),
+        const sizeInBytes =
+          Math.ceil((value.length * 3) / 4) -
+          (value.endsWith("==") ? 2 : value.endsWith("=") ? 1 : 0);
+        return sizeInBytes <= 2 * 1024 * 1024;
+      }),
+  }),
   shortBiography: yup
     .string()
     .min(30, "Kısa biyografi minimum 30 karakter uzunlukta olmalıdır")
@@ -194,18 +197,31 @@ export const createPortfolioValidation = yup.object({
   ),
 
   // Step 6
-  projects: yup.array().of(
-    yup.object({
-      title: yup
-        .string()
-        .min(3, "Proje başlığı alanı minimum 3 karakter olmalıdır")
-        .max(30, "Proje başlığı alanı maximum 30 karakter olmalıdır")
-        .required("Proje başlığı alanı zorunludur"),
-      description: yup
-        .string()
-        .min(10, "Açıklama alanı minimum 10 karakter olmalıdır")
-        .max(200, "Açıklama alanı maximum 200 karakter olmalıdır")
-        .required("Açıklama alanı zorunludur"),
-    })
-  ),
+  projects: yup
+    .array()
+    .of(
+      yup.object({
+        title: yup
+          .string()
+          .min(3, "Proje başlığı alanı minimum 3 karakter olmalıdır")
+          .max(30, "Proje başlığı alanı maximum 30 karakter olmalıdır")
+          .required("Proje başlığı alanı zorunludur"),
+        description: yup
+          .string()
+          .min(10, "Açıklama alanı minimum 10 karakter olmalıdır")
+          .max(200, "Açıklama alanı maximum 200 karakter olmalıdır")
+          .required("Açıklama alanı zorunludur"),
+        links: yup.array().of(
+          yup.object({
+            id: yup.number(),
+            socialMedia: yup.object().required("Zorunludur"),
+            linkUrl: yup
+              .string()
+              .url("Geçerli bir URL giriniz")
+              .required("Link alanı zorunludur"),
+          })
+        ),
+      })
+    )
+    .min(1, "En az bir link eklemelisiniz"),
 });

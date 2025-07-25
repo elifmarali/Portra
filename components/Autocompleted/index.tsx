@@ -256,7 +256,7 @@ export default function CustomizedHook({
 
   useEffect(() => {
     if (type === "countryWorkExperience") {
-      if (selectedCountryWorkExperience?.id === undefined) {
+      if (selectedCountryWorkExperience === null) {
         setCurrentSelected?.(null);
         setSelectedCountryWorkExperience?.(null);
         setSelectedCityWorkExperience?.(null);
@@ -271,7 +271,7 @@ export default function CustomizedHook({
     if (type === "cityWorkExperience") {
       if (selectedCity === null) {
         setCurrentSelected(null);
-        setSelectedCityWorkExperience?.([]);
+        setSelectedCityWorkExperience?.(null);
       } else if (selectedCityWorkExperience) {
         setCurrentSelected(selectedCityWorkExperience);
       }

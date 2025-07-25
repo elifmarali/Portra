@@ -5,7 +5,7 @@ const AUTH_PAGES = ["/login", "/register"];
 
 const ADMIN_PAGES = ["/panel"];
 
-const AUTH_REQUIRED_PAGES = ["/createPortfolio", "/portfolio/", "/about"]
+const AUTH_REQUIRED_PAGES = ["/createPortfolio" ,"/portfolio/", "/about"]
 
 const isAuthPages = (pathname) => AUTH_PAGES.some(page => pathname.startsWith(page));
 const isAuthRequiredPages = (pathname) => AUTH_REQUIRED_PAGES.some(page => pathname.startsWith(page));

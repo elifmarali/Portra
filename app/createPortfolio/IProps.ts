@@ -91,12 +91,27 @@ export interface IProjects {
   links: [] | IProjectLinks[];
 }
 
+interface IPhoto {
+  photo: null | File;
+  name: string;
+}
+
+interface IAuthor {
+  id: number;
+  name: string | null;
+  surname: string | null;
+  username: string | null;
+  email: string | null;
+  role: string | null;
+}
+
 export interface ICreatePortfolio {
   id: number;
+  author: null | IAuthor;
   name: string;
   surname: string;
   title: string;
-  photo: null | File;
+  photo: null | IPhoto;
   shortBiography: string;
   email: string;
   jobs: [] | IJob[];

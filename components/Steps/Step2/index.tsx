@@ -26,6 +26,11 @@ import { ILanguage, ILanguageArray } from "./IProps";
 import { useFormikContext } from "formik";
 import { RiDeleteBin2Line } from "react-icons/ri";
 
+export interface INew {
+  id: number;
+  name: string;
+}
+
 function Step2() {
   const formik = useFormikContext<ICreatePortfolio>();
   const [otherJobState, setOtherJobState] = useState(formik.values.otherJob);
@@ -46,8 +51,8 @@ function Step2() {
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const errorText =
     Array.isArray(formik.errors.jobs) &&
-    formik.touched.jobs &&
-    jobListState.length === 0
+      formik.touched.jobs &&
+      jobListState.length === 0
       ? formik.errors.jobs.join(", ")
       : typeof formik.errors.jobs === "string" && formik.touched.jobs
         ? formik.errors.jobs
@@ -118,7 +123,7 @@ function Step2() {
     );
     if (
       (selectLanguageArray.length === 1 && isFilled) ||
-      selectLanguageArray.length > 1
+      selectLanguageArray.length > 1 
     ) {
       setShowDeleteButton(true);
       formik.setFieldValue("languages", filteredLanguageList);
@@ -192,42 +197,42 @@ function Step2() {
       {formik.values.jobs.find(
         (jobItem: IList) => jobItem.name === "Diğer"
       ) && (
-        <Grid
-          size={{ xs: 12, sm: 12, md: 6 }}
-          display="flex"
-          alignItems="start"
-          justifyContent="space-between"
-          sx={{ marginTop: 4 }}
-        >
-          <FormControl className="portfolioLabel">
-            Diğer Meslek / Unvan <span className="labelRequired">*</span>
-          </FormControl>
-          <TextField
-            name="otherJob"
-            id="otherJob"
-            className="portfolioInput"
-            value={otherJobState}
-            onChange={(e) => {
-              setOtherJobState(e.target.value);
-              formik.setFieldValue("otherJob", e.target.value);
-            }}
-            onBlur={formik.handleBlur}
-            helperText={
-              selectedJobListState.some((jobItem) => jobItem.id === 0) &&
-              otherJobState === "" &&
-              formik.touched.otherJob &&
-              formik.errors.otherJob
-            }
-            error={Boolean(
-              selectedJobListState.some((jobItem) => jobItem.id === 0) &&
+          <Grid
+            size={{ xs: 12, sm: 12, md: 6 }}
+            display="flex"
+            alignItems="start"
+            justifyContent="space-between"
+            sx={{ marginTop: 4 }}
+          >
+            <FormControl className="portfolioLabel">
+              Diğer Meslek / Unvan <span className="labelRequired">*</span>
+            </FormControl>
+            <TextField
+              name="otherJob"
+              id="otherJob"
+              className="portfolioInput"
+              value={otherJobState}
+              onChange={(e) => {
+                setOtherJobState(e.target.value);
+                formik.setFieldValue("otherJob", e.target.value);
+              }}
+              onBlur={formik.handleBlur}
+              helperText={
+                selectedJobListState.some((jobItem) => jobItem.id === 0) &&
                 otherJobState === "" &&
                 formik.touched.otherJob &&
                 formik.errors.otherJob
-            )}
-            required
-          />
-        </Grid>
-      )}
+              }
+              error={Boolean(
+                selectedJobListState.some((jobItem) => jobItem.id === 0) &&
+                otherJobState === "" &&
+                formik.touched.otherJob &&
+                formik.errors.otherJob
+              )}
+              required
+            />
+          </Grid>
+        )}
       {/* Yetenekler */}
       <Grid
         size={{ xs: 12, sm: 12, md: 6 }}
@@ -259,7 +264,7 @@ function Step2() {
                         skillsState?.trim() !== "" &&
                         !skillLengthAlertState
                       ) {
-                        setSkillsArrayState((prev: any) => [
+                        setSkillsArrayState((prev) => [
                           // eslint-disable-line @typescript-eslint/no-explicit-any
                           ...prev,
                           skillsState,
@@ -368,8 +373,7 @@ function Step2() {
                         value={String(selectLanguageArray[index]?.id)}
                         onChange={(e: SelectChangeEvent) => {
                           const updatedArray = [...selectLanguageArray];
-                          const selectedLanguage: any = languageList.find(
-                            // eslint-disable-line @typescript-eslint/no-explicit-any
+                          const selectedLanguage: any = languageList.find( // eslint-disable-line @typescript-eslint/no-explicit-any
                             (lang: ILanguage) =>
                               lang.id === Number(e.target.value)
                           );
@@ -377,6 +381,7 @@ function Step2() {
                             ...(updatedArray[index] || {}),
                             id: selectedLanguage?.id ?? -1,
                             name: selectedLanguage?.name ?? "",
+                            level: updatedArray[index]?.level ?? "",
                           };
                           setSelectLanguageArray(updatedArray);
                           formik.setFieldTouched(
@@ -452,28 +457,28 @@ function Step2() {
                     {((selectLanguageArray.length > 0 &&
                       selectLanguageArray.length - 1 === index) ||
                       languageCount === 1) && (
-                      <Button
-                        sx={{ height: "58px", fontSize: "3rem" }}
-                        onClick={() => {
-                          const isComplete = !selectLanguageArray.find(
-                            (item) =>
-                              item.id === -1 ||
-                              item.name === "" ||
-                              item.level === ""
-                          );
+                        <Button
+                          sx={{ height: "58px", fontSize: "3rem" }}
+                          onClick={() => {
+                            const isComplete = !selectLanguageArray.find(
+                              (item) =>
+                                item.id === -1 ||
+                                item.name === "" ||
+                                item.level === ""
+                            );
 
-                          if (isComplete) {
-                            setLanguageCount((prev) => prev + 1);
-                            setSelectLanguageArray((prev) => [
-                              ...prev,
-                              { id: -1, name: "", level: "" },
-                            ]);
-                          }
-                        }}
-                      >
-                        +
-                      </Button>
-                    )}
+                            if (isComplete) {
+                              setLanguageCount((prev) => prev + 1);
+                              setSelectLanguageArray((prev) => [
+                                ...prev,
+                                { id: -1, name: "", level: "" },
+                              ]);
+                            }
+                          }}
+                        >
+                          +
+                        </Button>
+                      )}
                   </Grid>
                 </Grid>
 
@@ -482,8 +487,8 @@ function Step2() {
                     formik.touched.languages &&
                     formik.errors.languages.map(
                       (
-                        error: any,
-                        idx: number // eslint-disable-line @typescript-eslint/no-explicit-any
+                        error,
+                        idx: number 
                       ) =>
                         idx === index && (
                           <div key={idx}>

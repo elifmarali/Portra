@@ -60,11 +60,8 @@ function Step3() {
 
   useEffect(() => {
     if (
-      certificatesTouched?.some(
-        (certificatesTouchedItem: any) => certificatesTouchedItem === true
-      )
+      certificatesTouched?.some((certificatesTouchedItem) => Object.values(certificatesTouchedItem).some(Boolean))
     ) {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
       setFileError((prev) => {
         const updatedErrors = [...prev];
         formik.values.certificates.map((certificateItem: ICertificates) => {
@@ -146,7 +143,7 @@ function Step3() {
                 }
                 error={Boolean(
                   certificatesTouched?.[i]?.title &&
-                    certificatesErrors?.[i]?.title
+                  certificatesErrors?.[i]?.title
                 )}
                 helperText={
                   certificatesTouched?.[i]?.title &&
@@ -179,7 +176,7 @@ function Step3() {
                 }
                 error={Boolean(
                   certificatesTouched?.[i]?.companyName &&
-                    certificatesErrors?.[i]?.companyName
+                  certificatesErrors?.[i]?.companyName
                 )}
                 helperText={
                   certificatesTouched?.[i]?.companyName &&
@@ -204,7 +201,7 @@ function Step3() {
                     "& .MuiPickersOutlinedInput-notchedOutline ": {
                       borderColor: Boolean(
                         certificatesErrors?.[i]?.date &&
-                          certificatesTouched?.[i]?.date
+                        certificatesTouched?.[i]?.date
                       )
                         ? "#d32f2f !important"
                         : theme === "dark"
@@ -232,20 +229,20 @@ function Step3() {
                 />
                 {Boolean(
                   certificatesTouched?.[i]?.date &&
-                    certificatesErrors?.[i]?.date
+                  certificatesErrors?.[i]?.date
                 ) && (
-                  <p
-                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                    style={{
-                      color: "#d32f2f",
-                      marginTop: "10px",
-                      marginLeft: "14px",
-                    }}
-                  >
-                    {certificatesTouched?.[i]?.date &&
-                      certificatesErrors?.[i]?.date}
-                  </p>
-                )}
+                    <p
+                      className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                      style={{
+                        color: "#d32f2f",
+                        marginTop: "10px",
+                        marginLeft: "14px",
+                      }}
+                    >
+                      {certificatesTouched?.[i]?.date &&
+                        certificatesErrors?.[i]?.date}
+                    </p>
+                  )}
               </Grid>
             </Grid>
             {/* Dosya Ekleri */}
@@ -267,13 +264,12 @@ function Step3() {
                 Dosya Yükle (Max 3 dosya yüklenmelidir)
                 <VisuallyHiddenInput
                   type="file"
-                  onChange={async (e: any) => {
-                    // eslint-disable-line @typescript-eslint/no-explicit-any
+                  onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
                     const filesFormik =
                       formik.values.certificates[i].files ?? [];
-                    const files: FileList = e.target.files;
-                    const filesArray = Array.from(files);
-                    const limitedFiles = filesArray.slice(-3);
+                    const files: FileList | null = e.target.files;
+                    const filesArray = files && Array.from(files);
+                    const limitedFiles = filesArray?.slice(-3);
 
                     if (filesFormik.length >= 3) {
                       setFileError((prev) => {
@@ -294,7 +290,7 @@ function Step3() {
                         }
                       });
                     }
-                    if (files) {
+                    if (files && limitedFiles) {
                       // En fazla 3 dosya olacak şekilde sınırlıyoruz
                       const newFiles = await Promise.all(
                         limitedFiles.map(async (fileItem: File) => {
@@ -354,17 +350,17 @@ function Step3() {
                 (fileItem) =>
                   fileItem.id === certificateItem.id && fileItem.isError
               ) && (
-                <p
-                  className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                  style={{
-                    color: "#d32f2f",
-                    marginTop: "10px",
-                    marginLeft: "14px",
-                  }}
-                >
-                  En fazla 3 dosya yüklenebilir
-                </p>
-              )}
+                  <p
+                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                    style={{
+                      color: "#d32f2f",
+                      marginTop: "10px",
+                      marginLeft: "14px",
+                    }}
+                  >
+                    En fazla 3 dosya yüklenebilir
+                  </p>
+                )}
               {Array.isArray(certificateItem?.files) &&
                 certificateItem.files.length > 0 &&
                 certificateItem.files.map(

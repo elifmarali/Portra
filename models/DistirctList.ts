@@ -1,11 +1,11 @@
 import mongoose, { model, models } from "mongoose";
 
-const DistirctSchema = new mongoose.Schema({
+const DistrictSchema = new mongoose.Schema({
     id:Number,
     name:String,
     city_id:Number
 });
 
-const DistirctList = models.DistirctList || model("DistirctList" , DistirctSchema, "DistirctList");
+const DistrictList = models.DistrictList || model("DistrictList" , DistrictSchema, "DistrictList");
 
-export default DistirctList;
+export default DistrictList;

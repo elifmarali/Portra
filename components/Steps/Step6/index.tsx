@@ -12,6 +12,7 @@ import {
 } from "@/lists/SocialMedia/ProjectsSocialMediaList";
 import { colorOptions } from "@/lists/color";
 import {
+  Box,
   Button,
   FormControl,
   Grid,
@@ -26,7 +27,6 @@ import { useSelector } from "react-redux";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
-import { IExtendFile } from "../Step3";
 import { convertToBase64 } from "@/functions/convertToBase64";
 import { IoMdClose } from "react-icons/io";
 
@@ -47,19 +47,22 @@ function Step6() {
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
   const projectsError = formik.errors.projects as
-    | FormikErrors<IProjects>[]
-    | undefined;
+    Array<FormikErrors<IProjects> | undefined | null>;
   const projectsTouched = formik.touched.projects as Array<
     FormikTouched<IProjects> | undefined
   >;
 
   useEffect(() => {
-    console.log("formik.values.projects : ", formik.values.projects);
-  }, [formik.values.projects]);
+    console.log("projectsError : ", projectsError);
+  }, [projectsError])
 
-  /*       id: number;
-      socialMedia: string;
-      linkUrl: string; */
+  useEffect(() => {
+    console.log("projectsTouched : ", projectsTouched);
+  }, [projectsTouched])
+
+  useEffect(() => {
+    console.log("formik.values.projects : ", formik.values.projects);
+  }, [formik.values.projects])
 
   return (
     <>
@@ -132,7 +135,7 @@ function Step6() {
                   value={formik.values.projects[projectIndex].title}
                   error={Boolean(
                     projectsError?.[projectIndex]?.title &&
-                      projectsTouched?.[projectIndex]?.title
+                    projectsTouched?.[projectIndex]?.title
                   )}
                   helperText={
                     projectsTouched?.[projectIndex]?.title &&
@@ -153,7 +156,7 @@ function Step6() {
                   value={formik.values.projects[projectIndex].description}
                   error={Boolean(
                     projectsError?.[projectIndex]?.description &&
-                      projectsTouched?.[projectIndex]?.description
+                    projectsTouched?.[projectIndex]?.description
                   )}
                   helperText={
                     projectsTouched?.[projectIndex]?.description &&
@@ -171,118 +174,145 @@ function Step6() {
                   projectItem.links.length === 0 ? "row" : "column"
                 }
                 width={"100%"}
+                gap={2}
               >
                 {projectItem.links.length === 0 && (
-                  <FormControl className="portfolioLabel">Linkler</FormControl>
+                  <FormControl className="portfolioLabel">Linkler <span className="labelRequired">*</span></FormControl>
                 )}
                 {projectItem.links.length > 0 &&
-                  projectItem.links.map((linkItem, linkIndex) => (
-                    <Grid key={linkIndex} size={12} display="flex">
-                      <Grid size={12} display="flex" flexDirection="row">
-                        <FormControl className="portfolioLabel">
-                          {linkIndex + 1}. Link
-                        </FormControl>
-                        <div
-                          style={{
-                            display: "flex",
-                            width: "100%",
-                            gap: "20px",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Select
-                            sx={{
-                              fontSize: "40px",
-                              width: "120px !important",
-                              marginLeft: "1 .5rem",
-                              "& .MuiSelect-select": {
-                                padding: "0px 14px !important",
-                                display: "flex",
-                                alignItems: "center",
-                                minHeight: "auto !important",
-                                height: "58.2969px !important",
-                              },
-                            }}
-                            className="portfolioSelect"
-                            value={linkItem.socialMedia?.id || 0}
-                            onChange={(e) => {
-                              const selectedSocialMedia =
-                                projectsSocialMediaList.filter(
-                                  (projectSocialItem) =>
-                                    projectSocialItem.id === e.target.value
-                                );
-                              //selectedSocialMedia değişkeni bize array olarka dönüyordu
-                              // objeye çevirdik
-                              const selectedSocialMediaObject = Object.assign(
-                                selectedSocialMedia[0]
-                              );
+                  projectItem.links.map((linkItem, linkIndex) => {
+                    const socialMediaError : any = projectsError?.[projectIndex]?.links?.[linkIndex];
 
-                              formik.setFieldValue(
-                                `projects[${projectIndex}].links[${linkIndex}].socialMedia`,
-                                selectedSocialMediaObject
-                              );
+                    const hasSocialMediaError = Boolean(socialMediaError?.socialMedia && projectsTouched?.[projectIndex]?.links?.[linkIndex]?.socialMedia);
+                    const socialMediaErrorText = socialMediaError?.socialMedia;
+
+                    const hasLinkUrlError = Boolean(socialMediaError?.linkUrl && projectsTouched?.[projectIndex]?.links?.[linkIndex]?.linkUrl);
+                    const linkUrlErrorText = socialMediaError?.linkUrl;
+
+                    return (
+                      <Grid key={linkIndex} size={12} display="flex">
+                        <Grid size={12} display="flex" flexDirection="row">
+                          <FormControl className="portfolioLabel">
+                            {linkIndex + 1}. Link
+                          </FormControl>
+                          <div
+                            style={{
+                              display: "flex",
+                              width: "100%",
+                              gap: "20px",
+                              alignItems: "center",
                             }}
                           >
-                            {projectsSocialMediaList.map(
-                              (
-                                listItem: ISocialMediaProjectsItem,
-                                listItemIndex: number
-                              ) => {
-                                const IconComponent: any = listItem.icon;
-                                return (
-                                  <MenuItem
-                                    key={listItemIndex}
-                                    value={listItem.id}
-                                    sx={{
-                                      fontSize: 30,
-                                    }}
-                                    disabled={Boolean(
-                                      projectItem.links.find(
-                                        (selectedLink) =>
-                                          selectedLink.socialMedia?.id ===
-                                          listItem.id
-                                      )
-                                    )}
+                            <Box sx={{ display: "flex", flexDirection: "column" }}>
+                              <Select
+                                sx={{
+                                  fontSize: "40px",
+                                  width: "120px !important",
+                                  marginLeft: "1 .5rem",
+                                  "& .MuiSelect-select": {
+                                    padding: "0px 14px !important",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    minHeight: "auto !important",
+                                    height: "58.2969px !important",
+                                  },
+                                }}
+                                className="portfolioSelect"
+                                value={linkItem.socialMedia?.id || 0}
+                                error={Boolean(hasSocialMediaError)}
+                                onChange={(e) => {
+                                  const selectedSocialMedia =
+                                    projectsSocialMediaList.filter(
+                                      (projectSocialItem) =>
+                                        projectSocialItem.id === e.target.value
+                                    );
+                                  //selectedSocialMedia değişkeni bize array olarka dönüyordu
+                                  // objeye çevirdik
+                                  const selectedSocialMediaObject = Object.assign(
+                                    selectedSocialMedia[0]
+                                  );
+
+                                  formik.setFieldValue(
+                                    `projects[${projectIndex}].links[${linkIndex}].socialMedia`,
+                                    selectedSocialMediaObject
+                                  );
+                                }}
+                              >
+                                {projectsSocialMediaList.map(
+                                  (
+                                    listItem: ISocialMediaProjectsItem,
+                                    listItemIndex: number
+                                  ) => {
+                                    const IconComponent = listItem.icon;
+                                    return (
+                                      <MenuItem
+                                        key={listItemIndex}
+                                        value={listItem.id}
+                                        sx={{
+                                          fontSize: 30,
+                                        }}
+                                        disabled={Boolean(
+                                          projectItem.links.find(
+                                            (selectedLink) =>
+                                              selectedLink.socialMedia?.id ===
+                                              listItem.id
+                                          )
+                                        )}
+                                      >
+                                        <IconComponent />
+                                      </MenuItem>
+                                    );
+                                  }
+                                )}
+                              </Select>
+                              {
+                                Boolean(hasSocialMediaError && socialMediaErrorText) && (
+                                  <p
+                                    className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+                                    id="photo-helper-text"
+                                    style={{ color: "#d32f2f", margin: "0", marginTop: "5px", marginLeft: "8px", fontSize: ".7rem" }}
                                   >
-                                    <IconComponent />
-                                  </MenuItem>
-                                );
+                                    {socialMediaErrorText}
+                                  </p>
+                                )
                               }
-                            )}
-                          </Select>
-                          <TextField
-                            className="portfolioInput"
-                            sx={{ width: "100% !important" }}
-                            name={`projects[${projectIndex}].links[${linkIndex}].linkUrl`}
-                            id={`linkUrl-${projectIndex}`}
-                            value={
-                              formik.values.projects[projectIndex].links[
-                                linkIndex
-                              ].linkUrl
-                            }
-                            onChange={formik.handleChange}
-                          />
-                          <RiDeleteBin2Line
-                            size={30}
-                            style={{
-                              color: colorOptions[color].dark,
-                              minWidth: "7%",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              const newLinks = projectItem.links.filter(
-                                (linkItemm) => linkItemm.id !== linkItem.id
-                              );
-                              formik.setFieldValue(
-                                `projects[${projectIndex}].links`,
-                                newLinks
-                              );
-                            }}
-                          />
-                        </div>
+                            </Box>
+                            <TextField
+                              className="portfolioInput"
+                              sx={{ width: "100% !important" }}
+                              name={`projects[${projectIndex}].links[${linkIndex}].linkUrl`}
+                              id={`linkUrl-${projectIndex}`}
+                              value={
+                                formik.values.projects[projectIndex].links[
+                                  linkIndex
+                                ].linkUrl
+                              }
+                              onChange={formik.handleChange}
+                              error={Boolean(hasLinkUrlError && linkUrlErrorText)}
+                              helperText={hasLinkUrlError && linkUrlErrorText}
+                            />
+                            <RiDeleteBin2Line
+                              size={30}
+                              style={{
+                                color: colorOptions[color].dark,
+                                minWidth: "7%",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {
+                                const newLinks = projectItem.links.filter(
+                                  (linkItemm) => linkItemm.id !== linkItem.id
+                                );
+                                formik.setFieldValue(
+                                  `projects[${projectIndex}].links`,
+                                  newLinks
+                                );
+                              }}
+                            />
+                          </div>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  ))}
+                    )
+                  })}
                 <Button
                   variant="outlined"
                   sx={{
@@ -333,13 +363,13 @@ function Step6() {
                     Dosya Yükle (Max 1 dosya yüklenmelidir)
                     <VisuallyHiddenInput
                       type="file"
-                      onChange={async (e: any) => {
+                      onChange={async (e) => {
                         const files: FileList | null = e.target.files;
 
                         if (files && files.length > 0) {
                           const file = files?.[0];
 
-                          const extentedFile: any = Object.assign(file, {
+                          const extentedFile = Object.assign(file, {
                             previewUrl: URL.createObjectURL(file),
                           });
 
@@ -440,7 +470,13 @@ function Step6() {
             </Grid>
           )
         )}
-      <Grid size={12} display="flex" justifyContent="center">
+      <Grid size={12}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
         <Button
           variant="outlined"
           sx={{
@@ -456,11 +492,12 @@ function Step6() {
             const lastId =
               formik.values.projects?.length > 0
                 ? formik.values.projects[formik.values.projects.length - 1].id +
-                  1
+                1
                 : 1;
             const newItem = {
               id: lastId,
               title: "",
+              description:"",
               attachment: null,
               links: [],
             };
@@ -469,6 +506,19 @@ function Step6() {
         >
           {formik.values.projects?.length > 0 ? "Ekle" : "Yeni ekle"}
         </Button>
+        {Boolean(formik.errors.projects && formik.touched.projects) &&
+          typeof formik.errors.projects === "string" && (
+            <p
+              className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
+              style={{
+                color: "#d32f2f",
+                marginTop: "10px",
+                marginLeft: "14px",
+              }}
+            >
+              {formik.errors.projects}
+            </p>
+          )}
       </Grid>
     </>
   );

@@ -163,7 +163,7 @@ function Step5() {
                                                 className="portfolioSelect"
                                                 name={`educations[${educationIndex}].degree`}
                                                 id={`degree-${educationIndex}`}
-                                                onChange={(e: any) => {
+                                                onChange={(e) => {
                                                     const fiteredDegree = degreeList.filter((degreeItem: IJob) => degreeItem.id === e.target.value)
                                                     formik.setFieldValue(`educations[${educationIndex}].degree`, fiteredDegree?.[0]);
                                                 }}
@@ -290,7 +290,7 @@ function Step5() {
                                         <FormControl className="portfolioLabel" sx={{ width: "100% !important" }}>Şu anda burada okuyorum</FormControl>
                                         <Checkbox
                                             onChange={formik.handleChange}
-                                            value={educationItem.isSchooling}
+                                            checked={educationItem.isSchooling}
                                             name={`educations[${educationIndex}].isSchooling`}
                                             id={`isSchooling-${educationIndex}`}
                                             sx={{

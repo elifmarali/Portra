@@ -45,9 +45,35 @@ function Step4() {
   const [cityListState, setCityListState] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [selectedCountryWorkExperience, setSelectedCountryWorkExperience] =
     useState<ICountryWorkExperience[]>([]);
-  const [selectedCityWorkExperience, setSelectedCityWorkExperience] = useState<
-    ICityWorkExperience[]
-  >([]);
+  const [selectedCityWorkExperience, setSelectedCityWorkExperience] = useState<any[]>([]);  // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  useEffect(() => {
+    const currentSelectedCountry: any[] = formik.values.workExperiences
+      .map((item, index) => {
+        if (item.country) {
+          const { id, name } : any = item.country;
+          return {
+            id,
+            name,
+            workExperienceId: index,
+          };
+        }
+        return null;
+      })
+      .filter((country): country is any => country !== null);
+
+    if (currentSelectedCountry.length > 0) {
+      setSelectedCountryWorkExperience(currentSelectedCountry);
+    }
+
+    const currentSelectedCity = formik.values.workExperiences
+      .map((item: any) => item.city)
+      .filter((city): city is ICityWorkExperience => city !== undefined) as ICityWorkExperience[];
+
+    if (currentSelectedCity.length > 0) {
+      setSelectedCityWorkExperience(currentSelectedCity);
+    }
+  }, [])
 
   useEffect(() => {
     getCountryList();
@@ -130,17 +156,16 @@ function Step4() {
     }
 
     setSelectedCountryWorkExperience(updatedCountry);
-    setSelectedCityWorkExperience((prev: any) => {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    setSelectedCityWorkExperience((prev) => {
       if (!Array.isArray(prev)) return [];
       const newArr = [...prev];
-      newArr[workItemIndex] = null;
+      newArr[workItemIndex] = undefined;
       return newArr;
     });
 
     formik.setFieldValue(
       `workExperiences[${workItemIndex}].country`,
-      country?.name || ""
+      country
     );
     formik.setFieldValue(`workExperiences[${workItemIndex}].city`, "");
   };
@@ -149,8 +174,7 @@ function Step4() {
     city: ICityWorkExperience | null,
     workItemIndex: number
   ) => {
-    setSelectedCityWorkExperience((prev: any) => {
-      // eslint-disable-line @typescript-eslint/no-explicit-any
+    setSelectedCityWorkExperience((prev: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       if (!Array.isArray(prev)) return [];
       const newArr = [...prev];
       newArr[workItemIndex] = city;
@@ -159,7 +183,7 @@ function Step4() {
 
     formik.setFieldValue(
       `workExperiences[${workItemIndex}].city`,
-      city?.name || ""
+      city
     );
   };
 
@@ -213,7 +237,7 @@ function Step4() {
                 }
                 error={Boolean(
                   workExperienceTouched?.[workItemIndex]?.position &&
-                    workExperienceErrors?.[workItemIndex]?.position
+                  workExperienceErrors?.[workItemIndex]?.position
                 )}
               />
             </Grid>
@@ -238,7 +262,7 @@ function Step4() {
                 }
                 error={Boolean(
                   workExperienceTouched?.[workItemIndex]?.title &&
-                    workExperienceErrors?.[workItemIndex]?.title
+                  workExperienceErrors?.[workItemIndex]?.title
                 )}
               />
             </Grid>
@@ -301,80 +325,80 @@ function Step4() {
             {(formik.values.workExperiences[workItemIndex].workingMethod ===
               "hibrit" ||
               formik.values.workExperiences[workItemIndex].workingMethod ===
-                "ofisten") && (
-              <>
-                <Grid
-                  size={{ xs: 12, sm: 12, md: 6 }}
-                  display="flex"
-                  alignItems="start"
-                  justifyContent="space-between"
-                  sx={{ marginTop: 4 }}
-                >
-                  <FormControl className="portfolioLabel">
-                    Ülke <span className="labelRequired">*</span>
-                  </FormControl>
-                  <CustomizedHook
-                    type="countryWorkExperience"
-                    list={countryListState}
-                    selectedCountryWorkExperience={
-                      selectedCountryWorkExperience.find(
-                        (item) => item.workExperienceId === workItemIndex
-                      ) || null
-                    }
-                    setSelectedCountryWorkExperience={(val: ICountry | null) =>
-                      handleCountryChange(val, workItemIndex)
-                    }
-                    setSelectedCityWorkExperience={(
-                      val: ICityWorkExperience | null
-                    ) => handleCityChange(val, workItemIndex)}
-                    workItemIndex={workItemIndex}
-                    errorText={
-                      formik.touched?.workExperiences?.[workItemIndex]
-                        ?.country &&
-                      typeof formik.errors?.workExperiences?.[workItemIndex] ===
+              "ofisten") && (
+                <>
+                  <Grid
+                    size={{ xs: 12, sm: 12, md: 6 }}
+                    display="flex"
+                    alignItems="start"
+                    justifyContent="space-between"
+                    sx={{ marginTop: 4 }}
+                  >
+                    <FormControl className="portfolioLabel">
+                      Ülke <span className="labelRequired">*</span>
+                    </FormControl>
+                    <CustomizedHook
+                      type="countryWorkExperience"
+                      list={countryListState}
+                      selectedCountryWorkExperience={
+                        selectedCountryWorkExperience.find(
+                          (item) => item.workExperienceId === workItemIndex
+                        )
+                      }
+                      setSelectedCountryWorkExperience={(val: ICountry | null) =>
+                        handleCountryChange(val, workItemIndex)
+                      }
+                      setSelectedCityWorkExperience={(
+                        val: ICityWorkExperience | null
+                      ) => handleCityChange(val, workItemIndex)}
+                      workItemIndex={workItemIndex}
+                      errorText={
+                        formik.touched?.workExperiences?.[workItemIndex]
+                          ?.country &&
+                        typeof formik.errors?.workExperiences?.[workItemIndex] ===
                         "object" &&
-                      (
-                        formik.errors?.workExperiences?.[
+                        (
+                          formik.errors?.workExperiences?.[
                           workItemIndex
-                        ] as FormikErrors<IWorkExperiences>
-                      )?.country
-                    }
-                  />
-                </Grid>
-                <Grid
-                  size={{ xs: 12, sm: 12, md: 6 }}
-                  display="flex"
-                  alignItems="start"
-                  justifyContent="space-between"
-                  sx={{ marginTop: 4 }}
-                >
-                  <FormControl className="portfolioLabel">
-                    İl <span className="labelRequired">*</span>
-                  </FormControl>
-                  <CustomizedHook
-                    type="cityWorkExperience"
-                    list={cityListState?.[workItemIndex] ?? []}
-                    selectedCityWorkExperience={
-                      selectedCityWorkExperience?.[workItemIndex] ?? null
-                    }
-                    setSelectedCityWorkExperience={(
-                      val: ICityWorkExperience | null
-                    ) => handleCityChange(val, workItemIndex)}
-                    workItemIndex={workItemIndex}
-                    errorText={
-                      formik.touched?.workExperiences?.[workItemIndex]?.city &&
-                      typeof formik.errors?.workExperiences?.[workItemIndex] ===
+                          ] as FormikErrors<IWorkExperiences>
+                        )?.country
+                      }
+                    />
+                  </Grid>
+                  <Grid
+                    size={{ xs: 12, sm: 12, md: 6 }}
+                    display="flex"
+                    alignItems="start"
+                    justifyContent="space-between"
+                    sx={{ marginTop: 4 }}
+                  >
+                    <FormControl className="portfolioLabel">
+                      İl <span className="labelRequired">*</span>
+                    </FormControl>
+                    <CustomizedHook
+                      type="cityWorkExperience"
+                      list={cityListState?.[workItemIndex] ?? []}
+                      selectedCityWorkExperience={
+                        selectedCityWorkExperience?.[workItemIndex]
+                      }
+                      setSelectedCityWorkExperience={(
+                        val: ICityWorkExperience | null
+                      ) => handleCityChange(val, workItemIndex)}
+                      workItemIndex={workItemIndex}
+                      errorText={
+                        formik.touched?.workExperiences?.[workItemIndex]?.city &&
+                        typeof formik.errors?.workExperiences?.[workItemIndex] ===
                         "object" &&
-                      (
-                        formik.errors?.workExperiences?.[
+                        (
+                          formik.errors?.workExperiences?.[
                           workItemIndex
-                        ] as FormikErrors<IWorkExperiences>
-                      )?.city
-                    }
-                  />
-                </Grid>
-              </>
-            )}
+                          ] as FormikErrors<IWorkExperiences>
+                        )?.city
+                      }
+                    />
+                  </Grid>
+                </>
+              )}
             {/* Başlangıç Tarihi */}
             <Grid
               size={{ xs: 12, sm: 12, md: 6 }}
@@ -394,13 +418,13 @@ function Step4() {
                         typeof formik.errors.workExperiences?.[
                           workItemIndex
                         ] === "object" &&
-                        (
-                          formik.errors.workExperiences?.[
+                          (
+                            formik.errors.workExperiences?.[
                             workItemIndex
-                          ] as FormikErrors<IWorkExperiences>
-                        )?.startDate &&
-                        formik.touched.workExperiences?.[workItemIndex]
-                          .startDate
+                            ] as FormikErrors<IWorkExperiences>
+                          )?.startDate &&
+                          formik.touched.workExperiences?.[workItemIndex]
+                            .startDate
                           ? "#d32f2f !important"
                           : theme === "dark"
                             ? "#fff !important"
@@ -414,7 +438,7 @@ function Step4() {
                     },
                   }}
                   format="DD/MM/YYYY"
-                  value={dayjs(workItem.startDate, "DD/MM/YYYY")}
+                  value={dayjs(workItem?.startDate, "DD/MM/YYYY")}
                   onChange={(newValue) => {
                     formik.setFieldValue(
                       `workExperiences[${workItemIndex}].startDate`,
@@ -422,7 +446,7 @@ function Step4() {
                     );
                   }}
                 />
-                {workExperienceErrors?.[workItemIndex].startDate &&
+                {workExperienceErrors?.[workItemIndex]?.startDate &&
                   workExperienceTouched?.[workItemIndex]?.startDate && (
                     <p
                       className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
@@ -432,7 +456,7 @@ function Step4() {
                         marginLeft: "14px",
                       }}
                     >
-                      {workExperienceErrors?.[workItemIndex].startDate}
+                      {workExperienceErrors?.[workItemIndex]?.startDate}
                     </p>
                   )}
               </Grid>
@@ -463,12 +487,12 @@ function Step4() {
                         typeof formik.errors.workExperiences?.[
                           workItemIndex
                         ] === "object" &&
-                        (
-                          formik.errors.workExperiences?.[
+                          (
+                            formik.errors.workExperiences?.[
                             workItemIndex
-                          ] as FormikErrors<IWorkExperiences>
-                        )?.endDate &&
-                        formik.touched.workExperiences?.[workItemIndex].endDate
+                            ] as FormikErrors<IWorkExperiences>
+                          )?.endDate &&
+                          formik.touched.workExperiences?.[workItemIndex]?.endDate
                           ? "#d32f2f !important"
                           : theme === "dark"
                             ? "#fff !important"
@@ -482,7 +506,7 @@ function Step4() {
                     },
                   }}
                   format="DD/MM/YYYY"
-                  value={dayjs(workItem.endDate, "DD/MM/YYYY")}
+                  value={dayjs(workItem?.endDate, "DD/MM/YYYY")}
                   onChange={(newValue) => {
                     formik.setFieldValue(
                       `workExperiences[${workItemIndex}].endDate`,
@@ -496,7 +520,7 @@ function Step4() {
                       : undefined
                   }
                 />
-                {workExperienceErrors?.[workItemIndex].endDate &&
+                {workExperienceErrors?.[workItemIndex]?.endDate &&
                   workExperienceTouched?.[workItemIndex]?.endDate && (
                     <p
                       className="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
@@ -506,7 +530,7 @@ function Step4() {
                         marginLeft: "14px",
                       }}
                     >
-                      {workExperienceErrors?.[workItemIndex].endDate}
+                      {workExperienceErrors?.[workItemIndex]?.endDate}
                     </p>
                   )}
               </Grid>
@@ -553,7 +577,7 @@ function Step4() {
               </FormControl>
               <Checkbox
                 onChange={formik.handleChange}
-                value={workItem.isWorking}
+                checked={workItem.isWorking}
                 name={`workExperiences[${workItemIndex}].isWorking`}
                 id={`isWorking-${workItemIndex}`}
                 sx={{
