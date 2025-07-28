@@ -26,13 +26,14 @@ import Step6 from "@/components/Steps/Step6";
 import { ICreatePortfolio } from "./IProps";
 import { currentAuth } from "@/lib/redux/features/auth/authSlice";
 import axios from "axios";
+import isEqual from "lodash.isequal";
 
 function FormikWatcher({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<ICreatePortfolio>> }) {
   const { values } = useFormikContext<ICreatePortfolio>();
 
   useEffect(() => {
     setFormData((prev) => {
-      if (JSON.stringify(prev) !== JSON.stringify(values)) {
+      if (!isEqual(prev, values)) {
         return values
       }
       return prev;
@@ -65,6 +66,11 @@ function CreatePortfolio({ stepParam }: Props) {
     return "";
   });
 
+  useEffect(() => {
+    console.log("auth : ", auth);
+
+  }, [auth])
+
   // Sadece formId değişirse bu obje baştan hesaplanır.
   // formId sabit olduğu sürece initialValues sabit kalır.
   // durduk yere formu sıfırlamaz ( her next veya back de sıfırlaması gibi)
@@ -96,7 +102,7 @@ function CreatePortfolio({ stepParam }: Props) {
     workExperiences: [],
     educations: [],
     projects: []
-  }), [formId]);
+  }), [formId, auth]);
 
   const [formData, setFormData] = useState(() => {
     if (typeof window !== "undefined") {
@@ -105,6 +111,22 @@ function CreatePortfolio({ stepParam }: Props) {
     }
     return initialValues;
   });
+
+  useEffect(() => {
+    const updatedAuthor = {
+      name: auth.name,
+      surname: auth.surname,
+      username: auth.username,
+      email: auth.email,
+      role: auth.role
+    };
+
+    setFormData((prev: any) => ({
+      ...prev,
+      author: updatedAuthor
+    }));
+  }, [auth]);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -165,22 +187,23 @@ function CreatePortfolio({ stepParam }: Props) {
             Portfolyo Oluştur
           </Typography>
         </Grid>
-
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Formik
             initialValues={formData}
             enableReinitialize={true}
-            validationSchema={createPortfolioValidation}
+            // validationSchema={createPortfolioValidation}
             validateOnBlur={false}
             onSubmit={(values) => {
-              console.log("Form Submit:", JSON.stringify(values, null, 2));
-              try { axios.post("/api/portfolioList", { formData }) }
-              catch (err) {
-                console.log("hatalandııık :)");
-
+              console.log("Form Submit:", values);
+              try {
+                axios.post("/api/portfolioList", values);
+                if (typeof window !== "undefined") {
+                  sessionStorage.removeItem(`portfolioForm-${formId}`);
+                  sessionStorage.removeItem("portfolioFormId");
+                }
+              } catch (err) {
+                console.log("Hata:", err);
               }
-              /*               sessionStorage.removeItem(`portfolioForm-${formId}`);
-                            sessionStorage.removeItem("portfolioFormId"); */
             }}
           >
             {({ values, errors, setFieldValue }) => {

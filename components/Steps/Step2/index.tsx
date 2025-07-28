@@ -117,19 +117,15 @@ function Step2() {
       (item: ILanguageArray) =>
         item.id !== -1 || item.name !== "" || item.level !== ""
     );
-    const filteredLanguageList = selectLanguageArray.filter(
-      (item: ILanguageArray) =>
-        item.id !== -1 || item.name !== "" || item.level !== ""
-    );
     if (
       (selectLanguageArray.length === 1 && isFilled) ||
-      selectLanguageArray.length > 1 
+      selectLanguageArray.length > 1
     ) {
       setShowDeleteButton(true);
-      formik.setFieldValue("languages", filteredLanguageList);
     } else {
       setShowDeleteButton(false);
     }
+    formik.setFieldValue("languages", selectLanguageArray);
   }, [selectLanguageArray]);
 
   useEffect(() => {
@@ -388,10 +384,6 @@ function Step2() {
                             `languages[${index}].id`,
                             true
                           );
-                          formik.setFieldValue(
-                            `languages[${index}].id`,
-                            selectedLanguage?.id ?? -1
-                          );
                         }}
                       >
                         {languageList.map((languageItem: ILanguage) => (
@@ -488,7 +480,7 @@ function Step2() {
                     formik.errors.languages.map(
                       (
                         error,
-                        idx: number 
+                        idx: number
                       ) =>
                         idx === index && (
                           <div key={idx}>
