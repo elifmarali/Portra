@@ -48,10 +48,10 @@ function Step4() {
   const [selectedCityWorkExperience, setSelectedCityWorkExperience] = useState<any[]>([]);  // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
-    const currentSelectedCountry: any[] = formik.values.workExperiences
+    const currentSelectedCountry: [] | ICountryWorkExperience[] = formik.values.workExperiences
       .map((item, index) => {
         if (item.country) {
-          const { id, name } : any = item.country;
+          const { id, name }: any = item.country; // eslint-disable-line @typescript-eslint/no-explicit-any
           return {
             id,
             name,
@@ -60,19 +60,22 @@ function Step4() {
         }
         return null;
       })
-      .filter((country): country is any => country !== null);
+      .filter((country): country is any => country !== null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     if (currentSelectedCountry.length > 0) {
       setSelectedCountryWorkExperience(currentSelectedCountry);
     }
 
     const currentSelectedCity = formik.values.workExperiences
-      .map((item: any) => item.city)
+      .map((item: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        return item.city;
+      })
       .filter((city): city is ICityWorkExperience => city !== undefined) as ICityWorkExperience[];
 
     if (currentSelectedCity.length > 0) {
       setSelectedCityWorkExperience(currentSelectedCity);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

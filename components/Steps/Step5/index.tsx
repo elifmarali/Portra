@@ -36,13 +36,6 @@ function Step5() {
         }
     };
 
-    useEffect(() => {
-        console.log("formik.values.educations : ", formik.values.educations);
-    }, [formik.values.educations])
-
-    /* startDate: Dayjs | null;
-    endDate: Dayjs | null; */
-
     return (
         <>
             <Grid size={12} display="flex" flexDirection="column" gap={4}>
@@ -118,7 +111,7 @@ function Step5() {
                                     {/* Bölüm */}
                                     <Grid size={{ xs: 12, sm: 12, md: 6 }} display="column">
                                         <Grid size={12} sx={{ display: "flex" }}>
-                                            <FormControl className="portfolioLabel">Bölüm <span className="labelRequired">*</span></FormControl>
+                                            <FormControl className="portfolioLabel">Bölüm</FormControl>
                                             <Select
                                                 error={Boolean(educationsErrors?.[educationIndex]?.department && educationsTouched?.[educationIndex]?.department)}
                                                 className="portfolioSelect"

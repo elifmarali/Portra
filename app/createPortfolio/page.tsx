@@ -4,10 +4,9 @@ import "./style.css";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
-import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Modal, Typography } from "@mui/material";
 import { Form, Formik, useFormikContext } from "formik";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import * as motion from "motion/react-client";
 import { RiDeleteBin2Line } from "react-icons/ri";
@@ -27,19 +26,14 @@ import { ICreatePortfolio } from "./IProps";
 import { currentAuth } from "@/lib/redux/features/auth/authSlice";
 import axios from "axios";
 import isEqual from "lodash.isequal";
+import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
+import { useRouter } from "next/navigation";
 
 function FormikWatcher({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<ICreatePortfolio>> }) {
   const { values } = useFormikContext<ICreatePortfolio>();
-
   useEffect(() => {
-    setFormData((prev) => {
-      if (!isEqual(prev, values)) {
-        return values
-      }
-      return prev;
-    })
+    setFormData((prev) => (!isEqual(prev, values) ? values : prev));
   }, [values, setFormData]);
-
   return null;
 }
 
@@ -54,98 +48,91 @@ interface Props {
 function CreatePortfolio({ stepParam }: Props) {
   const auth = useSelector(currentAuth);
   const step = parseInt(stepParam || "0", 10);
-  const [formId] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("portfolioFormId");
-      if (saved) return saved;
-
-      const newId = Math.floor(Math.random() * 7449741984988489).toString();
-      sessionStorage.setItem("portfolioFormId", newId);
-      return newId;
-    }
-    return "";
-  });
-
-  useEffect(() => {
-    console.log("auth : ", auth);
-
-  }, [auth])
-
-  // Sadece formId değişirse bu obje baştan hesaplanır.
-  // formId sabit olduğu sürece initialValues sabit kalır.
-  // durduk yere formu sıfırlamaz ( her next veya back de sıfırlaması gibi)
-  //  useMemo = “Render başına değil, bağımlılık değişince çalış!” garantisi.
-  // useMemo = “Gereksiz sıfırlama yok, performans stabil!”
-  const initialValues = useMemo(() => ({
-    author: {
-      name: auth.name,
-      surname: auth.surname,
-      username: auth.username,
-      email: auth.email,
-      role: auth.role
-    },
-    id: formId,
-    name: "",
-    surname: "",
-    title: "",
-    photo: null,
-    shortBiography: "",
-    email: "",
-    jobs: [],
-    otherJob: "",
-    country: null,
-    city: null,
-    district: null,
-    skills: [],
-    languages: [{ id: -1, name: "", level: "" }],
-    certificates: [],
-    workExperiences: [],
-    educations: [],
-    projects: []
-  }), [formId, auth]);
-
-  const [formData, setFormData] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem(`portfolioForm-${formId}`);
-      return saved ? JSON.parse(saved) : initialValues;
-    }
-    return initialValues;
-  });
-
-  useEffect(() => {
-    const updatedAuthor = {
-      name: auth.name,
-      surname: auth.surname,
-      username: auth.username,
-      email: auth.email,
-      role: auth.role
-    };
-
-    setFormData((prev: any) => ({
-      ...prev,
-      author: updatedAuthor
-    }));
-  }, [auth]);
-
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(`portfolioForm-${formId}`, JSON.stringify(formData));
-    }
-  }, [formData, formId]);
-
+  const [successPortfolio, setSuccessPortfolio] = useState(false);
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
   const [photo, setPhoto] = useState<IExtendFile | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [formId, setFormId] = useState<string | null>(null);
+  const router = useRouter();
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const initialValues = useMemo(() => {
+    if (!formId) return null;
+    return {
+      author: {
+        name: auth.name,
+        surname: auth.surname,
+        username: auth.username,
+        email: auth.email,
+        role: auth.role,
+      },
+      id: formId,
+      name: "",
+      surname: "",
+      title: "",
+      photo: null,
+      shortBiography: "",
+      email: "",
+      jobs: [],
+      otherJob: "",
+      country: null,
+      city: null,
+      district: null,
+      skills: [],
+      languages: [{ id: -1, name: "", level: "" }],
+      certificates: [],
+      workExperiences: [],
+      educations: [],
+      projects: [],
+    };
+  }, [formId, auth]);
+
+  const [formData, setFormData] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
-    console.log("formData : ", formData);
-  }, [formData])
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("portfolioFormId");
+      if (saved) {
+        setFormId(saved);
+      } else {
+        const newId = Math.floor(Math.random() * 7449741984988489).toString();
+        sessionStorage.setItem("portfolioFormId", newId);
+        setFormId(newId);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (formId && typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(`portfolioForm-${formId}`);
+      setFormData(saved ? JSON.parse(saved) : initialValues);
+    }
+  }, [formId, initialValues]);
+
+  useEffect(() => {
+    if (formId && formData) {
+      sessionStorage.setItem(`portfolioForm-${formId}`, JSON.stringify(formData));
+    }
+  }, [formId, formData]);
+
+  useEffect(() => {
+    if (!formData) return;
+    setFormData((prev: any) => prev && { // eslint-disable-line @typescript-eslint/no-explicit-any
+      ...prev,
+      author: {
+        name: auth.name,
+        surname: auth.surname,
+        username: auth.username,
+        email: auth.email,
+        role: auth.role,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth]);
 
   useEffect(() => {
     if (
-      formData.photo &&
+      formData?.photo &&
       typeof formData.photo === "object" &&
       formData.photo.base64File &&
       formData.photo.name &&
@@ -156,11 +143,28 @@ function CreatePortfolio({ stepParam }: Props) {
         .then((blob) => {
           const file = new File([blob], formData.photo.name, { type: blob.type });
           const previewUrl = URL.createObjectURL(blob);
-          const extendedFile: IExtendFile = Object.assign(file, { previewUrl });
-          setPhoto(extendedFile);
+          setPhoto(Object.assign(file, { previewUrl }));
         });
     }
-  }, [formData.photo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData?.photo]);
+
+  useEffect(() => {
+    if (successPortfolio) {
+      setTimeout(() => {
+        router.push("/myPortfolioList");
+        setSuccessPortfolio(false);
+      }, 3000)
+    }
+  }, [successPortfolio])
+
+  if (!formData || !initialValues) {
+    return (
+      <Typography sx={{ color: "#fff", textAlign: "center", mt: 10 }}>
+        Yükleniyor...
+      </Typography>
+    );
+  }
 
   return (
     <Grid
@@ -191,22 +195,26 @@ function CreatePortfolio({ stepParam }: Props) {
           <Formik
             initialValues={formData}
             enableReinitialize={true}
-            // validationSchema={createPortfolioValidation}
+            validationSchema={createPortfolioValidation}
             validateOnBlur={false}
-            onSubmit={(values) => {
+            onSubmit={async (values) => {
               console.log("Form Submit:", values);
               try {
-                axios.post("/api/portfolioList", values);
+                await axios.post("/api/portfolioList", values);
                 if (typeof window !== "undefined") {
                   sessionStorage.removeItem(`portfolioForm-${formId}`);
                   sessionStorage.removeItem("portfolioFormId");
                 }
+                setSuccessPortfolio(true);
               } catch (err) {
                 console.log("Hata:", err);
               }
             }}
           >
-            {({ values, errors, setFieldValue }) => {
+            {({ errors, setFieldValue }) => {
+              useEffect(() => {
+                console.log("errors : ", errors);
+              }, [errors])
               return (
                 <>
                   <FormikWatcher setFormData={setFormData} />
@@ -339,9 +347,6 @@ function CreatePortfolio({ stepParam }: Props) {
                       {step === 5 && <Step4 />}
                       {step === 6 && <Step5 />}
                       {step === 7 && <Step6 />}
-                      {step >= 8 && step <= 9 && (
-                        <Typography sx={{ color: "#fff" }}>Step {step}</Typography>
-                      )}
                     </Grid>
 
                     <Grid size={12} sx={{ my: 4 }}>
@@ -370,6 +375,18 @@ function CreatePortfolio({ stepParam }: Props) {
           </Formik>
         </LocalizationProvider>
       </Grid>
+      <Modal
+        open={successPortfolio}
+      >
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 500, bgcolor: theme === "dark" ? "var(--border-color)" : "var(--color-light)", border: `2px solid var(--color-dark)`, boxShadow: 24, p: 4, borderRadius: "1rem" }}>
+          <Typography variant="h5" component="h2">
+            Portfolyo başarıyla oluşturuldu!
+          </Typography>
+          <Typography variant="body1" component="h2" sx={{ marginTop: "1rem" }}>
+            3 saniye içinde 'Portfolyolarım' sayfasına yönlendirileceksiniz...
+          </Typography>
+        </Box>
+      </Modal>
     </Grid>
   );
 }

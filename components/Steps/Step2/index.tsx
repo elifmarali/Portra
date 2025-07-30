@@ -78,6 +78,7 @@ function Step2() {
 
   useEffect(() => {
     formik.setFieldValue("skills", skillsArrayState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillsArrayState]);
 
   useEffect(() => {
@@ -117,16 +118,22 @@ function Step2() {
       (item: ILanguageArray) =>
         item.id !== -1 || item.name !== "" || item.level !== ""
     );
-    if (
+
+    setShowDeleteButton(
       (selectLanguageArray.length === 1 && isFilled) ||
       selectLanguageArray.length > 1
+    );
+
+    // ✅ Sonsuz döngüyü engelle
+    if (
+      JSON.stringify(formik.values.languages) !==
+      JSON.stringify(selectLanguageArray)
     ) {
-      setShowDeleteButton(true);
-    } else {
-      setShowDeleteButton(false);
+      formik.setFieldValue("languages", selectLanguageArray);
     }
-    formik.setFieldValue("languages", selectLanguageArray);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectLanguageArray]);
+
 
   useEffect(() => {
     if (formik.values.skills) {
@@ -261,7 +268,6 @@ function Step2() {
                         !skillLengthAlertState
                       ) {
                         setSkillsArrayState((prev) => [
-                          // eslint-disable-line @typescript-eslint/no-explicit-any
                           ...prev,
                           skillsState,
                         ]);

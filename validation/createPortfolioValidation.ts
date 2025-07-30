@@ -122,7 +122,7 @@ export const createPortfolioValidation = yup.object({
           .min(3, "Kurum adı minimum 3 karakter uzunlukta olmalıdır")
           .max(30, "Kurum adı maximum 30 karakter uzunlukta olmalıdır")
           .required("Kurum adı alanı zorunludur"),
-        date: yup.date().required("Tarih alanı zorunludur"),
+        date: yup.string().required("Tarih alanı zorunludur"),
       })
     )
     .min(1, "En az 1 sertifika eklenmelidir")
@@ -143,21 +143,21 @@ export const createPortfolioValidation = yup.object({
         .max(50, "Firma adı maximum 50 karakter uzunlukta olmalıdır")
         .required("Firma adı alanı zorunludur"),
       workingMethod: yup.string().required("Çalışma şekli seçmek zorunludur"),
-      country: yup.string().when("workingMethod", {
-        is: (val: string) => val === "hibrit" || val === "ofisten",
+      country: yup.object().when("workingMethod", {
+        is: (val: any) => val === "hibrit" || val === "ofisten",
         //Eğer is durumu TRUE olursa, country alanı zorunlu hale gelir.
         then: (schema) => schema.required("Ülke seçimi zorunludur"),
         // Eğer workingMethod "remote" ise (hibrit veya ofisten değilse)
         //country zorunlu olmaz, boş bırakılabilir.
         otherwise: (schema) => schema.notRequired(),
       }),
-      city: yup.string().when("workingMethod", {
-        is: (val: string) => val === "hibrit" || val === "ofisten",
+      city: yup.object().when("workingMethod", {
+        is: (val:any) => val === "hibrit" || val === "ofisten",
         then: (schema) => schema.required("İl seçimi zorunludur"),
         otherwise: (schema) => schema.notRequired(),
       }),
-      startDate: yup.date().required("Başlangıç tarih alanı zorunludur"),
-      endDate: yup.date().when("isWorking", {
+      startDate: yup.string().required("Başlangıç tarih alanı zorunludur"),
+      endDate: yup.string().when("isWorking", {
         is: (val: boolean) => val === false,
         then: (schema) => schema.required("Bitiş Tarihi zorunludur"),
         otherwise: (schema) => schema.notRequired(),
@@ -174,20 +174,18 @@ export const createPortfolioValidation = yup.object({
         .min(3, "Okul adı minimum 3 karakter olmalıdır")
         .max(30, "Okul adı maximum 30 karakter olmalıdır")
         .required("Okul adı zorunludur"),
-      department: yup
-        .object({
-          id: yup.number(),
-          name: yup.string(),
-        })
-        .required("Bölüm seçimi zorunludur"),
+      department: yup.object({
+        id: yup.number(),
+        name: yup.string(),
+      }),
       degree: yup
         .object({
           id: yup.number(),
           name: yup.string(),
         })
         .required("Derece seçimi zorunludur"),
-      startDate: yup.date().required("Başlangıç tarihi zorunludur"),
-      endDate: yup.date().when("isSchooling", {
+      startDate: yup.string().required("Başlangıç tarihi zorunludur"),
+      endDate: yup.string().when("isSchooling", {
         is: (val: boolean) => val === false,
         then: (schema) => schema.required("Bitiş tarihi zorunludur"),
         otherwise: (schema) => schema.notRequired(),
@@ -209,7 +207,7 @@ export const createPortfolioValidation = yup.object({
         description: yup
           .string()
           .min(10, "Açıklama alanı minimum 10 karakter olmalıdır")
-          .max(200, "Açıklama alanı maximum 200 karakter olmalıdır")
+          .max(300, "Açıklama alanı maximum 300 karakter olmalıdır")
           .required("Açıklama alanı zorunludur"),
         links: yup.array().of(
           yup.object({

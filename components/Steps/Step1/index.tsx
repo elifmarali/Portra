@@ -89,6 +89,7 @@ function Step1() {
 
   useEffect(() => {
     formik.setFieldValue("district", selectedDistrictState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDistrictState]);
 
   useEffect(() => {

@@ -44,7 +44,7 @@ function Stepper({ step }: IStep) {
             fontSize: "16px",
           }}
           onClick={() => router.push(`/createPortfolio/${step + 1}`)}
-          disabled={step === 9}
+          disabled={step === 7}
           type="button"
         >
           Next
