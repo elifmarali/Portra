@@ -22,7 +22,6 @@ import {
   Typography,
 } from "@mui/material";
 import { FormikErrors, FormikTouched, useFormikContext } from "formik";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -51,18 +50,6 @@ function Step6() {
   const projectsTouched = formik.touched.projects as Array<
     FormikTouched<IProjects> | undefined
   >;
-
-  useEffect(() => {
-    console.log("projectsError : ", projectsError);
-  }, [projectsError])
-
-  useEffect(() => {
-    console.log("projectsTouched : ", projectsTouched);
-  }, [projectsTouched])
-
-  useEffect(() => {
-    console.log("formik.values.projects : ", formik.values.projects);
-  }, [formik.values.projects])
 
   return (
     <>
@@ -181,7 +168,7 @@ function Step6() {
                 )}
                 {projectItem.links.length > 0 &&
                   projectItem.links.map((linkItem, linkIndex) => {
-                    const socialMediaError : any = projectsError?.[projectIndex]?.links?.[linkIndex];
+                    const socialMediaError : any = projectsError?.[projectIndex]?.links?.[linkIndex]; // eslint-disable-line @typescript-eslint/no-explicit-any                    
 
                     const hasSocialMediaError = Boolean(socialMediaError?.socialMedia && projectsTouched?.[projectIndex]?.links?.[linkIndex]?.socialMedia);
                     const socialMediaErrorText = socialMediaError?.socialMedia;

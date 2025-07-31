@@ -16,7 +16,7 @@ const PortfolioSchema = new mongoose.Schema(
     surname: { type: String },
     title: { type: String },
     photo: {
-      photo: { type: Buffer, default: null }, // veya base64 string için: String
+      base64: { type: String, default: null }, // veya base64 string için: String
       name: { type: String, default: "" },
     },
     shortBiography: { type: String, default: "" },

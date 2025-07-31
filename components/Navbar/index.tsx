@@ -34,7 +34,7 @@ function Navbar() {
       transition={{ duration: 0.5 }}
       className="flex justify-center w-full"
     >
-      <div className="w-full max-w-[1600px] flex flex-col lg:flex-row items-center justify-between px-5 py-3 gap-4">
+      <div className="w-full max-w-[1400px] flex flex-col lg:flex-row items-center justify-between px-5 py-3 gap-4">
         {/* Logo */}
         <Link href="/" className="flex justify-center lg:justify-start">
           <Image

@@ -92,7 +92,7 @@ export interface IProjects {
 }
 
 interface IPhoto {
-  photo: null | File;
+  base64:  string;
   name: string;
 }
 

@@ -134,11 +134,11 @@ function CreatePortfolio({ stepParam }: Props) {
     if (
       formData?.photo &&
       typeof formData.photo === "object" &&
-      formData.photo.base64File &&
+      formData.photo.base64 &&
       formData.photo.name &&
       !photo
     ) {
-      fetch(formData.photo.base64File)
+      fetch(formData.photo.base64)
         .then((res) => res.blob())
         .then((blob) => {
           const file = new File([blob], formData.photo.name, { type: blob.type });
@@ -157,6 +157,10 @@ function CreatePortfolio({ stepParam }: Props) {
       }, 3000)
     }
   }, [successPortfolio])
+
+  useEffect(() => {
+    console.log("formData : ",formData);
+  }, [formData])
 
   if (!formData || !initialValues) {
     return (
@@ -195,7 +199,7 @@ function CreatePortfolio({ stepParam }: Props) {
           <Formik
             initialValues={formData}
             enableReinitialize={true}
-            validationSchema={createPortfolioValidation}
+            // validationSchema={createPortfolioValidation}
             validateOnBlur={false}
             onSubmit={async (values) => {
               console.log("Form Submit:", values);
@@ -281,7 +285,7 @@ function CreatePortfolio({ stepParam }: Props) {
                                       const base64File = await convertToBase64(extendedFile);
                                       setFieldValue("photo", {
                                         name: file.name,
-                                        base64File
+                                        base64: base64File
                                       });
                                       setPhoto(extendedFile);
                                     }

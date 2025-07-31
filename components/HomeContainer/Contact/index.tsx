@@ -36,7 +36,7 @@ function Contact() {
   return (
     <Box sx={{ minHeight: "350px", display: 'flex', flexDirection: "column", justifyContent: "space-between" }}>
       <Typography variant='h3' className='inline' style={{ color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark, fontWeight: "600" }}>
-        <LuMessageSquare className='inline mr-4' size={50} />
+        <LuMessageSquare className='inline mr-4' size={50}/>
         Bize Ulaşın
       </Typography>
       <Grid container spacing={6} sx={{

@@ -19,7 +19,7 @@ export const createPortfolioValidation = yup.object({
     .required("Başlık / Unvan zorunludur"),
   photo: yup.object({
     name: yup.string(),
-    base64File: yup
+    base64: yup
       .string()
       .required("Profil fotoğrafı zorunludur")
       .test("is-valid-base64", "Geçersiz görsel formatı", (value) => {
