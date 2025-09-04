@@ -28,6 +28,7 @@ import axios from "axios";
 import isEqual from "lodash.isequal";
 import { createPortfolioValidation } from "@/validation/createPortfolioValidation";
 import { useRouter } from "next/navigation";
+import Step7 from "@/components/Steps/Step7";
 
 function FormikWatcher({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<ICreatePortfolio>> }) {
   const { values } = useFormikContext<ICreatePortfolio>();
@@ -84,6 +85,12 @@ function CreatePortfolio({ stepParam }: Props) {
       workExperiences: [],
       educations: [],
       projects: [],
+      privacyPolicy: false,
+      termOfUse: false,
+      explorePermission: false,
+      likes: 0,
+      dislikes: 0,
+      favorites: 0,
     };
   }, [formId, auth]);
 
@@ -159,7 +166,7 @@ function CreatePortfolio({ stepParam }: Props) {
   }, [successPortfolio])
 
   useEffect(() => {
-    console.log("formData : ",formData);
+    console.log("formData : ", formData);
   }, [formData])
 
   if (!formData || !initialValues) {
@@ -351,6 +358,7 @@ function CreatePortfolio({ stepParam }: Props) {
                       {step === 5 && <Step4 />}
                       {step === 6 && <Step5 />}
                       {step === 7 && <Step6 />}
+                      {step === 8 && <Step7 />}
                     </Grid>
 
                     <Grid size={12} sx={{ my: 4 }}>

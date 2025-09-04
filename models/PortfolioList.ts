@@ -1,4 +1,3 @@
-import { ICreatePortfolio } from "@/app/createPortfolio/IProps";
 import mongoose, { Schema, model, models } from "mongoose";
 
 const PortfolioSchema = new mongoose.Schema(
@@ -43,6 +42,12 @@ const PortfolioSchema = new mongoose.Schema(
     workExperiences: { type: [Object], default: [] },
     educations: { type: [Object], default: [] },
     projects: { type: [Object], default: [] },
+    privacyPolicy: { type: Boolean, default: false },
+    termOfUse: { type: Boolean, default: false },
+    explorePermission: { type: Boolean, default: false },
+    likes:{type:Number,default:0},
+    dislikes:{type:Number,default:0},
+    favorites:{type:Number,default:0}
   },
   { timestamps: true }
 );

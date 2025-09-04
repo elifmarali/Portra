@@ -23,7 +23,7 @@ function Stepper({ step }: IStep) {
   return (
     <MobileStepper
       variant="progress"
-      steps={10}
+      steps={9}
       position="static"
       activeStep={step}
       sx={{
@@ -44,7 +44,7 @@ function Stepper({ step }: IStep) {
             fontSize: "16px",
           }}
           onClick={() => router.push(`/createPortfolio/${step + 1}`)}
-          disabled={step === 7}
+          disabled={step === 8}
           type="button"
         >
           Next

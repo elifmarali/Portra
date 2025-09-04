@@ -125,4 +125,10 @@ export interface ICreatePortfolio {
   workExperiences: [] | IWorkExperiences[];
   educations: [] | IEducations[];
   projects: [] | IProjects[];
+  privacyPolicy:boolean;
+  termOfUse:boolean;
+  explorePermission:boolean;
+  likes:number;
+  dislikes:number;
+  favorites:number;
 }
