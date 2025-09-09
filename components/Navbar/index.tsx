@@ -93,7 +93,9 @@ function Navbar() {
                 }}
                 onClick={() => {
                   deleteToken(dispatch);
+                  sessionStorage.clear();
                   router.refresh();
+                  router.push('/');
                 }}
               >
                 Çıkış Yap

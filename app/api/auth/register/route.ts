@@ -36,12 +36,14 @@ export async function POST(req: Request) {
     });
 
     const token = await new SignJWT({
+      id:body.id,
       name: body.name,
       surname: body.surname,
       username: body.username,
       email: body.email,
       password: hassPass,
       role: body.role,
+      myFavoritePortfolios: JSON.stringify([]),
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()

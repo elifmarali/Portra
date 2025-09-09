@@ -92,7 +92,7 @@ export interface IProjects {
 }
 
 interface IPhoto {
-  base64:  string;
+  base64: string;
   name: string;
 }
 
@@ -103,6 +103,7 @@ interface IAuthor {
   username: string | null;
   email: string | null;
   role: string | null;
+  myFavoritePortfolios: [] | string[];
 }
 
 export interface ICreatePortfolio {
@@ -125,10 +126,12 @@ export interface ICreatePortfolio {
   workExperiences: [] | IWorkExperiences[];
   educations: [] | IEducations[];
   projects: [] | IProjects[];
-  privacyPolicy:boolean;
-  termOfUse:boolean;
-  explorePermission:boolean;
-  likes:number;
-  dislikes:number;
-  favorites:number;
+  privacyPolicy: boolean;
+  termOfUse: boolean;
+  explorePermission: boolean;
+  likes: number;
+  dislikes: number;
+  favorites: number;
+  createdAt?: string; 
+  updatedAt?: string;
 }

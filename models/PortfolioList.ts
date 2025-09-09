@@ -10,6 +10,7 @@ const PortfolioSchema = new mongoose.Schema(
       username: { type: String, default: null },
       email: { type: String, default: null },
       role: { type: String, default: null },
+      myFavoritePortfolios:{type:[String],default:[]}
     },
     name: { type: String },
     surname: { type: String },
@@ -47,7 +48,7 @@ const PortfolioSchema = new mongoose.Schema(
     explorePermission: { type: Boolean, default: false },
     likes:{type:Number,default:0},
     dislikes:{type:Number,default:0},
-    favorites:{type:Number,default:0}
+    favorites:{type:Number,default:0},
   },
   { timestamps: true }
 );

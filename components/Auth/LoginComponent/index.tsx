@@ -24,6 +24,7 @@ import Link from "next/link";
 import {
   changeLoading,
   currentAuth,
+  updateFavorites,
 } from "@/lib/redux/features/auth/authSlice";
 import Loading from "@/components/Loading";
 
@@ -47,7 +48,8 @@ function LoginComponent() {
   const dispatch = useDispatch();
   const color = useSelector(selectColor);
   const theme = useSelector(selectTheme);
-  const { loading } = useSelector(currentAuth);
+  const { loading, email } = useSelector(currentAuth);
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -73,6 +75,10 @@ function LoginComponent() {
           dispatch(changeLoading(true));
           router.push(nextParams || "/");
           loadTokenFromCookies(dispatch);
+          const resFavoritePortfolios = await axios.get(`api/user/getMyFavoritePortfolios?email=${values.email}`);          
+          if (resFavoritePortfolios.data.success) {
+            dispatch(updateFavorites(resFavoritePortfolios.data.myFavoritePortfolios));
+          }
         }
       } catch (err) {
         dispatch(changeLoading(false));

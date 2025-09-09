@@ -90,12 +90,14 @@ function RegisterComponent() {
         const res = await axios.post(
           "/api/auth/register",
           {
+            id: Date.now() + Math.floor(Math.random() * 1878183548),
             name: values.name,
             surname: values.surname,
             email: values.email,
             username: values.username,
             password: values.password,
             role: "user",
+            myFavoritePortfolios: []
           },
           {
             headers: { "Content-Type": "application/json" },

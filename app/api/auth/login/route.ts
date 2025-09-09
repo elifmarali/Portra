@@ -16,9 +16,7 @@ export async function POST(req: Request) {
     if (!existingUser) {
       return new Response(
         JSON.stringify({ success: false, message: "Kullanıcı bulunamadı" }),
-        {
-          status: 404,
-        }
+        { status: 404 }
       );
     }
 
@@ -35,12 +33,14 @@ export async function POST(req: Request) {
     }
 
     const secret = process.env.JWT_SECRET_KEY;
+
     const token = await new SignJWT({
+      id:existingUser.id,
       name: existingUser.name,
       surname: existingUser.surname,
       username: existingUser.username,
       email: existingUser.email,
-      password: hashPass, //existingUser.password
+      password: hashPass, // mevcut yapıyı bozmadık
       role: existingUser.role,
     })
       .setProtectedHeader({ alg: "HS256" })
@@ -56,23 +56,20 @@ export async function POST(req: Request) {
       sameSite: "strict",
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        data: existingUser,
-      }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({ success: true, data: existingUser }), {
+      status: 200,
+    });
   } catch (err) {
-    console.error(
-      "Error [Auth/Login/POST] : ",
-      err instanceof Error ? err.message : err
-    );
+    const errorMessage = Array.isArray(err)
+      ? JSON.stringify(err)
+      : err instanceof Error
+        ? err.message
+        : String(err);
+    console.error("Error [Auth/Login/POST] : ", errorMessage);
+
     return new Response(
       JSON.stringify({ success: false, message: "Error [Auth/Login/POST]" }),
-      {
-        status: 400,
-      }
+      { status: 400 }
     );
   }
 }

@@ -1,7 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { ObjectId } from "mongoose";
 
 export interface IAuth {
+  _id?: ObjectId;
+  id: number | null;
   name?: string | null;
   surname?: string | null;
   username?: string | null;
@@ -9,9 +12,11 @@ export interface IAuth {
   password?: string | null;
   role?: string | null;
   loading: boolean;
+  myFavoritePortfolios: [] | string[];
 }
 
 const initialState: IAuth = {
+  id: null,
   name: null,
   surname: null,
   username: null,
@@ -19,6 +24,7 @@ const initialState: IAuth = {
   password: null,
   role: null,
   loading: false,
+  myFavoritePortfolios: [],
 };
 
 export const authSlice = createSlice({
@@ -28,6 +34,7 @@ export const authSlice = createSlice({
     changeToken: (state, action: PayloadAction<string | null>) => {
       if (action.payload !== null) {
         const jwtDecode = parseJwt(action.payload);
+        state.id = jwtDecode.id;
         state.name = jwtDecode.name;
         state.surname = jwtDecode.surname;
         state.email = jwtDecode.email;
@@ -37,6 +44,7 @@ export const authSlice = createSlice({
       }
     },
     authRemove: (state) => {
+      state.id = null;
       state.email = null;
       state.name = null;
       state.password = null;
@@ -44,9 +52,20 @@ export const authSlice = createSlice({
       state.username = null;
       state.surname = null;
       state.loading = false;
+      state.myFavoritePortfolios = [];
     },
     changeLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
+    },
+    updateFavorites: (state, action: PayloadAction<string[]>) => {
+      state.myFavoritePortfolios =
+        action.payload !== undefined || action.payload !== null
+          ? action.payload
+          : [];
+      sessionStorage.setItem(
+        `favoritePortfolios-${state.id}`,
+        JSON.stringify(action.payload)
+      );
     },
   },
 });
@@ -69,6 +88,7 @@ function parseJwt(token: string) {
   }
 }
 
-export const { changeToken, authRemove, changeLoading } = authSlice.actions;
+export const { changeToken, authRemove, changeLoading, updateFavorites } =
+  authSlice.actions;
 export const authReducer = authSlice.reducer;
 export const currentAuth = (state: { auth: IAuth }) => state.auth;

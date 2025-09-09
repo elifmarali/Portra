@@ -66,6 +66,7 @@ function CreatePortfolio({ stepParam }: Props) {
         username: auth.username,
         email: auth.email,
         role: auth.role,
+        myFavoritePortfolios: auth.myFavoritePortfolios
       },
       id: formId,
       name: "",
@@ -90,7 +91,7 @@ function CreatePortfolio({ stepParam }: Props) {
       explorePermission: false,
       likes: 0,
       dislikes: 0,
-      favorites: 0,
+      favorites: 0
     };
   }, [formId, auth]);
 
@@ -132,6 +133,7 @@ function CreatePortfolio({ stepParam }: Props) {
         username: auth.username,
         email: auth.email,
         role: auth.role,
+        myFavoritePortfolios:auth.myFavoritePortfolios
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,10 +166,6 @@ function CreatePortfolio({ stepParam }: Props) {
       }, 3000)
     }
   }, [successPortfolio])
-
-  useEffect(() => {
-    console.log("formData : ", formData);
-  }, [formData])
 
   if (!formData || !initialValues) {
     return (
