@@ -8,15 +8,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MdCreateNewFolder } from "react-icons/md";
 import { IoIosCreate } from "react-icons/io";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { currentAuth, updateFavorites } from '@/lib/redux/features/auth/authSlice';
+import { currentAuth, updateFavorites, updateLikes } from '@/lib/redux/features/auth/authSlice';
 import axios from 'axios';
 import { ICreatePortfolio } from '@/app/createPortfolio/IProps';
 import Loading from '../Loading';
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
+import { selectColor } from '@/lib/redux/features/color/colorSlice';
+import { colorOptions } from '@/lists/color';
 
 function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
+    const color = useSelector(selectColor);
     const auth = useSelector(currentAuth);
     const [isFavorite, setIsFavorite] = useState<boolean>(auth?.myFavoritePortfolios?.some((item) => Number(item) === portfolio.id) ?? false);
+    const [isLike, setIsLike] = useState<boolean>(auth?.likePortfolios?.some((item) => Number(item) === portfolio.id) ?? false);
+    const [isDislike, setIsDislike] = useState<boolean>(auth?.dislikePortfolios?.some((item) => Number(item) === portfolio.id) ?? false);
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
@@ -35,7 +40,6 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
             }
 
             setIsFavorite(updated.includes(portfolioIdStr));
-            dispatch(updateFavorites(updated));
 
             const res = await axios.post("/api/user/update", {
                 email: auth.email,
@@ -62,6 +66,47 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
             setLoading(false);
         }
     };
+
+    const toggleLike = async () => {
+        if (!auth) return;
+
+        try {
+            setLoading(true);
+            const portfolioIdStr = String(portfolio.id);
+
+            let updated: string[];
+            if (isLike) {
+                updated = auth.likePortfolios.filter((p) => p !== portfolioIdStr);
+            } else {
+                updated = [...auth.likePortfolios, portfolioIdStr];
+            }
+
+            setIsLike(updated.includes(portfolioIdStr));
+            const res = await axios.post("/api/user/update", {
+                email: auth.email,
+                field: "likePortfolios",
+                value: updated,
+            });
+
+            if (!res.data.success) {
+                console.error("Favorite update failed!");
+            }
+            const resLikePortfolios = await axios.post("/api/portfolio/likeAndDislikeUpdated", {
+                portfolioId: portfolio.id,
+                action:"like",
+                mode: isLike ? "decrement" : "increment"
+            });
+            const { success, likePortfolios } = resLikePortfolios.data;
+
+            if (success) {
+                dispatch(updateLikes(likePortfolios))
+            }
+            setLoading(false);
+        } catch (err) {
+            console.error("ERR [ToggleLike] : ", err);
+            setLoading(false);
+        }
+    }
 
     return (
         <Grid
@@ -129,16 +174,16 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
                         }}
                     >
                         <Grid display="flex" alignItems="center" gap={4}>
-                            <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"}>
-                                <AiFillLike size={20} />
+                            <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"} onClick={toggleLike}>
+                                <AiFillLike size={20} color={isLike ? colorOptions[color].dark : colorOptions[color].light} style={{ cursor: "pointer" }} />
                                 <Typography variant='h6'>{portfolio?.likes}</Typography>
                             </Grid>
                             <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"}>
-                                <AiFillDislike size={20} />
+                                <AiFillDislike size={20} color={isDislike ? colorOptions[color].dark : colorOptions[color].light} style={{ cursor: "pointer" }} />
                                 <Typography variant='h6'>{portfolio?.dislikes}</Typography>
                             </Grid>
-                            <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"}>
-                                <FaHeart size={20} />
+                            <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"} onClick={toggleFavorite}>
+                                <FaHeart size={20} color={isFavorite ? colorOptions[color].dark : colorOptions[color].light} style={{ cursor: "pointer" }} />
                                 <Typography variant='h6'>{portfolio?.favorites}</Typography>
                             </Grid>
                         </Grid>

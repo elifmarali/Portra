@@ -104,6 +104,8 @@ interface IAuthor {
   email: string | null;
   role: string | null;
   myFavoritePortfolios: [] | string[];
+  likePortfolios: [] | string[];
+  dislikePortfolios: [] | string[];
 }
 
 export interface ICreatePortfolio {
@@ -132,6 +134,6 @@ export interface ICreatePortfolio {
   likes: number;
   dislikes: number;
   favorites: number;
-  createdAt?: string; 
+  createdAt?: string;
   updatedAt?: string;
 }

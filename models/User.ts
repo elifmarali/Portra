@@ -9,6 +9,8 @@ const UserSchema = new mongoose.Schema({
   password: String,
   role: String,
   myFavoritePortfolios: { type: [String], default: [] },
+  likePortfolios: {type: [String], default:[]},
+  dislikePortfolios: {type: [String], default:[]}
 });
 
 const Users = models.Users || model("Users", UserSchema, "Users");

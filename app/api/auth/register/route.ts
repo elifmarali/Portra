@@ -44,6 +44,8 @@ export async function POST(req: Request) {
       password: hassPass,
       role: body.role,
       myFavoritePortfolios: JSON.stringify([]),
+      likePortfolios: JSON.stringify([]),
+      dislikePortfolios: JSON.stringify([]),
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()

@@ -1,15 +1,14 @@
 "use client";
 import PortfolioItem from '@/components/PortfolioItem';
-import { currentAuth, IAuth } from '@/lib/redux/features/auth/authSlice';
+import { currentAuth, IAuth, updateFavorites, updateLikes } from '@/lib/redux/features/auth/authSlice';
 import { selectColor } from '@/lib/redux/features/color/colorSlice';
 import { selectTheme } from '@/lib/redux/features/theme/themeSlice'
 import { colorOptions } from '@/lists/color';
 import { Grid, Typography } from '@mui/material'
 import axios from 'axios';
 import Link from 'next/link';
-import { Router } from 'next/router';
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { ICreatePortfolio } from '../createPortfolio/IProps';
 
 function MyPortfolioList() {
@@ -18,12 +17,35 @@ function MyPortfolioList() {
     const auth = useSelector(currentAuth);
     const [portfolioList, setPortfolioList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        if (auth?.email) {
-            getPortfolios(auth);
-        }
-    }, [auth.email])
+        const fetchData = async () => {
+            if (auth?.email) {
+                try {
+                    const resFavoritePortfolios: any = await axios.get(
+                        `/api/user/getMyFavoritePortfolios?email=${auth.email}`
+                    );
+                    const { success, myFavoritePortfolios } = resFavoritePortfolios.data
+
+                    if (success) {
+                        dispatch(updateFavorites(myFavoritePortfolios));
+                    }
+
+                    const resLikePortfolios = await axios.get(`/api/user/getLikePortfolios?email=${auth.email}`);
+                    if (resLikePortfolios.data.success) {
+                        dispatch(updateLikes(resLikePortfolios.data.likePortfolios))
+                    }
+
+                    await getPortfolios(auth);
+                } catch (error) {
+                    console.error("Error fetching favorite portfolios:", error);
+                }
+            }
+        };
+
+        fetchData();
+    }, [auth?.email, dispatch]);
 
     const getPortfolios = async (auth: IAuth) => {
         setLoading(true);
@@ -42,27 +64,33 @@ function MyPortfolioList() {
     }
 
     useEffect(() => {
-        console.log("portfolioList : ", portfolioList);
-    }, [portfolioList])
+        const storedFavorites = sessionStorage.getItem(`favoritePortfolios-${auth.id}`);
+        if (storedFavorites) {
+            dispatch(updateFavorites(JSON.parse(storedFavorites))); // string → string[]
+        }
+    }, []);
+
     return (
         <Grid container
-        size={10}
-            style={{                
+            size={10}
+            style={{
                 backgroundColor:
                     theme === "dark" ? "#000" : colorOptions[color].dark,
                 color: "#fff",
-                height: "calc(100vh - 7rem)",
-                padding: "10px", 
-                display:"flex",
-                justifyContent:"center"               
+                height: '100%',
+                padding: "10px",
+                display: "flex",
+                justifyContent: "center",
+                gap: "10px",
+                minHeight: "calc(100vh - 7rem)"
             }}>
             {
                 loading ? (
                     <Typography>Yükleniyor...</Typography>
                 ) : (
                     portfolioList.length > 0 ? (
-                        portfolioList.map((portfolioItem:ICreatePortfolio,portfolioItemIndex:number)=>(
-                            <PortfolioItem portfolio={portfolioItem} key={portfolioItemIndex}/>
+                        portfolioList.map((portfolioItem: ICreatePortfolio, portfolioItemIndex: number) => (
+                            <PortfolioItem portfolio={portfolioItem} key={portfolioItemIndex} />
                         ))
                     ) : (
                         <Typography>

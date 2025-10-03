@@ -97,7 +97,9 @@ function RegisterComponent() {
             username: values.username,
             password: values.password,
             role: "user",
-            myFavoritePortfolios: []
+            myFavoritePortfolios: [],
+            likePortfolios: [],
+            dislikePortfolios: [],
           },
           {
             headers: { "Content-Type": "application/json" },

@@ -66,7 +66,9 @@ function CreatePortfolio({ stepParam }: Props) {
         username: auth.username,
         email: auth.email,
         role: auth.role,
-        myFavoritePortfolios: auth.myFavoritePortfolios
+        myFavoritePortfolios: auth.myFavoritePortfolios,
+        likePortfolios: auth.likePortfolios,
+        dislikePortfolios: auth.dislikePortfolios,
       },
       id: formId,
       name: "",
@@ -133,7 +135,9 @@ function CreatePortfolio({ stepParam }: Props) {
         username: auth.username,
         email: auth.email,
         role: auth.role,
-        myFavoritePortfolios:auth.myFavoritePortfolios
+        myFavoritePortfolios: auth.myFavoritePortfolios,
+        likePortfolios: auth.likePortfolios,
+        dislikePortfolios: auth.dislikePortfolios,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -207,7 +211,7 @@ function CreatePortfolio({ stepParam }: Props) {
             // validationSchema={createPortfolioValidation}
             validateOnBlur={false}
             onSubmit={async (values) => {
-              console.log("Form Submit:", values);
+              // console.log("Form Submit:", values);
               try {
                 await axios.post("/api/portfolioList", values);
                 if (typeof window !== "undefined") {
@@ -222,7 +226,7 @@ function CreatePortfolio({ stepParam }: Props) {
           >
             {({ errors, setFieldValue }) => {
               useEffect(() => {
-                console.log("errors : ", errors);
+                // console.log("errors : ", errors);
               }, [errors])
               return (
                 <>

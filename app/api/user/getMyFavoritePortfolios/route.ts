@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
     if (!email) {
       return NextResponse.json(
-        { success: false, message: "Email required" },
+        { success: false, message: "ERR [API/USER/GetMyFavoritePortfolios] : Email bilgisine ulaşılmıyor" },
         { status: 400 }
       );
     }
@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "User not found" },
+        { success: false, message: "ERR [API/USER/GetMyFavoritePortfolios] : Kullanıcı bulunamadı" },
         { status: 404 }
       );
     }
@@ -31,9 +31,9 @@ export async function GET(req: Request) {
       myFavoritePortfolios: user.myFavoritePortfolios,
     });
   } catch (err) {
-    console.error(err);
+    console.error("ERR [API/USER/GetMyFavoritePortfolios] : ", err);
     return NextResponse.json(
-      { success: false, message: "Server error" },
+      { success: false, message: "ERR [API/USER/GetMyFavoritePortfolios] : Server error" },
       { status: 500 }
     );
   }

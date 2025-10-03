@@ -25,6 +25,7 @@ import {
   changeLoading,
   currentAuth,
   updateFavorites,
+  updateLikes,
 } from "@/lib/redux/features/auth/authSlice";
 import Loading from "@/components/Loading";
 
@@ -75,9 +76,13 @@ function LoginComponent() {
           dispatch(changeLoading(true));
           router.push(nextParams || "/");
           loadTokenFromCookies(dispatch);
-          const resFavoritePortfolios = await axios.get(`api/user/getMyFavoritePortfolios?email=${values.email}`);          
+          const resFavoritePortfolios = await axios.get(`api/user/getMyFavoritePortfolios?email=${values.email}`);
           if (resFavoritePortfolios.data.success) {
             dispatch(updateFavorites(resFavoritePortfolios.data.myFavoritePortfolios));
+          }
+          const resLikePortfolios = await axios.get(`api/user/getLikePortfolios?email=${values.email}`);
+          if (resLikePortfolios.data.success) {
+            dispatch(updateLikes(resLikePortfolios.data.likePortfolios))
           }
         }
       } catch (err) {

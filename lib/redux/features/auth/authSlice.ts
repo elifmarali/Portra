@@ -13,6 +13,8 @@ export interface IAuth {
   role?: string | null;
   loading: boolean;
   myFavoritePortfolios: [] | string[];
+  likePortfolios: [] | string[];
+  dislikePortfolios: [] | string[];
 }
 
 const initialState: IAuth = {
@@ -25,6 +27,8 @@ const initialState: IAuth = {
   role: null,
   loading: false,
   myFavoritePortfolios: [],
+  likePortfolios: [],
+  dislikePortfolios: [],
 };
 
 export const authSlice = createSlice({
@@ -53,6 +57,8 @@ export const authSlice = createSlice({
       state.surname = null;
       state.loading = false;
       state.myFavoritePortfolios = [];
+      state.likePortfolios = [];
+      state.dislikePortfolios = [];
     },
     changeLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -65,6 +71,15 @@ export const authSlice = createSlice({
       sessionStorage.setItem(
         `favoritePortfolios-${state.id}`,
         JSON.stringify(action.payload)
+      );
+    },
+    updateLikes: (state, action: PayloadAction<string[]>) => {
+      console.log("action : ", action.payload);
+
+      state.likePortfolios = action.payload || [];
+      sessionStorage.setItem(
+        `likesPortfolios-${state.id}`,
+        JSON.stringify(action.payload || [])
       );
     },
   },
@@ -88,7 +103,12 @@ function parseJwt(token: string) {
   }
 }
 
-export const { changeToken, authRemove, changeLoading, updateFavorites } =
-  authSlice.actions;
+export const {
+  changeToken,
+  authRemove,
+  changeLoading,
+  updateFavorites,
+  updateLikes,
+} = authSlice.actions;
 export const authReducer = authSlice.reducer;
 export const currentAuth = (state: { auth: IAuth }) => state.auth;

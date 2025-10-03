@@ -10,7 +10,9 @@ const PortfolioSchema = new mongoose.Schema(
       username: { type: String, default: null },
       email: { type: String, default: null },
       role: { type: String, default: null },
-      myFavoritePortfolios:{type:[String],default:[]}
+      myFavoritePortfolios: { type: [String], default: [] },
+      likePortfolios: { type: [String], default: [] },
+      dislikePortfolios: { type: [String], default: [] },
     },
     name: { type: String },
     surname: { type: String },
@@ -46,9 +48,9 @@ const PortfolioSchema = new mongoose.Schema(
     privacyPolicy: { type: Boolean, default: false },
     termOfUse: { type: Boolean, default: false },
     explorePermission: { type: Boolean, default: false },
-    likes:{type:Number,default:0},
-    dislikes:{type:Number,default:0},
-    favorites:{type:Number,default:0},
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    favorites: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
