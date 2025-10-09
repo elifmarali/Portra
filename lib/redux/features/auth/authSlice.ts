@@ -74,8 +74,6 @@ export const authSlice = createSlice({
       );
     },
     updateLikes: (state, action: PayloadAction<string[]>) => {
-      console.log("action : ", action.payload);
-
       state.likePortfolios = action.payload || [];
       sessionStorage.setItem(
         `likesPortfolios-${state.id}`,

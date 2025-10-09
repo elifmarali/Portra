@@ -10,12 +10,18 @@ export async function POST(req: NextRequest) {
     const { email, field, value } = body;
 
     if (!email || !field) {
-      return NextResponse.json({ success: false, message: "Eksik parametre" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Eksik parametre" },
+        { status: 400 }
+      );
     }
 
     const user = await Users.findOne({ email });
     if (!user) {
-      return NextResponse.json({ success: false, message: "Kullanıcı bulunamadı" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Kullanıcı bulunamadı" },
+        { status: 404 }
+      );
     }
 
     // Dinamik olarak alanı güncelle
@@ -23,9 +29,16 @@ export async function POST(req: NextRequest) {
 
     await user.save();
 
-    return NextResponse.json({ success: true, updatedField: field, value: (user as any)[field] });
+    return NextResponse.json({
+      success: true,
+      updatedField: field,
+      value: (user as any)[field],
+    });
   } catch (err) {
     console.error("Error [User/Update] :", err);
-    return NextResponse.json({ success: false, message: "Error [User/Update]" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: "Error [User/Update]" },
+      { status: 400 }
+    );
   }
 }

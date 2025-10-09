@@ -76,13 +76,19 @@ function LoginComponent() {
           dispatch(changeLoading(true));
           router.push(nextParams || "/");
           loadTokenFromCookies(dispatch);
-          const resFavoritePortfolios = await axios.get(`api/user/getMyFavoritePortfolios?email=${values.email}`);
+          const resFavoritePortfolios = await axios.get(
+            `api/user/getMyFavoritePortfolios?email=${values.email}`
+          );
           if (resFavoritePortfolios.data.success) {
-            dispatch(updateFavorites(resFavoritePortfolios.data.myFavoritePortfolios));
+            dispatch(
+              updateFavorites(resFavoritePortfolios.data.myFavoritePortfolios)
+            );
           }
-          const resLikePortfolios = await axios.get(`api/user/getLikePortfolios?email=${values.email}`);
+          const resLikePortfolios = await axios.get(
+            `api/user/getLikePortfolios?email=${values.email}`
+          );
           if (resLikePortfolios.data.success) {
-            dispatch(updateLikes(resLikePortfolios.data.likePortfolios))
+            dispatch(updateLikes(resLikePortfolios.data.likePortfolios));
           }
         }
       } catch (err) {

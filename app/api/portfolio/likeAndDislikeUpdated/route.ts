@@ -38,11 +38,12 @@ export async function POST(req: Request) {
     const field = action === "like" ? "likes" : "dislikes";
     const value = mode === "increment" ? 1 : -1;
 
-    const updated = await PortfolioList.findByIdAndUpdate(
-      portfolioId,
+    const updated = await PortfolioList.findOneAndUpdate(
+      { id: portfolioId },
       { $inc: { [field]: value } },
       { new: true }
     );
+
     return NextResponse.json(
       {
         success: true,

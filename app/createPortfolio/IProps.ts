@@ -109,6 +109,7 @@ interface IAuthor {
 }
 
 export interface ICreatePortfolio {
+  _id?: number;
   id: number;
   author: null | IAuthor;
   name: string;
