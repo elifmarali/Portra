@@ -25,19 +25,18 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
   const auth = useSelector(currentAuth);
   const [isFavorite, setIsFavorite] = useState<boolean>(
     auth?.myFavoritePortfolios?.some((item) => Number(item) === portfolio.id) ??
-      false
+    false
   );
   const [isLike, setIsLike] = useState<boolean>(
     auth?.likePortfolios?.some((item) => Number(item) === portfolio.id) ?? false
   );
   const [isDislike, setIsDislike] = useState<boolean>(
     auth?.dislikePortfolios?.some((item) => Number(item) === portfolio.id) ??
-      false
+    false
   );
   const [loading, setLoading] = useState(false);
-  const [likeArray, setLikeArray] = useState<string[]>(
-    auth.likePortfolios || []
-  );
+  const [likeCount, setLikeCount] = useState(portfolio.likes);
+  const [favoriteCount, setFavoriteCount] = useState(portfolio.favorites);
   const dispatch = useDispatch();
 
   const toggleFavorite = async () => {
@@ -66,6 +65,17 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
         console.error("Favorite update failed!");
       }
 
+      const resFavoriteCounter = await axios.post(
+        "/api/portfolio/likeAndDislikeUpdated",
+        {
+          portfolioId: portfolio.id,
+          action: "favorites",
+          mode: isFavorite ? "decrement" : "increment",
+        }
+      );
+      const { favorites } = resFavoriteCounter.data.data;
+      setFavoriteCount(favorites);
+
       const resFavoritePortfolios = await axios.get(
         `/api/user/getMyFavoritePortfolios?email=${auth.email}`
       );
@@ -87,27 +97,48 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
 
     try {
       setLoading(true);
-      const portfolioIdStr = String(portfolio.id);
 
-      let newLikeArray: string[] = likeArray || [];
+      // 1️⃣ Kullanıcının güncel like listesi API'den alınıyor
+      const resGetLikes = await axios.get(
+        `/api/user/getLikePortfolios?email=${auth.email}`
+      );
+      const { success: successGet, likePortfolios } = resGetLikes.data;
 
-      if (isLike) {
-        newLikeArray = likeArray.filter((p) => p !== portfolioIdStr);
-      } else {
-        newLikeArray = [...likeArray, portfolioIdStr];
+      if (!successGet) {
+        console.error("Failed to fetch likePortfolios");
+        setLoading(false);
+        return;
       }
 
-      // State’i güncelle
-      setLikeArray(newLikeArray);
-      setIsLike(!isLike);
-      const res = await axios.post("/api/user/update", {
+      const portfolioIdStr = String(portfolio.id);
+
+      // 2️⃣ Yeni dizi oluştur
+      let newLikes: string[] = likePortfolios || [];
+
+      if (newLikes.includes(portfolioIdStr)) {
+        console.log("çalıştı 1 - çıkarılıyor");
+        newLikes = newLikes.filter((p: any) => p !== portfolioIdStr);
+      } else {
+        console.log("çalıştı 2 - ekleniyor");
+        newLikes = [...newLikes, portfolioIdStr];
+      }
+
+      console.log("newLikes gönderilecek:", newLikes);
+
+      // 3️⃣ State güncellemesi
+      setIsLike(newLikes.includes(portfolioIdStr));
+
+      // 4️⃣ Backend'e gönder
+      const resUpdate = await axios.post("/api/user/update", {
         email: auth.email,
         field: "likePortfolios",
-        value: newLikeArray,
+        value: newLikes,
       });
 
-      if (!res.data.success) {
-        console.error("Favorite update failed!");
+      console.log("resUpdate:", resUpdate.data);
+
+      if (!resUpdate.data.success) {
+        console.error("LikePortfolios update failed!");
       }
 
       const resLikePortfolios = await axios.post(
@@ -118,17 +149,28 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
           mode: isLike ? "decrement" : "increment",
         }
       );
-      const { success } = resLikePortfolios.data;
+      const { likes } = resLikePortfolios.data.data;
+      setLikeCount(likes);
 
-      if (success) {
-        dispatch(updateLikes(newLikeArray));
+      // 5️⃣ Güncel listeyi tekrar al ve redux'a dispatch et
+      const resUpdated = await axios.get(
+        `/api/user/getLikePortfolios?email=${auth.email}`
+      );
+      const { success: successUpdated, likePortfolios: updatedList } = resUpdated.data;
+
+      console.log("likePortfolios (güncel):", updatedList);
+
+      if (successUpdated) {
+        dispatch(updateLikes(updatedList));
       }
-      setLoading(false);
+
     } catch (err) {
-      console.error("ERR [ToggleLike] : ", err);
+      console.error("ERR [ToggleLike]:", err);
+    } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <Grid
@@ -212,7 +254,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
                   }
                   style={{ cursor: "pointer" }}
                 />
-                <Typography variant="h6">{portfolio?.likes}</Typography>
+                <Typography variant="h6">{likeCount}</Typography>
               </Grid>
               <Grid
                 display="flex"
@@ -247,7 +289,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
                   }
                   style={{ cursor: "pointer" }}
                 />
-                <Typography variant="h6">{portfolio?.favorites}</Typography>
+                <Typography variant="h6">{favoriteCount}</Typography>
               </Grid>
             </Grid>
             <p style={{ fontWeight: 500, fontSize: "1.5rem" }}>

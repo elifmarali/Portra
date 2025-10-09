@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     if (
-      !["like", "dislike"].includes(action) ||
+      !["likes", "dislikes", "favorites"].includes(action) ||
       !["increment", "decrement"].includes(mode)
     ) {
       return NextResponse.json(
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const field = action === "like" ? "likes" : "dislikes";
+    const field = action;
     const value = mode === "increment" ? 1 : -1;
 
     const updated = await PortfolioList.findOneAndUpdate(
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: "Like/Dislike başarıyla güncellendi.",
+        message: "Like/Dislike/Favorite count başarıyla güncellendi.",
         data: updated,
       },
       { status: 200 }

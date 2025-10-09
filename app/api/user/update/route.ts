@@ -3,15 +3,16 @@ import Users from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  await initMongoose();
-
   try {
+    await initMongoose();
     const body = await req.json();
     const { email, field, value } = body;
 
+    console.log("Received body:", body); // 👈 debug için
+
     if (!email || !field) {
       return NextResponse.json(
-        { success: false, message: "Eksik parametre" },
+        { success: false, message: "Eksik parametre", received: body },
         { status: 400 }
       );
     }
@@ -24,20 +25,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Dinamik olarak alanı güncelle
-    (user as any)[field] = value;
-
+    user[field] = value;
     await user.save();
 
     return NextResponse.json({
       success: true,
       updatedField: field,
-      value: (user as any)[field],
+      value: user[field],
     });
   } catch (err) {
     console.error("Error [User/Update] :", err);
     return NextResponse.json(
-      { success: false, message: "Error [User/Update]" },
+      { success: false, message: "Error [User/Update]", error: err },
       { status: 400 }
     );
   }
