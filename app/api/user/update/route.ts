@@ -8,8 +8,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, field, value } = body;
 
-    console.log("Received body:", body); // 👈 debug için
-
     if (!email || !field) {
       return NextResponse.json(
         { success: false, message: "Eksik parametre", received: body },

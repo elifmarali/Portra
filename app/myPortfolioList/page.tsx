@@ -103,7 +103,11 @@ function MyPortfolioList() {
       ) : portfolioList.length > 0 ? (
         portfolioList.map(
           (portfolioItem: ICreatePortfolio, portfolioItemIndex: number) => (
-            <PortfolioItem portfolio={portfolioItem} key={portfolioItemIndex} />
+            <PortfolioItem
+              portfolio={portfolioItem}
+              size="large"
+              key={portfolioItemIndex}
+            />
           )
         )
       ) : (

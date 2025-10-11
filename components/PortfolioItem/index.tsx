@@ -3,13 +3,14 @@ import { currentFont } from "@/lib/fonts";
 import { Grid, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdCreateNewFolder } from "react-icons/md";
 import { IoIosCreate } from "react-icons/io";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import {
   currentAuth,
+  updateDislikes,
   updateFavorites,
   updateLikes,
 } from "@/lib/redux/features/auth/authSlice";
@@ -20,25 +21,33 @@ import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { colorOptions } from "@/lists/color";
 
-function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
+function PortfolioItem({
+  portfolio,
+  size,
+}: {
+  portfolio: ICreatePortfolio;
+  size: string;
+}) {
   const color = useSelector(selectColor);
   const auth = useSelector(currentAuth);
   const [isFavorite, setIsFavorite] = useState<boolean>(
     auth?.myFavoritePortfolios?.some((item) => Number(item) === portfolio.id) ??
-    false
+      false
   );
   const [isLike, setIsLike] = useState<boolean>(
     auth?.likePortfolios?.some((item) => Number(item) === portfolio.id) ?? false
   );
   const [isDislike, setIsDislike] = useState<boolean>(
     auth?.dislikePortfolios?.some((item) => Number(item) === portfolio.id) ??
-    false
+      false
   );
   const [loading, setLoading] = useState(false);
   const [likeCount, setLikeCount] = useState(portfolio.likes);
   const [favoriteCount, setFavoriteCount] = useState(portfolio.favorites);
+  const [dislikeCount, setDislikeCount] = useState(portfolio.dislikes);
   const dispatch = useDispatch();
 
+  // Toggle Favorite
   const toggleFavorite = async () => {
     if (!auth) return;
 
@@ -92,6 +101,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
     }
   };
 
+  // Toggle Like
   const toggleLike = async () => {
     if (!auth) return;
 
@@ -116,14 +126,10 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
       let newLikes: string[] = likePortfolios || [];
 
       if (newLikes.includes(portfolioIdStr)) {
-        console.log("çalıştı 1 - çıkarılıyor");
         newLikes = newLikes.filter((p: any) => p !== portfolioIdStr);
       } else {
-        console.log("çalıştı 2 - ekleniyor");
         newLikes = [...newLikes, portfolioIdStr];
       }
-
-      console.log("newLikes gönderilecek:", newLikes);
 
       // 3️⃣ State güncellemesi
       setIsLike(newLikes.includes(portfolioIdStr));
@@ -135,8 +141,6 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
         value: newLikes,
       });
 
-      console.log("resUpdate:", resUpdate.data);
-
       if (!resUpdate.data.success) {
         console.error("LikePortfolios update failed!");
       }
@@ -145,7 +149,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
         "/api/portfolio/likeAndDislikeUpdated",
         {
           portfolioId: portfolio.id,
-          action: "like",
+          action: "likes",
           mode: isLike ? "decrement" : "increment",
         }
       );
@@ -156,14 +160,12 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
       const resUpdated = await axios.get(
         `/api/user/getLikePortfolios?email=${auth.email}`
       );
-      const { success: successUpdated, likePortfolios: updatedList } = resUpdated.data;
-
-      console.log("likePortfolios (güncel):", updatedList);
+      const { success: successUpdated, likePortfolios: updatedList } =
+        resUpdated.data;
 
       if (successUpdated) {
         dispatch(updateLikes(updatedList));
       }
-
     } catch (err) {
       console.error("ERR [ToggleLike]:", err);
     } finally {
@@ -171,11 +173,77 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
     }
   };
 
+  // Toggle Dislike
+  const toggleDislike = async () => {
+    if (!auth) return;
+
+    try {
+      setLoading(true);
+
+      const resGetDislikes = await axios.get(
+        `/api/user/getDislikePortfolios?email=${auth.email}`
+      );
+      const { success: successGet, dislikePortfolios } = resGetDislikes.data;
+
+      if (!successGet) {
+        console.error("Failed to fetch dislikePortfolios");
+        setLoading(false);
+        return;
+      }
+
+      const portfolioIdStr = String(portfolio.id);
+
+      let newDislikes: string[] = dislikePortfolios || [];
+
+      if (newDislikes.includes(portfolioIdStr)) {
+        newDislikes = newDislikes.filter((p) => p !== portfolioIdStr);
+      } else {
+        newDislikes = [...newDislikes, portfolioIdStr];
+      }
+
+      setIsDislike(newDislikes.includes(portfolioIdStr));
+
+      const resUpdate = await axios.post("/api/user/update", {
+        email: auth.email,
+        field: "dislikePortfolios",
+        value: newDislikes,
+      });
+
+      if (!resUpdate.data.success) {
+        console.error("DislikePortfolios update failed!");
+      }
+
+      const resDislikePortfolios = await axios.post(
+        "/api/portfolio/likeAndDislikeUpdated",
+        {
+          portfolioId: portfolio.id,
+          action: "dislikes",
+          mode: isDislike ? "decrement" : "increment",
+        }
+      );
+      const { dislikes } = resDislikePortfolios.data.data;
+      setDislikeCount(dislikes);
+
+      const resUpdated = await axios.get(
+        `/api/user/getDislikePortfolios?email=${auth.email}`
+      );
+      const { success: successUpdated, dislikePortfolios: updatedList } =
+        resUpdated.data;
+
+      if (successUpdated) {
+        dispatch(updateDislikes(updatedList));
+      }
+    } catch (err) {
+      console.error("ERR [ToggleDislike] : ", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Grid
       sx={{ borderRadius: "2rem", overflow: "hidden" }}
-      className={`h-[30rem] w-[24rem] flex flex-col gap-2 relative ${currentFont.className}`}
+      className={`${size === "small" ? "h-[22rem]" : "h-[30rem] w-[20rem]"} flex flex-col gap-2 relative ${currentFont.className}`}
     >
       {loading ? (
         <Loading />
@@ -230,7 +298,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
 
           {/* Yazı alanı */}
           <Grid
-            className="absolute bottom-0 left-0 w-full flex flex-col items-start px-4 py-6"
+            className={`absolute bottom-0 left-0 w-full flex flex-col items-start ${size === "small" ? "px-2 py-3" : "px-4 py-6"}`}
             sx={{
               backdropFilter: "blur(8px)",
               backgroundColor: "rgba(0, 0, 0, 0.3)",
@@ -261,6 +329,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
                 alignItems="center"
                 gap={1}
                 color={"#c4c6c7"}
+                onClick={toggleDislike}
               >
                 <AiFillDislike
                   size={20}
@@ -271,7 +340,7 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
                   }
                   style={{ cursor: "pointer" }}
                 />
-                <Typography variant="h6">{portfolio?.dislikes}</Typography>
+                <Typography variant="h6">{dislikeCount}</Typography>
               </Grid>
               <Grid
                 display="flex"
@@ -292,29 +361,40 @@ function PortfolioItem({ portfolio }: { portfolio: ICreatePortfolio }) {
                 <Typography variant="h6">{favoriteCount}</Typography>
               </Grid>
             </Grid>
-            <p style={{ fontWeight: 500, fontSize: "1.5rem" }}>
+            <p
+              style={{
+                fontWeight: 500,
+                fontSize: size === "small" ? "1.2rem" : "1.4rem",
+              }}
+            >
               {portfolio.name} {portfolio.surname}
             </p>
             <Typography
               variant="body1"
-              sx={{ fontSize: "1rem", fontFamily: "italic", color: "#c4c6c7" }}
+              sx={{
+                fontSize: size === "small" ? ".9rem" : "1rem",
+                fontFamily: "italic",
+                color: "#c4c6c7",
+              }}
             >
               {portfolio.title}
             </Typography>
-            <Grid className="flex justify-between w-full mt-4">
-              <Grid className="flex" alignItems="center" gap={1}>
-                <MdCreateNewFolder size={24} style={{ color: "#c4c6c7" }} />
-                <Typography sx={{ fontSize: ".9rem" }} variant="body2">
-                  {dayjs(portfolio?.createdAt).format("DD/MM/YYYY hh:mm")}
-                </Typography>
+            {size === "large" && (
+              <Grid className="flex justify-between w-full mt-4">
+                <Grid className="flex" alignItems="center" gap={1}>
+                  <MdCreateNewFolder size={24} style={{ color: "#c4c6c7" }} />
+                  <Typography sx={{ fontSize: ".9rem" }} variant="body2">
+                    {dayjs(portfolio?.createdAt).format("DD/MM/YYYY hh:mm")}
+                  </Typography>
+                </Grid>
+                <Grid className="flex" alignItems="center" gap={1}>
+                  <IoIosCreate size={24} style={{ color: "#c4c6c7" }} />
+                  <Typography sx={{ fontSize: ".9rem" }} variant="body2">
+                    {dayjs(portfolio?.updatedAt).format("DD/MM/YYYY hh:mm")}
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid className="flex" alignItems="center" gap={1}>
-                <IoIosCreate size={24} style={{ color: "#c4c6c7" }} />
-                <Typography sx={{ fontSize: ".9rem" }} variant="body2">
-                  {dayjs(portfolio?.updatedAt).format("DD/MM/YYYY hh:mm")}
-                </Typography>
-              </Grid>
-            </Grid>
+            )}
           </Grid>
         </>
       )}

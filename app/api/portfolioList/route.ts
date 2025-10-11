@@ -40,7 +40,7 @@ export async function GET(req: Request) {
       return new Response(
         JSON.stringify({
           success: false,
-          message: "Kullanıcının email bilgisi alınamadı!",
+          message: "[PortfolioList] : Kullanıcının email bilgisi alınamadı!",
         }),
         {
           status: 400,
@@ -49,16 +49,19 @@ export async function GET(req: Request) {
     }
 
     const myPortfolioList = await PortfolioList.find({ "author.email": email });
-    return new Response(JSON.stringify({ success: true, data: myPortfolioList}), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ success: true, data: myPortfolioList }),
+      {
+        status: 200,
+      }
+    );
   } catch (err) {
     console.error(
       "ERR [PortfolioList/GET] : ",
       err instanceof Error ? err.message : err
     );
     return new Response(
-      JSON.stringify({ succcess: false, message: "ERR [PostfolioList/GET]" }),
+      JSON.stringify({ succcess: false, message: "ERR [PortfolioList/GET]" }),
       {
         status: 500,
       }
