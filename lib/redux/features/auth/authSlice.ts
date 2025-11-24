@@ -38,6 +38,8 @@ export const authSlice = createSlice({
     changeToken: (state, action: PayloadAction<string | null>) => {
       if (action.payload !== null) {
         const jwtDecode = parseJwt(action.payload);
+        console.log("jwtDecode : ",jwtDecode);
+        
         state.id = jwtDecode.id;
         state.name = jwtDecode.name;
         state.surname = jwtDecode.surname;
@@ -45,6 +47,9 @@ export const authSlice = createSlice({
         state.username = jwtDecode.username;
         state.password = jwtDecode.password;
         state.role = jwtDecode.role;
+        state.dislikePortfolios = jwtDecode.dislikePortfolios;
+        state.likePortfolios = jwtDecode.likePortfolios;
+        state.myFavoritePortfolios = jwtDecode.myFavoritePortfolios;
       }
     },
     authRemove: (state) => {
@@ -73,10 +78,17 @@ export const authSlice = createSlice({
         JSON.stringify(action.payload)
       );
     },
-    updateLikes: (state, action: PayloadAction<string[]>) => {      
+    updateLikes: (state, action: PayloadAction<string[]>) => {
       state.likePortfolios = action.payload || [];
       sessionStorage.setItem(
         `likesPortfolios-${state.id}`,
+        JSON.stringify(action.payload || [])
+      );
+    },
+    updateDislikes: (state, action: PayloadAction<string[]>) => {
+      state.dislikePortfolios = action.payload || [];
+      sessionStorage.setItem(
+        `dislikePortfolios-${state.id}`,
         JSON.stringify(action.payload || [])
       );
     },
@@ -107,6 +119,7 @@ export const {
   changeLoading,
   updateFavorites,
   updateLikes,
+  updateDislikes,
 } = authSlice.actions;
 export const authReducer = authSlice.reducer;
 export const currentAuth = (state: { auth: IAuth }) => state.auth;
