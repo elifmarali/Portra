@@ -81,14 +81,8 @@ function Navbar() {
               <Button
                 variant="outlined"
                 sx={{
-                  color:
-                    theme === "dark"
-                      ? colorOptions[color].dark
-                      : colorOptions[color].light,
-                  background:
-                    theme === "dark"
-                      ? colorOptions[color].light
-                      : colorOptions[color].dark,
+                  color: "#fff",
+                  background: colorOptions[color].dark,
                   border: "none",
                 }}
                 onClick={() => {

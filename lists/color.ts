@@ -1,43 +1,47 @@
 export const colorOptions: { [key: string]: { light: string; dark: string } } =
   {
-    red: {
-      light: "#FAD4D4",  // pastel kırmızı (açık)
-      dark: "#E53935",   // canlı kırmızı (koyu)
-    },
     orange: {
-      light: "#FFE0C2",  // soft portakal
-      dark: "#FB8C00",   // güçlü turuncu
+      light: "#FFCF9D", // soft portakal
+      dark: "#FFB26F", // güçlü turuncu
     },
     yellow: {
-      light: "#FFF9C4",  // pastel sarı
-      dark: "#FBC02D",   // zengin sarı
+      light: "#FFF6E3", // pastel sarı
+      dark: "#F6F193", // zengin sarı
+    },
+    darkGreen: {
+      light: "#B6CEB4", // koyu yeşil
+      dark: "#5D866C",
     },
     green: {
-      light: "#D2F2D2",  // açık nane yeşili
-      dark: "#43A047",   // canlı yeşil
+      light: "#C0C78C", // açık nane yeşili
+      dark: "#A6B37D", // canlı yeşil
     },
-    mint: {
-      light: "#C8F4EC",  // açık mint
-      dark: "#26A69A",   // doygun mint
+    darkBlue: {
+      light: "#98A1BC", // açık mint
+      dark: "#555879", // doygun mint
     },
     aqua: {
-      light: "#D1F0FA",  // buz mavisi
-      dark: "#039BE5",   // canlı aqua
+      light: "#BDCDD6", // buz mavisi
+      dark: "#6096B4", // canlı aqua
     },
     blue: {
-      light: "#D6E4FF",  // açık bebek mavisi
-      dark: "#1E88E5",   // doygun mavi
+      light: "#C4D7E0", // açık bebek mavisi
+      dark: "#6E85B7", // doygun mavi
     },
     lavander: {
-      light: "#EADCF8",  // soft lila
-      dark: "#8E24AA",   // canlı mor/lavanta
+      light: "#DFCCFB", // soft lila
+      dark: "#BFA2DB", // canlı mor/lavanta
+    },
+    newColor: {
+      light: "#EF88AD", // mürdüm
+      dark: "#A53860",
     },
     pink: {
-      light: "#FBD3E9",  // pastel pembe
-      dark: "#D81B60",   // çarpıcı pembe
+      light: "#F7A8C4", // pastel pembe
+      dark: "#E53888", // çarpıcı pembe
     },
     mediumGray: {
-      light: "#F0F0F0",  // soft açık gri
-      dark: "#616161",   // nötr koyu gri
+      light: "#C5C7BC", // soft açık gri
+      dark: "#B6AE9F", // nötr koyu gri
     },
   };

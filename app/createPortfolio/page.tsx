@@ -226,7 +226,7 @@ function CreatePortfolio({ stepParam }: Props) {
             onSubmit={async (values) => {
               // console.log("Form Submit:", values);
               try {
-                await axios.post("/api/portfolioList", values);
+                await axios.post("/api/portfolio/portfolioList", values);
                 if (typeof window !== "undefined") {
                   sessionStorage.removeItem(`portfolioForm-${formId}`);
                   sessionStorage.removeItem("portfolioFormId");

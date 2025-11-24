@@ -3,7 +3,7 @@ import { currentFont } from "@/lib/fonts";
 import { Grid, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdCreateNewFolder } from "react-icons/md";
 import { IoIosCreate } from "react-icons/io";
@@ -30,16 +30,11 @@ function PortfolioItem({
 }) {
   const color = useSelector(selectColor);
   const auth = useSelector(currentAuth);
-  const [isFavorite, setIsFavorite] = useState<boolean>(
-    auth?.myFavoritePortfolios?.some((item) => Number(item) === portfolio.id) ??
-      false
+  const [isFavorite, setIsFavorite] = useState<boolean>(auth?.myFavoritePortfolios ? auth?.myFavoritePortfolios?.includes((item:any) => Number(item) === portfolio.id) : false);
+  const [isLike, setIsLike] = useState<boolean>(auth?.likePortfolios?.includes((item:any) => Number(item) === portfolio.id) ?? false
   );
-  const [isLike, setIsLike] = useState<boolean>(
-    auth?.likePortfolios?.some((item) => Number(item) === portfolio.id) ?? false
-  );
-  const [isDislike, setIsDislike] = useState<boolean>(
-    auth?.dislikePortfolios?.some((item) => Number(item) === portfolio.id) ??
-      false
+  const [isDislike, setIsDislike] = useState<boolean>(auth?.dislikePortfolios?.includes((item:any) => Number(item) === portfolio.id) ??
+    false
   );
   const [loading, setLoading] = useState(false);
   const [likeCount, setLikeCount] = useState(portfolio.likes);
@@ -100,6 +95,14 @@ function PortfolioItem({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log("isFavorite : ", isFavorite);
+    console.log("auth?.myFavoritePortfolios : ", auth?.myFavoritePortfolios);
+    console.log("auth.likePortfolios : ", auth.likePortfolios);
+    console.log("auth.dislikePortfolios : ", auth.dislikePortfolios);
+  }, [isFavorite, auth?.myFavoritePortfolios, auth.likePortfolios, auth.dislikePortfolios])
+
 
   // Toggle Like
   const toggleLike = async () => {

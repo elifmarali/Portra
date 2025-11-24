@@ -58,7 +58,7 @@ function MyPortfolioList() {
   const getPortfolios = async (auth: IAuth) => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/portfolioList", {
+      const res = await axios.get("/api/portfolio/portfolioList", {
         params: { email: auth.email },
       });
       if (res.status === 200) {
@@ -88,8 +88,8 @@ function MyPortfolioList() {
       container
       size={10}
       style={{
-        backgroundColor: theme === "dark" ? "#000" : colorOptions[color].dark,
-        color: "#fff",
+        backgroundColor: theme === "dark" ? "#000" : colorOptions[color].light,
+        color:theme === "dark" ? "#fff" : "#222",
         height: "100%",
         padding: "10px",
         display: "flex",

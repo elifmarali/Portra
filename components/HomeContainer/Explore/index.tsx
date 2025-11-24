@@ -30,7 +30,7 @@ function Explore() {
   const getFavoritePortfolios = async () => {
     try {
       setLoading(true);
-      const resFavorite = await axios.get("/api/favoritePortfolioList");
+      const resFavorite = await axios.get("/api/portfolio/explorePortfolioList");
       const { success, data } = resFavorite.data;
       if (success) setFavoritePortfolios(data);
       else setFavoritePortfolios([]);
@@ -58,7 +58,7 @@ function Explore() {
 
   // Otomatik kaydırma (3 saniyede bir)
   useEffect(() => {
-    if (favoritePortfolios.length === 0) return;
+    if (favoritePortfolios.length === 0 && favoritePortfolios.length > visibleCount) return;
     const interval = setInterval(() => {
       handleNext();
     }, 3000);
@@ -69,17 +69,11 @@ function Explore() {
   const total = favoritePortfolios.length;
   let visibleItems: ICreatePortfolio[] = [];
 
-  if (total > 0) {
+  if (total > 0 && total > visibleCount) {
     visibleItems = favoritePortfolios.slice(
       startIndex,
       startIndex + visibleCount
     );
-    if (visibleItems.length < visibleCount) {
-      visibleItems = [
-        ...visibleItems,
-        ...favoritePortfolios.slice(0, visibleCount - visibleItems.length),
-      ];
-    }
   }
 
   return (
@@ -97,42 +91,65 @@ function Explore() {
         <Typography className="text-center my-5">Yükleniyor...</Typography>
       ) : total > 0 ? (
         <div className="relative flex items-center my-5">
-          {/* Sol ok */}
-          <IconButton
-            onClick={handlePrev}
-            style={{
-              backgroundColor:
-                theme === "dark" ? "#fff" : colorOptions[color].dark,
-            }}
-            className="absolute left-0 z-10 bg-white/70 hover:bg-white shadow-md"
-          >
-            <ChevronLeft
-              style={{ color: theme === "dark" ? "#000" : "#fff" }}
-            />
-          </IconButton>
+          {/* Sol Ok */}
+          {
+            favoritePortfolios.length > visibleCount && (
+              <IconButton
+                onClick={handlePrev}
+                style={{
+                  backgroundColor:
+                    theme === "dark" ? "#fff" : colorOptions[color].dark,
+                }}
+                className="absolute left-0 z-10 bg-white/70 hover:bg-white shadow-md"
+              >
+                <ChevronLeft
+                  style={{ color: theme === "dark" ? "#000" : "#fff" }}
+                />
+              </IconButton>
+            )
+          }
+
 
           {/* İçerik alanı */}
-          <div className="grid grid-cols-4 gap-6 w-full mx-12">
-            {visibleItems.map((portfolioItem, index) => (
-              <div key={index} className="transition-all duration-300">
-                <PortfolioItem portfolio={portfolioItem} size="small" />
-              </div>
-            ))}
-          </div>
+          {(total > visibleCount && total > 0) && (
+            <div className="grid grid-cols-3 gap-6 w-full mx-12">
+              {
+                visibleItems.map((portfolioItem, index) => (
+                  <div key={index} className="transition-all duration-300">
+                    <PortfolioItem portfolio={portfolioItem} size="small" />
+                  </div>
+                ))
+              }
+            </div>
+          )
+          }
 
-          {/* Sağ ok */}
-          <IconButton
-            onClick={handleNext}
-            style={{
-              backgroundColor:
-                theme === "dark" ? "#fff" : colorOptions[color].dark,
-            }}
-            className="absolute right-0 z-10 bg-white/70 hover:bg-white shadow-md"
-          >
-            <ChevronRight
-              style={{ color: theme === "dark" ? "#000" : "#fff" }}
-            />
-          </IconButton>
+          {/* İçerik alanı */}
+          {!(total > visibleCount && total > 0) && (
+            <div className="grid grid-cols-3 gap-6 w-full">
+              {favoritePortfolios.map((portfolioItem, index) => (
+                <PortfolioItem portfolio={portfolioItem} size="large" key={index}/>
+              ))}
+            </div>
+          )
+          }
+
+          {/* Sağ Ok */}
+          {
+            favoritePortfolios.length > visibleCount && (
+              <IconButton
+                onClick={handleNext}
+                style={{
+                  backgroundColor:
+                    theme === "dark" ? "#fff" : colorOptions[color].dark,
+                }}
+                className="absolute right-0 z-10 bg-white/70 hover:bg-white shadow-md"
+              >
+                <ChevronRight
+                  style={{ color: theme === "dark" ? "#000" : "#fff" }}
+                />
+              </IconButton>
+            )}
         </div>
       ) : (
         <Typography className="text-center">

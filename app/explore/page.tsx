@@ -25,7 +25,7 @@ function Explore() {
   // Get Favorite Portoflios
   const getFavoritePortfolios = async () => {
     setLoading(true);
-    const resFavorite = await axios.get("/api/favoritePortfolioList");
+    const resFavorite = await axios.get("/api/portfolio/explorePortfolioList");
     const { success, data } = resFavorite.data;
     if (success) {
       setFavoritePortfolios(data);

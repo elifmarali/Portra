@@ -82,6 +82,9 @@ function RegisterComponent() {
       email: "",
       password: "",
       confirmPassword: "",
+      myFavoritePortfolios: [],
+      likePortfolios: [],
+      dislikePortfolios: [],
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { resetForm }) => {
@@ -97,9 +100,9 @@ function RegisterComponent() {
             username: values.username,
             password: values.password,
             role: "user",
-            myFavoritePortfolios: [],
-            likePortfolios: [],
-            dislikePortfolios: [],
+            myFavoritePortfolios: values.myFavoritePortfolios,
+            likePortfolios: values.likePortfolios,
+            dislikePortfolios: values.dislikePortfolios,
           },
           {
             headers: { "Content-Type": "application/json" },

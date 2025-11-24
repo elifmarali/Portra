@@ -12,6 +12,7 @@ export async function POST(req: Request) {
 
     const hashPass = await hashedPassword(body.password);
     const existingUser = await Users.findOne({ email: body.email });
+    console.log("existingUser : ", existingUser);
 
     if (!existingUser) {
       return new Response(
@@ -35,13 +36,16 @@ export async function POST(req: Request) {
     const secret = process.env.JWT_SECRET_KEY;
 
     const token = await new SignJWT({
-      id:existingUser.id,
+      id: existingUser.id,
       name: existingUser.name,
       surname: existingUser.surname,
       username: existingUser.username,
       email: existingUser.email,
       password: hashPass, // mevcut yapıyı bozmadık
       role: existingUser.role,
+      myFavoritePortfolios: JSON.stringify(existingUser.myFavoritePortfolios),
+      likePortfolios: JSON.stringify(existingUser.likePortfolios),
+      dislikePortfolios: JSON.stringify(existingUser.dislikePortfolios),
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
@@ -60,12 +64,7 @@ export async function POST(req: Request) {
       status: 200,
     });
   } catch (err) {
-    const errorMessage = Array.isArray(err)
-      ? JSON.stringify(err)
-      : err instanceof Error
-        ? err.message
-        : String(err);
-    console.error("Error [Auth/Login/POST] : ", errorMessage);
+    console.error("Error [Auth/Login/POST] : ", JSON.stringify(err));
 
     return new Response(
       JSON.stringify({ success: false, message: "Error [Auth/Login/POST]" }),
