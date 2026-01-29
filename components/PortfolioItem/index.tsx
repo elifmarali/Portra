@@ -30,17 +30,44 @@ function PortfolioItem({
 }) {
   const color = useSelector(selectColor);
   const auth = useSelector(currentAuth);
-  const [isFavorite, setIsFavorite] = useState<boolean>(auth?.myFavoritePortfolios ? auth?.myFavoritePortfolios?.includes((item:any) => Number(item) === portfolio.id) : false);
-  const [isLike, setIsLike] = useState<boolean>(auth?.likePortfolios?.includes((item:any) => Number(item) === portfolio.id) ?? false
+  const portfolioIdStr: string = String(portfolio.id);
+
+  const favoriteIds = (auth?.myFavoritePortfolios ?? []) as string[];
+  const likeIds = (auth?.likePortfolios ?? []) as string[];
+  const dislikeIds = (auth?.dislikePortfolios ?? []) as string[];
+
+  const [isFavorite, setIsFavorite] = useState<boolean>(
+    Array.isArray(favoriteIds) ? favoriteIds.includes(portfolioIdStr) : false
   );
-  const [isDislike, setIsDislike] = useState<boolean>(auth?.dislikePortfolios?.includes((item:any) => Number(item) === portfolio.id) ??
-    false
+
+  const [isLike, setIsLike] = useState<boolean>(
+    Array.isArray(likeIds) ? likeIds.includes(portfolioIdStr) : false
+  );
+
+  const [isDislike, setIsDislike] = useState<boolean>(
+    Array.isArray(dislikeIds) ? dislikeIds.includes(portfolioIdStr) : false
   );
   const [loading, setLoading] = useState(false);
   const [likeCount, setLikeCount] = useState(portfolio.likes);
   const [favoriteCount, setFavoriteCount] = useState(portfolio.favorites);
   const [dislikeCount, setDislikeCount] = useState(portfolio.dislikes);
   const dispatch = useDispatch();
+
+  // Auth listesindeki değişikliklere göre local state’i senkronize et
+  useEffect(() => {
+    const favIds = (auth?.myFavoritePortfolios ?? []) as string[];
+    const lIds = (auth?.likePortfolios ?? []) as string[];
+    const dIds = (auth?.dislikePortfolios ?? []) as string[];
+
+    setIsFavorite(Array.isArray(favIds) ? favIds.includes(portfolioIdStr) : false);
+    setIsLike(Array.isArray(lIds) ? lIds.includes(portfolioIdStr) : false);
+    setIsDislike(Array.isArray(dIds) ? dIds.includes(portfolioIdStr) : false);
+  }, [
+    auth?.myFavoritePortfolios,
+    auth?.likePortfolios,
+    auth?.dislikePortfolios,
+    portfolioIdStr,
+  ]);
 
   // Toggle Favorite
   const toggleFavorite = async () => {
@@ -50,11 +77,13 @@ function PortfolioItem({
       setLoading(true);
       const portfolioIdStr = String(portfolio.id);
 
+      const currentFavorites = (auth.myFavoritePortfolios ?? []) as string[];
+
       let updated: string[];
-      if (auth.myFavoritePortfolios.includes(portfolioIdStr)) {
-        updated = auth.myFavoritePortfolios.filter((p) => p !== portfolioIdStr);
+      if (currentFavorites.includes(portfolioIdStr)) {
+        updated = currentFavorites.filter((p) => p !== portfolioIdStr);
       } else {
-        updated = [...auth.myFavoritePortfolios, portfolioIdStr];
+        updated = [...currentFavorites, portfolioIdStr];
       }
 
       setIsFavorite(updated.includes(portfolioIdStr));

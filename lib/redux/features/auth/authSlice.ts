@@ -68,14 +68,12 @@ export const authSlice = createSlice({
     changeLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    updateFavorites: (state, action: PayloadAction<string[]>) => {
-      state.myFavoritePortfolios =
-        action.payload !== undefined || action.payload !== null
-          ? action.payload
-          : [];
+    updateFavorites: (state, action: PayloadAction<string[] | null | undefined>) => {
+      const value = Array.isArray(action.payload) ? action.payload : [];
+      state.myFavoritePortfolios = value;
       sessionStorage.setItem(
         `favoritePortfolios-${state.id}`,
-        JSON.stringify(action.payload)
+        JSON.stringify(value)
       );
     },
     updateLikes: (state, action: PayloadAction<string[]>) => {

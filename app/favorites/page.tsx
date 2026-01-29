@@ -16,25 +16,67 @@ function Favorites() {
     const color = useSelector(selectColor);
     const auth = useSelector(currentAuth);
     const [loading, setLoading] = useState(false);
-    const [myFavoritesPortoflios,setMyFavoritesPortfolios] = useState([]);
+    const [myFavoritesPortoflios, setMyFavoritesPortfolios] = useState<ICreatePortfolio[]>([]);
 
     useEffect(() => {
-        console.log("auth : ", auth);
-        
-        if (auth.email && auth.myFavoritePortfolios) {
+        if (auth.email) {
             getFavorites();
         }
-    }, [auth])
+    }, [auth.email, auth.myFavoritePortfolios]);
 
+    // Favori portfolyoları getir
     const getFavorites = async () => {
-        const response = await axios.get(`/api/getMyFavoritesPortfolios`, {
-            params: {
-                email: auth.email,
-                favoritePortfolios: JSON.stringify(auth.myFavoritePortfolios)
+        try {
+            setLoading(true);
+
+            // Kullanıcının favori id’leri (string[]) → number[]
+            const favoriteIds = ((auth.myFavoritePortfolios ?? []) as string[])
+                .map((id) => Number(id))
+                .filter((id) => !Number.isNaN(id));
+
+            // Kullanıcının kendi portfolyo id’leri
+            const myPortfolioRes = await axios.get("/api/portfolio/portfolioList", {
+                params: { email: auth.email },
+            });
+
+            const myPortfolioIds: number[] = Array.isArray(myPortfolioRes.data?.data)
+                ? myPortfolioRes.data.data
+                      .map((p: ICreatePortfolio) => p.id)
+                      .filter((id: any) => typeof id === "number")
+                : [];
+
+            const favoriteIdsParam = favoriteIds.join(",");
+            const myPortfolioIdsParam = myPortfolioIds.join(",");
+
+            if (!favoriteIdsParam && !myPortfolioIdsParam) {
+                setMyFavoritesPortfolios([]);
+                return;
             }
-        });
-        console.log("response:", response.data);
-    }
+
+            const res = await axios.get(
+                `/api/portfolio/favoritePortfolioList`,
+                {
+                    params: {
+                        favoriteIds: favoriteIdsParam,
+                        myPortfolioIds: myPortfolioIdsParam,
+                    },
+                }
+            );
+
+            const { success, data } = res.data;
+
+            if (success && Array.isArray(data)) {
+                setMyFavoritesPortfolios(data);
+            } else {
+                setMyFavoritesPortfolios([]);
+            }
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+            setMyFavoritesPortfolios([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <Grid
@@ -51,7 +93,7 @@ function Favorites() {
                 minHeight: "calc(100vh - 7rem)",
             }}
         >
-              {loading ? (
+            {loading ? (
                 <Typography>Yükleniyor...</Typography>
             ) : myFavoritesPortoflios.length > 0 ? (
                 myFavoritesPortoflios.map(
@@ -69,7 +111,7 @@ function Favorites() {
                     <Link href="/createPortfolio/0">Portfolyo Oluştur</Link> sayfasını
                     ziyaret edin.
                 </Typography>
-            )} 
+            )}
         </Grid>
     )
 }

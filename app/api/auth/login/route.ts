@@ -43,9 +43,9 @@ export async function POST(req: Request) {
       email: existingUser.email,
       password: hashPass, // mevcut yapıyı bozmadık
       role: existingUser.role,
-      myFavoritePortfolios: JSON.stringify(existingUser.myFavoritePortfolios),
-      likePortfolios: JSON.stringify(existingUser.likePortfolios),
-      dislikePortfolios: JSON.stringify(existingUser.dislikePortfolios),
+      myFavoritePortfolios: existingUser.myFavoritePortfolios,
+      likePortfolios: existingUser.likePortfolios,
+      dislikePortfolios: existingUser.dislikePortfolios,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
@@ -64,10 +64,10 @@ export async function POST(req: Request) {
       status: 200,
     });
   } catch (err) {
-    console.error("Error [Auth/Login/POST] : ", JSON.stringify(err));
+    console.error("Error [Auth/Login/POST] : ", err);
 
     return new Response(
-      JSON.stringify({ success: false, message: "Error [Auth/Login/POST]" }),
+      JSON.stringify({ success: false, message: "Error [Auth/Login/POST] : ", err }),
       { status: 400 }
     );
   }
