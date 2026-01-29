@@ -4,7 +4,7 @@ import PortfolioItem from "@/components/PortfolioItem";
 import { IColor } from "@/lib/redux/interfaces/IColor";
 import { ITheme } from "@/lib/redux/interfaces/ITheme";
 import { colorOptions } from "@/lists/color";
-import { Grid, Typography, IconButton } from "@mui/material";
+import { Typography, IconButton } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import axios from "axios";
 import Link from "next/link";
@@ -16,9 +16,7 @@ function Explore() {
   const theme = useSelector((state: ITheme) => state.theme.theme);
 
   const [loading, setLoading] = useState(false);
-  const [favoritePortfolios, setFavoritePortfolios] = useState<
-    ICreatePortfolio[]
-  >([]);
+  const [favoritePortfolios, setFavoritePortfolios] = useState<ICreatePortfolio[]>([]);
   const [startIndex, setStartIndex] = useState(0);
 
   const visibleCount = 4;
@@ -49,11 +47,7 @@ function Explore() {
 
   const handlePrev = () => {
     if (favoritePortfolios.length === 0) return;
-    setStartIndex((prev) =>
-      prev - visibleCount < 0
-        ? favoritePortfolios.length - visibleCount
-        : prev - visibleCount
-    );
+    setStartIndex((prev) => (prev - visibleCount < 0 ? favoritePortfolios.length - visibleCount : prev - visibleCount));
   };
 
   // Otomatik kaydırma (3 saniyede bir)
@@ -70,10 +64,7 @@ function Explore() {
   let visibleItems: ICreatePortfolio[] = [];
 
   if (total > 0 && total > visibleCount) {
-    visibleItems = favoritePortfolios.slice(
-      startIndex,
-      startIndex + visibleCount
-    );
+    visibleItems = favoritePortfolios.slice(startIndex, startIndex + visibleCount);
   }
 
   return (
@@ -92,73 +83,55 @@ function Explore() {
       ) : total > 0 ? (
         <div className="relative flex items-center my-5">
           {/* Sol Ok */}
-          {
-            favoritePortfolios.length > visibleCount && (
-              <IconButton
-                onClick={handlePrev}
-                style={{
-                  backgroundColor:
-                    theme === "dark" ? "#fff" : colorOptions[color].dark,
-                }}
-                className="absolute left-0 z-10 bg-white/70 hover:bg-white shadow-md"
-              >
-                <ChevronLeft
-                  style={{ color: theme === "dark" ? "#000" : "#fff" }}
-                />
-              </IconButton>
-            )
-          }
-
+          {favoritePortfolios.length > visibleCount && (
+            <IconButton
+              onClick={handlePrev}
+              style={{
+                backgroundColor: theme === "dark" ? "#fff" : colorOptions[color].dark,
+              }}
+              className="absolute left-0 z-10 bg-white/70 hover:bg-white shadow-md"
+            >
+              <ChevronLeft style={{ color: theme === "dark" ? "#000" : "#fff" }} />
+            </IconButton>
+          )}
 
           {/* İçerik alanı */}
-          {(total > visibleCount && total > 0) && (
+          {total > visibleCount && total > 0 && (
             <div className="grid grid-cols-3 gap-6 w-full mx-12">
-              {
-                visibleItems.map((portfolioItem, index) => (
-                  <div key={index} className="transition-all duration-300">
-                    <PortfolioItem portfolio={portfolioItem} size="small" />
-                  </div>
-                ))
-              }
+              {visibleItems.map((portfolioItem, index) => (
+                <div key={index} className="transition-all duration-300">
+                  <PortfolioItem portfolio={portfolioItem} size="small" />
+                </div>
+              ))}
             </div>
-          )
-          }
+          )}
 
           {/* İçerik alanı */}
           {!(total > visibleCount && total > 0) && (
             <div className="grid grid-cols-3 gap-6 w-full">
               {favoritePortfolios.map((portfolioItem, index) => (
-                <PortfolioItem portfolio={portfolioItem} size="large" key={index}/>
+                <PortfolioItem portfolio={portfolioItem} size="large" key={index} />
               ))}
             </div>
-          )
-          }
+          )}
 
           {/* Sağ Ok */}
-          {
-            favoritePortfolios.length > visibleCount && (
-              <IconButton
-                onClick={handleNext}
-                style={{
-                  backgroundColor:
-                    theme === "dark" ? "#fff" : colorOptions[color].dark,
-                }}
-                className="absolute right-0 z-10 bg-white/70 hover:bg-white shadow-md"
-              >
-                <ChevronRight
-                  style={{ color: theme === "dark" ? "#000" : "#fff" }}
-                />
-              </IconButton>
-            )}
+          {favoritePortfolios.length > visibleCount && (
+            <IconButton
+              onClick={handleNext}
+              style={{
+                backgroundColor: theme === "dark" ? "#fff" : colorOptions[color].dark,
+              }}
+              className="absolute right-0 z-10 bg-white/70 hover:bg-white shadow-md"
+            >
+              <ChevronRight style={{ color: theme === "dark" ? "#000" : "#fff" }} />
+            </IconButton>
+          )}
         </div>
       ) : (
         <Typography className="text-center">
           Henüz bir portfolyonuz yok. Yeni bir portfolyo oluşturmak için{" "}
-          <Link
-            href="/createPortfolio/0"
-            className="underline font-bold"
-            style={{ color: colorOptions[color].dark }}
-          >
+          <Link href="/createPortfolio/0" className="underline font-bold" style={{ color: colorOptions[color].dark }}>
             Portfolyo Oluştur
           </Link>{" "}
           sayfasını ziyaret edin.

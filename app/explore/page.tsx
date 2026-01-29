@@ -1,5 +1,4 @@
 "use client";
-import { currentAuth } from "@/lib/redux/features/auth/authSlice";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
@@ -14,7 +13,6 @@ import axios from "axios";
 function Explore() {
   const theme = useSelector(selectTheme);
   const color = useSelector(selectColor);
-  const auth = useSelector(currentAuth);
   const [favoritePortfolios, setFavoritePortfolios] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -53,20 +51,13 @@ function Explore() {
       {loading ? (
         <Typography>Yükleniyor...</Typography>
       ) : favoritePortfolios.length > 0 ? (
-        favoritePortfolios.map(
-          (portfolioItem: ICreatePortfolio, portfolioItemIndex: number) => (
-            <PortfolioItem
-              portfolio={portfolioItem}
-              size="large"
-              key={portfolioItemIndex}
-            />
-          )
-        )
+        favoritePortfolios.map((portfolioItem: ICreatePortfolio, portfolioItemIndex: number) => (
+          <PortfolioItem portfolio={portfolioItem} size="large" key={portfolioItemIndex} />
+        ))
       ) : (
         <Typography>
           Henüz bir portfolyonuz yok. Yeni bir portfolyo oluşturmak için{" "}
-          <Link href="/createPortfolio/0">Portfolyo Oluştur</Link> sayfasını
-          ziyaret edin.
+          <Link href="/createPortfolio/0">Portfolyo Oluştur</Link> sayfasını ziyaret edin.
         </Typography>
       )}
     </Grid>

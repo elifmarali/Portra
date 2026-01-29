@@ -8,12 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MdCreateNewFolder } from "react-icons/md";
 import { IoIosCreate } from "react-icons/io";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import {
-  currentAuth,
-  updateDislikes,
-  updateFavorites,
-  updateLikes,
-} from "@/lib/redux/features/auth/authSlice";
+import { currentAuth, updateDislikes, updateFavorites, updateLikes } from "@/lib/redux/features/auth/authSlice";
 import axios from "axios";
 import { ICreatePortfolio } from "@/app/createPortfolio/IProps";
 import Loading from "../Loading";
@@ -21,13 +16,7 @@ import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { colorOptions } from "@/lists/color";
 
-function PortfolioItem({
-  portfolio,
-  size,
-}: {
-  portfolio: ICreatePortfolio;
-  size: string;
-}) {
+function PortfolioItem({ portfolio, size }: { portfolio: ICreatePortfolio; size: string }) {
   const color = useSelector(selectColor);
   const auth = useSelector(currentAuth);
   const portfolioIdStr: string = String(portfolio.id);
@@ -40,9 +29,7 @@ function PortfolioItem({
     Array.isArray(favoriteIds) ? favoriteIds.includes(portfolioIdStr) : false
   );
 
-  const [isLike, setIsLike] = useState<boolean>(
-    Array.isArray(likeIds) ? likeIds.includes(portfolioIdStr) : false
-  );
+  const [isLike, setIsLike] = useState<boolean>(Array.isArray(likeIds) ? likeIds.includes(portfolioIdStr) : false);
 
   const [isDislike, setIsDislike] = useState<boolean>(
     Array.isArray(dislikeIds) ? dislikeIds.includes(portfolioIdStr) : false
@@ -62,12 +49,7 @@ function PortfolioItem({
     setIsFavorite(Array.isArray(favIds) ? favIds.includes(portfolioIdStr) : false);
     setIsLike(Array.isArray(lIds) ? lIds.includes(portfolioIdStr) : false);
     setIsDislike(Array.isArray(dIds) ? dIds.includes(portfolioIdStr) : false);
-  }, [
-    auth?.myFavoritePortfolios,
-    auth?.likePortfolios,
-    auth?.dislikePortfolios,
-    portfolioIdStr,
-  ]);
+  }, [auth?.myFavoritePortfolios, auth?.likePortfolios, auth?.dislikePortfolios, portfolioIdStr]);
 
   // Toggle Favorite
   const toggleFavorite = async () => {
@@ -98,20 +80,15 @@ function PortfolioItem({
         console.error("Favorite update failed!");
       }
 
-      const resFavoriteCounter = await axios.post(
-        "/api/portfolio/likeAndDislikeUpdated",
-        {
-          portfolioId: portfolio.id,
-          action: "favorites",
-          mode: isFavorite ? "decrement" : "increment",
-        }
-      );
+      const resFavoriteCounter = await axios.post("/api/portfolio/likeAndDislikeUpdated", {
+        portfolioId: portfolio.id,
+        action: "favorites",
+        mode: isFavorite ? "decrement" : "increment",
+      });
       const { favorites } = resFavoriteCounter.data.data;
       setFavoriteCount(favorites);
 
-      const resFavoritePortfolios = await axios.get(
-        `/api/user/getMyFavoritePortfolios?email=${auth.email}`
-      );
+      const resFavoritePortfolios = await axios.get(`/api/user/getMyFavoritePortfolios?email=${auth.email}`);
       const { success, myFavoritePortfolios } = resFavoritePortfolios.data;
 
       if (success) {
@@ -130,8 +107,7 @@ function PortfolioItem({
     console.log("auth?.myFavoritePortfolios : ", auth?.myFavoritePortfolios);
     console.log("auth.likePortfolios : ", auth.likePortfolios);
     console.log("auth.dislikePortfolios : ", auth.dislikePortfolios);
-  }, [isFavorite, auth?.myFavoritePortfolios, auth.likePortfolios, auth.dislikePortfolios])
-
+  }, [isFavorite, auth?.myFavoritePortfolios, auth.likePortfolios, auth.dislikePortfolios]);
 
   // Toggle Like
   const toggleLike = async () => {
@@ -141,9 +117,7 @@ function PortfolioItem({
       setLoading(true);
 
       // 1️⃣ Kullanıcının güncel like listesi API'den alınıyor
-      const resGetLikes = await axios.get(
-        `/api/user/getLikePortfolios?email=${auth.email}`
-      );
+      const resGetLikes = await axios.get(`/api/user/getLikePortfolios?email=${auth.email}`);
       const { success: successGet, likePortfolios } = resGetLikes.data;
 
       if (!successGet) {
@@ -158,7 +132,7 @@ function PortfolioItem({
       let newLikes: string[] = likePortfolios || [];
 
       if (newLikes.includes(portfolioIdStr)) {
-        newLikes = newLikes.filter((p: any) => p !== portfolioIdStr);
+        newLikes = newLikes.filter((p: string) => p !== portfolioIdStr);
       } else {
         newLikes = [...newLikes, portfolioIdStr];
       }
@@ -177,23 +151,17 @@ function PortfolioItem({
         console.error("LikePortfolios update failed!");
       }
 
-      const resLikePortfolios = await axios.post(
-        "/api/portfolio/likeAndDislikeUpdated",
-        {
-          portfolioId: portfolio.id,
-          action: "likes",
-          mode: isLike ? "decrement" : "increment",
-        }
-      );
+      const resLikePortfolios = await axios.post("/api/portfolio/likeAndDislikeUpdated", {
+        portfolioId: portfolio.id,
+        action: "likes",
+        mode: isLike ? "decrement" : "increment",
+      });
       const { likes } = resLikePortfolios.data.data;
       setLikeCount(likes);
 
       // 5️⃣ Güncel listeyi tekrar al ve redux'a dispatch et
-      const resUpdated = await axios.get(
-        `/api/user/getLikePortfolios?email=${auth.email}`
-      );
-      const { success: successUpdated, likePortfolios: updatedList } =
-        resUpdated.data;
+      const resUpdated = await axios.get(`/api/user/getLikePortfolios?email=${auth.email}`);
+      const { success: successUpdated, likePortfolios: updatedList } = resUpdated.data;
 
       if (successUpdated) {
         dispatch(updateLikes(updatedList));
@@ -212,9 +180,7 @@ function PortfolioItem({
     try {
       setLoading(true);
 
-      const resGetDislikes = await axios.get(
-        `/api/user/getDislikePortfolios?email=${auth.email}`
-      );
+      const resGetDislikes = await axios.get(`/api/user/getDislikePortfolios?email=${auth.email}`);
       const { success: successGet, dislikePortfolios } = resGetDislikes.data;
 
       if (!successGet) {
@@ -245,22 +211,16 @@ function PortfolioItem({
         console.error("DislikePortfolios update failed!");
       }
 
-      const resDislikePortfolios = await axios.post(
-        "/api/portfolio/likeAndDislikeUpdated",
-        {
-          portfolioId: portfolio.id,
-          action: "dislikes",
-          mode: isDislike ? "decrement" : "increment",
-        }
-      );
+      const resDislikePortfolios = await axios.post("/api/portfolio/likeAndDislikeUpdated", {
+        portfolioId: portfolio.id,
+        action: "dislikes",
+        mode: isDislike ? "decrement" : "increment",
+      });
       const { dislikes } = resDislikePortfolios.data.data;
       setDislikeCount(dislikes);
 
-      const resUpdated = await axios.get(
-        `/api/user/getDislikePortfolios?email=${auth.email}`
-      );
-      const { success: successUpdated, dislikePortfolios: updatedList } =
-        resUpdated.data;
+      const resUpdated = await axios.get(`/api/user/getDislikePortfolios?email=${auth.email}`);
+      const { success: successUpdated, dislikePortfolios: updatedList } = resUpdated.data;
 
       if (successUpdated) {
         dispatch(updateDislikes(updatedList));
@@ -283,13 +243,7 @@ function PortfolioItem({
         <>
           {portfolio.photo?.base64 && (
             <div className="relative w-full h-full">
-              <Image
-                src={portfolio.photo.base64}
-                alt={portfolio.photo.name}
-                fill
-                priority
-                className="object-cover"
-              />
+              <Image src={portfolio.photo.base64} alt={portfolio.photo.name} fill priority className="object-cover" />
             </div>
           )}
 
@@ -338,56 +292,26 @@ function PortfolioItem({
             }}
           >
             <Grid display="flex" alignItems="center" gap={4}>
-              <Grid
-                display="flex"
-                alignItems="center"
-                gap={1}
-                color={"#c4c6c7"}
-                onClick={toggleLike}
-              >
+              <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"} onClick={toggleLike}>
                 <AiFillLike
                   size={20}
-                  color={
-                    isLike
-                      ? colorOptions[color].dark
-                      : colorOptions[color].light
-                  }
+                  color={isLike ? colorOptions[color].dark : colorOptions[color].light}
                   style={{ cursor: "pointer" }}
                 />
                 <Typography variant="h6">{likeCount}</Typography>
               </Grid>
-              <Grid
-                display="flex"
-                alignItems="center"
-                gap={1}
-                color={"#c4c6c7"}
-                onClick={toggleDislike}
-              >
+              <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"} onClick={toggleDislike}>
                 <AiFillDislike
                   size={20}
-                  color={
-                    isDislike
-                      ? colorOptions[color].dark
-                      : colorOptions[color].light
-                  }
+                  color={isDislike ? colorOptions[color].dark : colorOptions[color].light}
                   style={{ cursor: "pointer" }}
                 />
                 <Typography variant="h6">{dislikeCount}</Typography>
               </Grid>
-              <Grid
-                display="flex"
-                alignItems="center"
-                gap={1}
-                color={"#c4c6c7"}
-                onClick={toggleFavorite}
-              >
+              <Grid display="flex" alignItems="center" gap={1} color={"#c4c6c7"} onClick={toggleFavorite}>
                 <FaHeart
                   size={20}
-                  color={
-                    isFavorite
-                      ? colorOptions[color].dark
-                      : colorOptions[color].light
-                  }
+                  color={isFavorite ? colorOptions[color].dark : colorOptions[color].light}
                   style={{ cursor: "pointer" }}
                 />
                 <Typography variant="h6">{favoriteCount}</Typography>

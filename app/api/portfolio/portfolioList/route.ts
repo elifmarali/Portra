@@ -1,7 +1,5 @@
-import { ICreatePortfolio } from "@/app/createPortfolio/IProps";
 import { initMongoose } from "@/lib/mongoose/mongoose";
 import PortfolioList from "@/models/PortfolioList";
-import { error } from "console";
 
 export async function POST(req: Request) {
   await initMongoose();
@@ -15,17 +13,11 @@ export async function POST(req: Request) {
       status: 201,
     });
   } catch (err) {
-    console.error(
-      "ERR [PortfolioList/POST]:",
-      err instanceof Error ? err.message : err
-    );
+    console.error("ERR [PortfolioList/POST]:", err instanceof Error ? err.message : err);
 
-    return new Response(
-      JSON.stringify({ success: false, message: "ERR [PortfolioList/POST]" }),
-      {
-        status: 400,
-      }
-    );
+    return new Response(JSON.stringify({ success: false, message: "ERR [PortfolioList/POST]" }), {
+      status: 400,
+    });
   }
 }
 
@@ -49,22 +41,13 @@ export async function GET(req: Request) {
     }
 
     const myPortfolioList = await PortfolioList.find({ "author.email": email });
-    return new Response(
-      JSON.stringify({ success: true, data: myPortfolioList }),
-      {
-        status: 200,
-      }
-    );
+    return new Response(JSON.stringify({ success: true, data: myPortfolioList }), {
+      status: 200,
+    });
   } catch (err) {
-    console.error(
-      "ERR [PortfolioList/GET] : ",
-      err instanceof Error ? err.message : err
-    );
-    return new Response(
-      JSON.stringify({ succcess: false, message: "ERR [PortfolioList/GET]" }),
-      {
-        status: 500,
-      }
-    );
+    console.error("ERR [PortfolioList/GET] : ", err instanceof Error ? err.message : err);
+    return new Response(JSON.stringify({ succcess: false, message: "ERR [PortfolioList/GET]" }), {
+      status: 500,
+    });
   }
 }

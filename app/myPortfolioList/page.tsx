@@ -1,11 +1,6 @@
 "use client";
 import PortfolioItem from "@/components/PortfolioItem";
-import {
-  currentAuth,
-  IAuth,
-  updateFavorites,
-  updateLikes,
-} from "@/lib/redux/features/auth/authSlice";
+import { currentAuth, IAuth, updateFavorites, updateLikes } from "@/lib/redux/features/auth/authSlice";
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
@@ -28,18 +23,14 @@ function MyPortfolioList() {
     const fetchData = async () => {
       if (auth?.email) {
         try {
-          const resFavoritePortfolios: any = await axios.get(
-            `/api/user/getMyFavoritePortfolios?email=${auth.email}`
-          );
+          const resFavoritePortfolios: any = await axios.get(`/api/user/getMyFavoritePortfolios?email=${auth.email}`); // eslint-disable-line @typescript-eslint/no-explicit-any
           const { success, myFavoritePortfolios } = resFavoritePortfolios.data;
 
           if (success) {
             dispatch(updateFavorites(myFavoritePortfolios));
           }
 
-          const resLikePortfolios = await axios.get(
-            `/api/user/getLikePortfolios?email=${auth.email}`
-          );
+          const resLikePortfolios = await axios.get(`/api/user/getLikePortfolios?email=${auth.email}`);
 
           if (resLikePortfolios.data.success) {
             dispatch(updateLikes(resLikePortfolios.data.likePortfolios));
@@ -65,19 +56,14 @@ function MyPortfolioList() {
         setPortfolioList(res.data.data);
       }
     } catch (err) {
-      console.error(
-        "ERR [PORTFOLİOS] Portfolyolar alınırken hata oluştu : ",
-        err
-      );
+      console.error("ERR [PORTFOLİOS] Portfolyolar alınırken hata oluştu : ", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const storedFavorites = sessionStorage.getItem(
-      `favoritePortfolios-${auth.id}`
-    );
+    const storedFavorites = sessionStorage.getItem(`favoritePortfolios-${auth.id}`);
     if (storedFavorites) {
       dispatch(updateFavorites(JSON.parse(storedFavorites))); // string → string[]
     }
@@ -89,7 +75,7 @@ function MyPortfolioList() {
       size={10}
       style={{
         backgroundColor: theme === "dark" ? "#000" : colorOptions[color].light,
-        color:theme === "dark" ? "#fff" : "#222",
+        color: theme === "dark" ? "#fff" : "#222",
         height: "100%",
         padding: "10px",
         display: "flex",
@@ -101,20 +87,13 @@ function MyPortfolioList() {
       {loading ? (
         <Typography>Yükleniyor...</Typography>
       ) : portfolioList.length > 0 ? (
-        portfolioList.map(
-          (portfolioItem: ICreatePortfolio, portfolioItemIndex: number) => (
-            <PortfolioItem
-              portfolio={portfolioItem}
-              size="large"
-              key={portfolioItemIndex}
-            />
-          )
-        )
+        portfolioList.map((portfolioItem: ICreatePortfolio, portfolioItemIndex: number) => (
+          <PortfolioItem portfolio={portfolioItem} size="large" key={portfolioItemIndex} />
+        ))
       ) : (
         <Typography>
           Henüz bir portfolyonuz yok. Yeni bir portfolyo oluşturmak için{" "}
-          <Link href="/createPortfolio/0">Portfolyo Oluştur</Link> sayfasını
-          ziyaret edin.
+          <Link href="/createPortfolio/0">Portfolyo Oluştur</Link> sayfasını ziyaret edin.
         </Typography>
       )}
     </Grid>

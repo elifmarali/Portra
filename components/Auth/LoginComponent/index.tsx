@@ -3,15 +3,7 @@ import { loadTokenFromCookies } from "@/lib/redux/features/auth/loadTokenFromCoo
 import { selectColor } from "@/lib/redux/features/color/colorSlice";
 import { selectTheme } from "@/lib/redux/features/theme/themeSlice";
 import { colorOptions } from "@/lists/color";
-import {
-  Button,
-  FormControl,
-  Grid,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, FormControl, Grid, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import axios, { AxiosError } from "axios";
 import { useFormik } from "formik";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,19 +13,11 @@ import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
 import LeftImage from "../LeftImage";
 import Link from "next/link";
-import {
-  changeLoading,
-  currentAuth,
-  updateFavorites,
-  updateLikes,
-} from "@/lib/redux/features/auth/authSlice";
+import { changeLoading, currentAuth, updateFavorites, updateLikes } from "@/lib/redux/features/auth/authSlice";
 import Loading from "@/components/Loading";
 
 const validationSchema = yup.object({
-  email: yup
-    .string()
-    .email("Geçerli bir email giriniz")
-    .required("Email zorunludur"),
+  email: yup.string().email("Geçerli bir email giriniz").required("Email zorunludur"),
   password: yup
     .string()
     .min(8, "Şifre minimum 8 karakter uzunlukta olmalıdır")
@@ -49,7 +33,7 @@ function LoginComponent() {
   const dispatch = useDispatch();
   const color = useSelector(selectColor);
   const theme = useSelector(selectTheme);
-  const { loading, email } = useSelector(currentAuth);
+  const { loading } = useSelector(currentAuth);
 
   const formik = useFormik({
     initialValues: {
@@ -76,17 +60,11 @@ function LoginComponent() {
           dispatch(changeLoading(true));
           router.push(nextParams || "/");
           loadTokenFromCookies(dispatch);
-          const resFavoritePortfolios = await axios.get(
-            `api/user/getMyFavoritePortfolios?email=${values.email}`
-          );
+          const resFavoritePortfolios = await axios.get(`api/user/getMyFavoritePortfolios?email=${values.email}`);
           if (resFavoritePortfolios.data.success) {
-            dispatch(
-              updateFavorites(resFavoritePortfolios.data.myFavoritePortfolios)
-            );
+            dispatch(updateFavorites(resFavoritePortfolios.data.myFavoritePortfolios));
           }
-          const resLikePortfolios = await axios.get(
-            `api/user/getLikePortfolios?email=${values.email}`
-          );
+          const resLikePortfolios = await axios.get(`api/user/getLikePortfolios?email=${values.email}`);
           if (resLikePortfolios.data.success) {
             dispatch(updateLikes(resLikePortfolios.data.likePortfolios));
           }
@@ -94,10 +72,7 @@ function LoginComponent() {
       } catch (err) {
         dispatch(changeLoading(false));
         const error = err as AxiosError<{ message: string }>;
-        const message: string =
-          error?.response?.data?.message ??
-          error?.message ??
-          "Bilinmeyen bir hata oluştu.";
+        const message: string = error?.response?.data?.message ?? error?.message ?? "Bilinmeyen bir hata oluştu.";
         console.error("Error [LoginComponent] : ", message);
       }
     },
@@ -111,8 +86,7 @@ function LoginComponent() {
         <Grid
           container
           style={{
-            backgroundColor:
-              theme === "dark" ? "#000" : colorOptions[color].light,
+            backgroundColor: theme === "dark" ? "#000" : colorOptions[color].light,
             color: "#fff",
             height: "calc(100vh - 7.5rem)",
             padding: "10px",
@@ -177,9 +151,7 @@ function LoginComponent() {
                       id="email"
                       value={formik.values.email}
                       onChange={formik.handleChange}
-                      error={
-                        formik.touched.email && Boolean(formik.errors.email)
-                      }
+                      error={formik.touched.email && Boolean(formik.errors.email)}
                       helperText={formik.touched.email && formik.errors.email}
                       sx={{
                         "& .MuiInputBase-root": {
@@ -187,10 +159,7 @@ function LoginComponent() {
                         },
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
-                            borderColor:
-                              theme === "dark"
-                                ? colorOptions[color].light
-                                : colorOptions[color].dark, // varsayılan border rengi
+                            borderColor: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark, // varsayılan border rengi
                           },
                           "&:hover fieldset": {
                             borderColor: colorOptions[color].dark, // hover olduğunda
@@ -212,23 +181,15 @@ function LoginComponent() {
                       id="password"
                       value={formik.values.password}
                       onChange={formik.handleChange}
-                      error={
-                        formik.touched.password &&
-                        Boolean(formik.errors.password)
-                      }
-                      helperText={
-                        formik.touched.password && formik.errors.password
-                      }
+                      error={formik.touched.password && Boolean(formik.errors.password)}
+                      helperText={formik.touched.password && formik.errors.password}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: theme === "dark" ? "#fff" : "#303030",
                         },
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
-                            borderColor:
-                              theme === "dark"
-                                ? colorOptions[color].light
-                                : colorOptions[color].dark, // varsayılan border rengi
+                            borderColor: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark, // varsayılan border rengi
                           },
                           "&:hover fieldset": {
                             borderColor: colorOptions[color].dark, // hover olduğunda
@@ -241,19 +202,11 @@ function LoginComponent() {
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            <IconButton
-                              onClick={() => setShowPass(!showPass)}
-                              edge="end"
-                              size="small"
-                            >
+                            <IconButton onClick={() => setShowPass(!showPass)} edge="end" size="small">
                               {showPass ? (
-                                <BiSolidHide
-                                  color={theme === "dark" ? "#fff" : "#000"}
-                                />
+                                <BiSolidHide color={theme === "dark" ? "#fff" : "#000"} />
                               ) : (
-                                <BiSolidShow
-                                  color={theme === "dark" ? "#fff" : "#000"}
-                                />
+                                <BiSolidShow color={theme === "dark" ? "#fff" : "#000"} />
                               )}
                             </IconButton>
                           </InputAdornment>
@@ -268,14 +221,8 @@ function LoginComponent() {
                       sx={{
                         fontSize: "16px",
                         fontWeight: "600",
-                        background:
-                          theme === "dark"
-                            ? colorOptions[color].light
-                            : colorOptions[color].dark,
-                        color:
-                          theme === "dark"
-                            ? colorOptions[color].dark
-                            : colorOptions[color].light,
+                        background: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark,
+                        color: theme === "dark" ? colorOptions[color].dark : colorOptions[color].light,
                         padding: "6px",
                         ":hover": {
                           background: colorOptions[color].dark,
@@ -290,11 +237,7 @@ function LoginComponent() {
               </Grid>
             </Grid>
             <Grid>
-              <Typography
-                variant="body1"
-                fontSize={14}
-                className="transition-all ease-linear duration-300"
-              >
+              <Typography variant="body1" fontSize={14} className="transition-all ease-linear duration-300">
                 Bir hesabın yok mu?
                 <Link
                   href="/register"

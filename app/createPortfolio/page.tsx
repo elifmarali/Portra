@@ -30,11 +30,7 @@ import { createPortfolioValidation } from "@/validation/createPortfolioValidatio
 import { useRouter } from "next/navigation";
 import Step7 from "@/components/Steps/Step7";
 
-function FormikWatcher({
-  setFormData,
-}: {
-  setFormData: React.Dispatch<React.SetStateAction<ICreatePortfolio>>;
-}) {
+function FormikWatcher({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<ICreatePortfolio>> }) {
   const { values } = useFormikContext<ICreatePortfolio>();
   useEffect(() => {
     setFormData((prev) => (!isEqual(prev, values) ? values : prev));
@@ -125,19 +121,18 @@ function CreatePortfolio({ stepParam }: Props) {
 
   useEffect(() => {
     if (formId && formData) {
-      sessionStorage.setItem(
-        `portfolioForm-${formId}`,
-        JSON.stringify(formData)
-      );
+      sessionStorage.setItem(`portfolioForm-${formId}`, JSON.stringify(formData));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formId, formData]);
 
   useEffect(() => {
     if (!formData) return;
     setFormData(
-      (prev: any) =>
+      (
+        prev: any // eslint-disable-line @typescript-eslint/no-explicit-any
+      ) =>
         prev && {
-          // eslint-disable-line @typescript-eslint/no-explicit-any
           ...prev,
           author: {
             name: auth.name,
@@ -182,14 +177,11 @@ function CreatePortfolio({ stepParam }: Props) {
         setSuccessPortfolio(false);
       }, 3000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [successPortfolio]);
 
   if (!formData || !initialValues) {
-    return (
-      <Typography sx={{ color: "#fff", textAlign: "center", mt: 10 }}>
-        Yükleniyor...
-      </Typography>
-    );
+    return <Typography sx={{ color: "#fff", textAlign: "center", mt: 10 }}>Yükleniyor...</Typography>;
   }
 
   return (
@@ -208,10 +200,7 @@ function CreatePortfolio({ stepParam }: Props) {
             sx={{
               fontWeight: "600",
               textAlign: "center",
-              color:
-                theme === "dark"
-                  ? colorOptions[color].light
-                  : colorOptions[color].dark,
+              color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark,
             }}
           >
             Portfolyo Oluştur
@@ -221,7 +210,7 @@ function CreatePortfolio({ stepParam }: Props) {
           <Formik
             initialValues={formData}
             enableReinitialize={true}
-            // validationSchema={createPortfolioValidation}
+            validationSchema={createPortfolioValidation}
             validateOnBlur={false}
             onSubmit={async (values) => {
               // console.log("Form Submit:", values);
@@ -238,9 +227,6 @@ function CreatePortfolio({ stepParam }: Props) {
             }}
           >
             {({ errors, setFieldValue }) => {
-              useEffect(() => {
-                // console.log("errors : ", errors);
-              }, [errors]);
               return (
                 <>
                   <FormikWatcher setFormData={setFormData} />
@@ -252,14 +238,10 @@ function CreatePortfolio({ stepParam }: Props) {
                             <Typography
                               variant="h4"
                               sx={{
-                                color:
-                                  theme === "dark"
-                                    ? colorOptions[color].light
-                                    : colorOptions[color].dark,
+                                color: theme === "dark" ? colorOptions[color].light : colorOptions[color].dark,
                               }}
                             >
-                              Profil Fotoğrafı{" "}
-                              <span className="labelRequired">*</span>
+                              Profil Fotoğrafı <span className="labelRequired">*</span>
                             </Typography>
                           </Grid>
 
@@ -288,11 +270,7 @@ function CreatePortfolio({ stepParam }: Props) {
                                 }}
                                 onClick={() => inputRef.current?.click()}
                               >
-                                <Typography
-                                  sx={{ color: "#aaa", textAlign: "center" }}
-                                >
-                                  Fotoğraf yükle
-                                </Typography>
+                                <Typography sx={{ color: "#aaa", textAlign: "center" }}>Fotoğraf yükle</Typography>
                                 <input
                                   ref={inputRef}
                                   type="file"
@@ -302,12 +280,10 @@ function CreatePortfolio({ stepParam }: Props) {
                                     setPhoto(null);
                                     const file = e.currentTarget.files?.[0];
                                     if (file) {
-                                      const extendedFile: IExtendFile =
-                                        Object.assign(file, {
-                                          previewUrl: URL.createObjectURL(file),
-                                        });
-                                      const base64File =
-                                        await convertToBase64(extendedFile);
+                                      const extendedFile: IExtendFile = Object.assign(file, {
+                                        previewUrl: URL.createObjectURL(file),
+                                      });
+                                      const base64File = await convertToBase64(extendedFile);
                                       setFieldValue("photo", {
                                         name: file.name,
                                         base64: base64File,
@@ -325,9 +301,7 @@ function CreatePortfolio({ stepParam }: Props) {
 
                               {typeof errors?.photo === "string" && (
                                 <Box sx={{ mt: 1 }}>
-                                  <Typography sx={{ color: "#d32f2f" }}>
-                                    {errors?.photo}
-                                  </Typography>
+                                  <Typography sx={{ color: "#d32f2f" }}>{errors?.photo}</Typography>
                                 </Box>
                               )}
 
@@ -341,46 +315,32 @@ function CreatePortfolio({ stepParam }: Props) {
                                 >
                                   <Typography
                                     sx={{
-                                      color:
-                                        theme === "dark"
-                                          ? colorOptions[color].light
-                                          : "#000",
+                                      color: theme === "dark" ? colorOptions[color].light : "#000",
                                     }}
                                   >
                                     {photo.name}
                                   </Typography>
                                   <Box className="flex gap-4" sx={{ ml: 2 }}>
-                                    <motion.div
-                                      whileHover={{ scale: 1.05 }}
-                                      whileTap={{ scale: 0.9 }}
-                                    >
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
                                       <Button
                                         variant="contained"
                                         sx={{
-                                          backgroundColor:
-                                            colorOptions[color].dark,
+                                          backgroundColor: colorOptions[color].dark,
                                         }}
-                                        onClick={() =>
-                                          window.open(photo.previewUrl)
-                                        }
+                                        onClick={() => window.open(photo.previewUrl)}
                                       >
                                         <FaEye size={20} />
                                       </Button>
                                     </motion.div>
-                                    <motion.div
-                                      whileHover={{ scale: 1.05 }}
-                                      whileTap={{ scale: 0.9 }}
-                                    >
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
                                       <Button
                                         variant="contained"
                                         sx={{
-                                          backgroundColor:
-                                            colorOptions["red"].dark,
+                                          backgroundColor: colorOptions["red"].dark,
                                         }}
                                         onClick={() => {
                                           setPhoto(null);
-                                          if (inputRef.current)
-                                            inputRef.current.value = "";
+                                          if (inputRef.current) inputRef.current.value = "";
                                         }}
                                       >
                                         <RiDeleteBin2Line size={20} />
@@ -409,10 +369,7 @@ function CreatePortfolio({ stepParam }: Props) {
                     </Grid>
 
                     <Grid size={12} display="flex" justifyContent="center">
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
                         <Button
                           variant="contained"
                           type="submit"
@@ -441,8 +398,7 @@ function CreatePortfolio({ stepParam }: Props) {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: 500,
-            bgcolor:
-              theme === "dark" ? "var(--border-color)" : "var(--color-light)",
+            bgcolor: theme === "dark" ? "var(--border-color)" : "var(--color-light)",
             border: `2px solid var(--color-dark)`,
             boxShadow: 24,
             p: 4,
@@ -453,7 +409,7 @@ function CreatePortfolio({ stepParam }: Props) {
             Portfolyo başarıyla oluşturuldu!
           </Typography>
           <Typography variant="body1" component="h2" sx={{ marginTop: "1rem" }}>
-            3 saniye içinde 'Portfolyolarım' sayfasına yönlendirileceksiniz...
+            3 saniye içinde <b>Portfolyolarım</b> sayfasına yönlendirileceksiniz...
           </Typography>
         </Box>
       </Modal>
